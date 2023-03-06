@@ -1,7 +1,7 @@
 CC := clang
 CFLAGS := -Wall -Wextra -pedantic -std=c17
 
-ccodoc: main.o ccodoc.o time.o
+ccodoc: main.o ccodoc.o time.o view.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 .PHONY: clean

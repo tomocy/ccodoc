@@ -5,56 +5,34 @@
 
 int main()
 {
-    unsigned int elapsed_sec = 0;
+    const int delta_msec = 500;
 
     ccodoc ccodoc = {
         .water_amount = 0,
         .water_capacity = 10,
     };
 
-    for (unsigned int i = 0;; i++) {
-        system("clear");
+    const int pour_water_period_msec = 2000;
+    ticker pour_water_ticker = {
+        .sec = 0,
+        .msec = 0,
+    };
 
-        int water_poured = i % 4;
+    while (1) {
+        float water_spout_ratio = (float)ticker_elapsed_msec(&pour_water_ticker)
+            / pour_water_period_msec;
 
-        for (int j = 0; j < 3; j++) {
-            char* water = (j == water_poured) ? "━" : "═";
-            printf("%s", water);
-        }
-        printf("\n");
-
-        if (water_poured) {
-            ccodoc_pour_water(&ccodoc, 1);
-        }
-
-        const char** ccodoc_art = NULL;
-
-        float water_ratio = ccodoc_water_ratio(&ccodoc);
-        if (water_ratio < 0.8) {
-            ccodoc_art = ccodoc_art_jo;
-        } else if (water_ratio < 1) {
-            ccodoc_art = ccodoc_art_ha;
-        } else {
-            ccodoc_art = ccodoc_art_kyu;
-        }
-
-        assert(ccodoc_art != NULL);
-
-        for (size_t h = 0; h < ccodoc_art_height; h++) {
-            printf("   %s\n", ccodoc_art[h]);
-        }
-
-        printf("▭▭▭▭━━━━━━▨▨▨▨\n");
+        ccodoc_render(&ccodoc, water_spout_ratio);
 
         ccodoc_release_water(&ccodoc, 1);
 
-        sleep_msec(500);
-
-        if (i % 2 != 0) {
-            continue;
+        if (water_spout_ratio >= 1) {
+            ccodoc_pour_water(&ccodoc, 1);
+            ticker_reset(&pour_water_ticker);
         }
 
-        elapsed_sec++;
+        sleep_msec(delta_msec);
+        ticker_tick(&pour_water_ticker, delta_msec);
     }
 
     return 0;
