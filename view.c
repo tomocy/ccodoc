@@ -1,47 +1,84 @@
 #include "ccodoc.h"
 #include <stdio.h>
 
-static const int water_spout_len = 3;
+static void ccodoc_kakehi_render(const ccodoc_kakehi* kakehi);
+static void ccodoc_tsutsu_render(const ccodoc_tsutsu* tsutsu);
 
-void ccodoc_render(
-    const ccodoc* ccodoc,
-    float water_spout_ratio
-)
+void ccodoc_render(const ccodoc* ccodoc)
 {
     system("clear");
+    ccodoc_kakehi_render(&ccodoc->kakehi);
+    ccodoc_tsutsu_render(&ccodoc->tsutsu);
+}
 
-    int water_spout_index = 0;
-    if (0.3 <= water_spout_ratio && water_spout_ratio < 0.6) {
-        water_spout_index = 1;
+static void ccodoc_kakehi_render(const ccodoc_kakehi* kakehi)
+{
+    static const int kakehi_len = 3;
+
+    float holding_ratio = (float)ticker_elapsed_msec(&kakehi->holding_ticker)
+        / kakehi->holding_period_msec;
+
+    int water_index = 0;
+    if (0.3 <= holding_ratio && holding_ratio < 0.6) {
+        water_index = 1;
     }
-    if (0.6 <= water_spout_ratio && water_spout_ratio < 0.9) {
-        water_spout_index = 2;
+    if (0.6 <= holding_ratio && holding_ratio < 0.9) {
+        water_index = 2;
     }
-    if (water_spout_ratio >= 0.9) {
-        water_spout_index = 3;
+    if (holding_ratio >= 0.9) {
+        water_index = 3;
     }
 
-    for (int j = 0; j < water_spout_len; j++) {
-        char* water = (j == water_spout_index) ? "━" : "═";
+    for (int j = 0; j < kakehi_len; j++) {
+        char* water = (j == water_index) ? "━" : "═";
         printf("%s", water);
     }
     printf("\n");
+}
 
-    const char** ccodoc_art = NULL;
+static void ccodoc_tsutsu_render(const ccodoc_tsutsu* tsutsu)
+{
+    static const size_t tsutsu_height = 4;
 
-    float water_ratio = ccodoc_water_ratio(ccodoc);
-    if (water_ratio < 0.8) {
-        ccodoc_art = ccodoc_art_jo;
-    } else if (water_ratio < 1) {
-        ccodoc_art = ccodoc_art_ha;
+    // jo (序)
+    static const char* tsutsu_art_jo[] = {
+        "◥◣",
+        "  ◥◣",
+        "  ▕ ◥◣",
+        "  ▕   ◥◣",
+    };
+
+    // ha (破)
+    static const char* tsutsu_art_ha[] = {
+        "",
+        "◢◤◢◤◢◤◢◤",
+        "  ▕ ",
+        "  ▕ ",
+    };
+
+    // kyu (急)
+    static const char* tsutsu_art_kyu[] = {
+        "      ◢◤",
+        "    ◢◤",
+        "  ◢◤",
+        "◢◤▕",
+    };
+
+    const char** tsutsu_art = NULL;
+
+    float holding_ratio = ccodoc_tsutsu_holding_water_ratio(tsutsu);
+    if (holding_ratio < 0.8) {
+        tsutsu_art = tsutsu_art_jo;
+    } else if (holding_ratio < 1) {
+        tsutsu_art = tsutsu_art_ha;
     } else {
-        ccodoc_art = ccodoc_art_kyu;
+        tsutsu_art = tsutsu_art_kyu;
     }
 
-    assert(ccodoc_art != NULL);
+    assert(tsutsu != NULL);
 
-    for (size_t h = 0; h < ccodoc_art_height; h++) {
-        printf("   %s\n", ccodoc_art[h]);
+    for (size_t h = 0; h < tsutsu_height; h++) {
+        printf("   %s\n", tsutsu_art[h]);
     }
 
     printf("▭▭▭▭━━━━━━▨▨▨▨\n");
