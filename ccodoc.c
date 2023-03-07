@@ -44,7 +44,7 @@ static void ccodoc_tick_kakehi_holding(ccodoc* ccodoc, int delta_msec)
     kakehi->state = ccodoc_kakehi_state_pouring;
     ticker_reset(&kakehi->pouring_timer.ticker);
 
-    ccodoc_tsutsu_pour_by(&ccodoc->tsutsu, 0.1);
+    ccodoc_tsutsu_pour_by(&ccodoc->tsutsu, kakehi->pour_ratio);
 }
 
 static void ccodoc_tick_kakehi_pouring(ccodoc* ccodoc, int delta_msec)

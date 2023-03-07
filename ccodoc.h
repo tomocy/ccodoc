@@ -12,6 +12,10 @@ typedef struct {
     ticker ticker;
 } timer;
 
+typedef struct {
+    bool debug;
+} ccodoc_context;
+
 typedef enum {
     ccodoc_kakehi_state_holding,
     ccodoc_kakehi_state_pouring,
@@ -20,6 +24,7 @@ typedef enum {
 // kakehi（筧）
 typedef struct {
     ccodoc_kakehi_state state;
+    float pour_ratio;
     timer holding_timer;
     timer pouring_timer;
 } ccodoc_kakehi;
@@ -47,6 +52,12 @@ typedef struct {
 extern void ccodoc_tick(ccodoc* ccodoc, int delta_msec);
 extern float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu);
 
+// view.c
+extern void ccodoc_render(const ccodoc_context* ctx, const ccodoc* ccodoc);
+
+// string.c
+extern bool str_equal_to(char* str, char* other);
+
 // time.c
 extern void ticker_tick(ticker* ticker, int delta_msec);
 extern void ticker_reset(ticker* ticker);
@@ -54,6 +65,3 @@ extern int ticker_elapsed_msec(const ticker* ticker);
 extern bool timer_is_timeout(const timer* timer);
 extern float timer_timeout_ratio(const timer* timer);
 extern void sleep_msec(int msec);
-
-// view.c
-extern void ccodoc_render(const ccodoc* ccodoc);

@@ -4,12 +4,18 @@
 static void ccodoc_kakehi_render(const ccodoc_kakehi* kakehi);
 static void ccodoc_tsutsu_render(const ccodoc_tsutsu* tsutsu);
 
-void ccodoc_render(const ccodoc* ccodoc)
+void ccodoc_render(const ccodoc_context* ctx, const ccodoc* ccodoc)
 {
     system("clear");
     ccodoc_kakehi_render(&ccodoc->kakehi);
     ccodoc_tsutsu_render(&ccodoc->tsutsu);
     printf("▭▭▭▭━━━━━━▨▨▨▨\n");
+
+    if (ctx->debug) {
+        printf("\n");
+        printf("tsutsu -------\n");
+        printf("holding_ratio: %f\n", ccodoc_tsutsu_holding_ratio(&ccodoc->tsutsu));
+    }
 }
 
 static void ccodoc_kakehi_render(const ccodoc_kakehi* kakehi)
