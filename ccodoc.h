@@ -34,6 +34,7 @@ typedef struct {
     ccodoc_tsutsu_state state;
     unsigned int amount;
     unsigned int capacity;
+    timer releasing_timer;
 } ccodoc_tsutsu;
 
 // ccodoc (鹿威し)

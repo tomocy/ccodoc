@@ -3,40 +3,37 @@
 // kakehi
 static void ccodoc_kakehi_tick_holding(ccodoc_kakehi* kakehi, int delta_msec);
 static void ccodoc_kakehi_tick_pouring(ccodoc_kakehi* kakehi, int delta_msec);
+static void ccodoc_tsutsu_tick_holding(ccodoc_tsutsu* tsutsu, int delta_msec);
+static void ccodoc_tsutsu_tick_releasing(ccodoc_tsutsu* tsutsu, int delta_msec);
 
 // tsutsu
-static void ccodoc_tsutsu_pour(ccodoc_tsutsu* tsutsu, int amount);
-static void ccodoc_tsutsu_release(ccodoc_tsutsu* tsutsu, int amount);
+static void ccodoc_tsutsu_pour_by(ccodoc_tsutsu* tsutsu, float ratio);
+static void ccodoc_tsutsu_set_amount_by(ccodoc_tsutsu* tsutsu, float ratio);
 
 void ccodoc_tick(ccodoc* ccodoc, int delta_msec)
 {
     ccodoc_kakehi* kakehi = &ccodoc->kakehi;
     switch (kakehi->state) {
     case ccodoc_kakehi_state_holding:
-        ccodoc_kakehi_tick_holding(&ccodoc->kakehi, delta_msec);
+        ccodoc_kakehi_tick_holding(kakehi, delta_msec);
         break;
     case ccodoc_kakehi_state_pouring:
-        ccodoc_kakehi_tick_pouring(&ccodoc->kakehi, delta_msec);
+        ccodoc_kakehi_tick_pouring(kakehi, delta_msec);
         break;
     }
 
     ccodoc_tsutsu* tsutsu = &ccodoc->tsutsu;
-    switch (tsutsu->state) {
-    case ccodoc_tsutsu_state_holding: {
-        if (kakehi->state == ccodoc_kakehi_state_pouring) {
-            ccodoc_tsutsu_pour(tsutsu, 1);
-        }
 
-        if (ccodoc_tsutsu_holding_ratio(tsutsu) < 1) {
-            return;
-        }
-
-        tsutsu->state = ccodoc_tsutsu_state_releasing;
-
-        break;
+    if (kakehi->state == ccodoc_kakehi_state_pouring) {
+        ccodoc_tsutsu_pour_by(tsutsu, 0.1);
     }
+
+    switch (tsutsu->state) {
+    case ccodoc_tsutsu_state_holding:
+        ccodoc_tsutsu_tick_holding(tsutsu, delta_msec);
+        break;
     case ccodoc_tsutsu_state_releasing:
-        ccodoc_tsutsu_release(tsutsu, 2);
+        ccodoc_tsutsu_tick_releasing(tsutsu, delta_msec);
         break;
     }
 }
@@ -65,26 +62,51 @@ static void ccodoc_kakehi_tick_pouring(ccodoc_kakehi* kakehi, int delta_msec)
     ticker_reset(&kakehi->holding_timer.ticker);
 }
 
-static void ccodoc_tsutsu_pour(ccodoc_tsutsu* tsutsu, int amount)
+static void ccodoc_tsutsu_tick_holding(ccodoc_tsutsu* tsutsu, int _delta_msec)
 {
-    tsutsu->amount += amount;
-    if (tsutsu->amount < tsutsu->capacity) {
+    (void)_delta_msec;
+
+    if (ccodoc_tsutsu_holding_ratio(tsutsu) < 1) {
         return;
     }
 
     tsutsu->state = ccodoc_tsutsu_state_releasing;
-    tsutsu->amount = tsutsu->capacity;
+    ticker_reset(&tsutsu->releasing_timer.ticker);
 }
 
-static void ccodoc_tsutsu_release(ccodoc_tsutsu* tsutsu, int amount)
+static void ccodoc_tsutsu_tick_releasing(ccodoc_tsutsu* tsutsu, int delta_msec)
 {
-    tsutsu->amount -= amount;
-    if (tsutsu->amount > 0) {
-        return;
+    ticker_tick(&tsutsu->releasing_timer.ticker, delta_msec);
+
+    float releasing_ratio = timer_timeout_ratio(&tsutsu->releasing_timer);
+
+    ccodoc_tsutsu_set_amount_by(tsutsu, 1 - releasing_ratio);
+
+    if (releasing_ratio >= 1) {
+        tsutsu->state = ccodoc_tsutsu_state_holding;
+        tsutsu->amount = 0;
+    }
+}
+
+static void ccodoc_tsutsu_pour_by(ccodoc_tsutsu* tsutsu, float ratio)
+{
+    unsigned int delta = tsutsu->capacity * ratio;
+    tsutsu->amount = (tsutsu->capacity - tsutsu->amount > delta)
+        ? tsutsu->amount + delta
+        : tsutsu->capacity;
+}
+
+static void ccodoc_tsutsu_set_amount_by(ccodoc_tsutsu* tsutsu, float ratio)
+{
+    float r = ratio;
+    if (ratio < 0) {
+        r = 0;
+    }
+    if (ratio > 1) {
+        r = 1;
     }
 
-    tsutsu->state = ccodoc_tsutsu_state_holding;
-    tsutsu->amount = 0;
+    tsutsu->amount = tsutsu->capacity * r;
 }
 
 float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu)

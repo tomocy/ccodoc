@@ -18,6 +18,9 @@ int main(void)
         },
         .tsutsu = {
             .capacity = 10,
+            .releasing_timer = {
+                .period_msec = 2000,
+            },
         },
     };
 
