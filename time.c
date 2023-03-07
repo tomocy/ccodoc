@@ -26,6 +26,17 @@ int ticker_elapsed_msec(const ticker* clock)
     return clock->sec * 1000 + clock->msec;
 }
 
+bool timer_is_timeout(const timer* timer)
+{
+    return timer_timeout_ratio(timer) >= 1;
+}
+
+float timer_timeout_ratio(const timer* timer)
+{
+    assert(timer->period_msec != 0);
+    return (float)ticker_elapsed_msec(&timer->ticker) / timer->period_msec;
+}
+
 void sleep_msec(int msec)
 {
     if (msec < 0) {

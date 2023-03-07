@@ -15,8 +15,7 @@ static void ccodoc_kakehi_render(const ccodoc_kakehi* kakehi)
 {
     static const int kakehi_len = 3;
 
-    float holding_ratio = (float)ticker_elapsed_msec(&kakehi->holding_ticker)
-        / kakehi->holding_period_msec;
+    float holding_ratio = timer_timeout_ratio(&kakehi->holding_timer);
 
     int water_index = 0;
     if (0.3 <= holding_ratio && holding_ratio < 0.6) {

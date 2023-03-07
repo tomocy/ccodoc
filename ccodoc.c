@@ -43,32 +43,26 @@ void ccodoc_tick(ccodoc* ccodoc, int delta_msec)
 
 static void ccodoc_kakehi_tick_holding(ccodoc_kakehi* kakehi, int delta_msec)
 {
-    ticker_tick(&kakehi->holding_ticker, delta_msec);
+    ticker_tick(&kakehi->holding_timer.ticker, delta_msec);
 
-    float holding_ratio = (float)ticker_elapsed_msec(&kakehi->holding_ticker)
-        / kakehi->holding_period_msec;
-
-    if (holding_ratio < 1) {
+    if (!timer_is_timeout(&kakehi->holding_timer)) {
         return;
     }
 
     kakehi->state = ccodoc_kakehi_state_pouring;
-    ticker_reset(&kakehi->pouring_ticker);
+    ticker_reset(&kakehi->pouring_timer.ticker);
 }
 
 static void ccodoc_kakehi_tick_pouring(ccodoc_kakehi* kakehi, int delta_msec)
 {
-    ticker_tick(&kakehi->pouring_ticker, delta_msec);
+    ticker_tick(&kakehi->pouring_timer.ticker, delta_msec);
 
-    float pouring_ratio = (float)ticker_elapsed_msec(&kakehi->pouring_ticker)
-        / kakehi->pouring_period_msec;
-
-    if (pouring_ratio < 1) {
+    if (!timer_is_timeout(&kakehi->pouring_timer)) {
         return;
     }
 
     kakehi->state = ccodoc_kakehi_state_holding;
-    ticker_reset(&kakehi->holding_ticker);
+    ticker_reset(&kakehi->holding_timer.ticker);
 }
 
 static void ccodoc_tsutsu_pour_water(ccodoc_tsutsu* tsutsu, int water_amount)

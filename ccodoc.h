@@ -1,10 +1,16 @@
 #include <assert.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 typedef struct {
     long sec;
     int msec;
 } ticker;
+
+typedef struct {
+    int period_msec;
+    ticker ticker;
+} timer;
 
 typedef enum {
     ccodoc_kakehi_state_holding,
@@ -14,12 +20,8 @@ typedef enum {
 // kakehi（筧）
 typedef struct {
     ccodoc_kakehi_state state;
-
-    int holding_period_msec;
-    ticker holding_ticker;
-
-    int pouring_period_msec;
-    ticker pouring_ticker;
+    timer holding_timer;
+    timer pouring_timer;
 } ccodoc_kakehi;
 
 typedef enum {
@@ -45,9 +47,11 @@ extern void ccodoc_tick(ccodoc* ccodoc, int delta_msec);
 extern float ccodoc_tsutsu_holding_water_ratio(const ccodoc_tsutsu* tsutsu);
 
 // time.c
-extern void ticker_tick(ticker* clock, int delta_msec);
-extern void ticker_reset(ticker* clock);
-extern int ticker_elapsed_msec(const ticker* clock);
+extern void ticker_tick(ticker* ticker, int delta_msec);
+extern void ticker_reset(ticker* ticker);
+extern int ticker_elapsed_msec(const ticker* ticker);
+extern bool timer_is_timeout(const timer* timer);
+extern float timer_timeout_ratio(const timer* timer);
 extern void sleep_msec(int msec);
 
 // view.c
