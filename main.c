@@ -1,6 +1,6 @@
 #include "ccodoc.h"
 
-static void config_with_args(ccodoc_context* ctx, int argc, char** argv);
+static void configure_with_args(ccodoc_context* ctx, int argc, char** argv);
 static int run(const ccodoc_context* ctx, ccodoc* ccodoc);
 
 int main(int argc, char** argv)
@@ -9,7 +9,7 @@ int main(int argc, char** argv)
         .debug = false,
     };
 
-    config_with_args(&ctx, argc, argv);
+    configure_with_args(&ctx, argc, argv);
 
     ccodoc ccodoc = {
         .kakehi = {
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     return run(&ctx, &ccodoc);
 }
 
-static void config_with_args(ccodoc_context* ctx, int argc, char** argv)
+static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
 {
     for (int i = 1; i < argc; i++) {
         char* arg = argv[i];
