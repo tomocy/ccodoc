@@ -59,7 +59,7 @@ extern float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu);
 extern void ccodoc_render(const ccodoc_context* ctx, const ccodoc* ccodoc);
 
 // string.c
-extern bool str_equal_to(char* str, char* other);
+extern bool str_equals_to(char* str, char* other);
 
 // time.c
 extern void ticker_tick(ticker* ticker, const duration delta);

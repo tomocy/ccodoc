@@ -37,7 +37,7 @@ static void config_with_args(ccodoc_context* ctx, int argc, char** argv)
     for (int i = 1; i < argc; i++) {
         char* arg = argv[i];
 
-        if (str_equal_to(arg, "-debug")) {
+        if (str_equals_to(arg, "-debug")) {
             ctx->debug = true;
         }
     }
