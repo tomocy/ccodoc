@@ -5,7 +5,7 @@
 
 int main(void)
 {
-    const int delta_msec = 500;
+    const int delta_msec = 100;
 
     ccodoc ccodoc = {
         .kakehi = {

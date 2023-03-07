@@ -12,9 +12,7 @@ static void ccodoc_tsutsu_set_amount_by(ccodoc_tsutsu* tsutsu, float ratio);
 
 void ccodoc_tick(ccodoc* ccodoc, int delta_msec)
 {
-    ccodoc_kakehi* kakehi = &ccodoc->kakehi;
-
-    switch (kakehi->state) {
+    switch (ccodoc->kakehi.state) {
     case ccodoc_kakehi_state_holding:
         ccodoc_tick_kakehi_holding(ccodoc, delta_msec);
         break;
@@ -23,13 +21,7 @@ void ccodoc_tick(ccodoc* ccodoc, int delta_msec)
         break;
     }
 
-    ccodoc_tsutsu* tsutsu = &ccodoc->tsutsu;
-
-    if (kakehi->state == ccodoc_kakehi_state_pouring) {
-        ccodoc_tsutsu_pour_by(tsutsu, 0.1);
-    }
-
-    switch (tsutsu->state) {
+    switch (ccodoc->tsutsu.state) {
     case ccodoc_tsutsu_state_holding:
         ccodoc_tick_tsutsu_holding(ccodoc, delta_msec);
         break;
@@ -51,6 +43,8 @@ static void ccodoc_tick_kakehi_holding(ccodoc* ccodoc, int delta_msec)
 
     kakehi->state = ccodoc_kakehi_state_pouring;
     ticker_reset(&kakehi->pouring_timer.ticker);
+
+    ccodoc_tsutsu_pour_by(&ccodoc->tsutsu, 0.1);
 }
 
 static void ccodoc_tick_kakehi_pouring(ccodoc* ccodoc, int delta_msec)
