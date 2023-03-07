@@ -17,7 +17,7 @@ int main(void)
             },
         },
         .tsutsu = {
-            .water_capacity = 10,
+            .capacity = 10,
         },
     };
 

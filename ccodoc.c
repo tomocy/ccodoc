@@ -5,8 +5,8 @@ static void ccodoc_kakehi_tick_holding(ccodoc_kakehi* kakehi, int delta_msec);
 static void ccodoc_kakehi_tick_pouring(ccodoc_kakehi* kakehi, int delta_msec);
 
 // tsutsu
-static void ccodoc_tsutsu_pour_water(ccodoc_tsutsu* tsutsu, int water_amount);
-static void ccodoc_tsutsu_release_water(ccodoc_tsutsu* tsutsu, int water_amount);
+static void ccodoc_tsutsu_pour(ccodoc_tsutsu* tsutsu, int amount);
+static void ccodoc_tsutsu_release(ccodoc_tsutsu* tsutsu, int amount);
 
 void ccodoc_tick(ccodoc* ccodoc, int delta_msec)
 {
@@ -24,10 +24,10 @@ void ccodoc_tick(ccodoc* ccodoc, int delta_msec)
     switch (tsutsu->state) {
     case ccodoc_tsutsu_state_holding: {
         if (kakehi->state == ccodoc_kakehi_state_pouring) {
-            ccodoc_tsutsu_pour_water(tsutsu, 1);
+            ccodoc_tsutsu_pour(tsutsu, 1);
         }
 
-        if (ccodoc_tsutsu_holding_water_ratio(tsutsu) < 1) {
+        if (ccodoc_tsutsu_holding_ratio(tsutsu) < 1) {
             return;
         }
 
@@ -36,7 +36,7 @@ void ccodoc_tick(ccodoc* ccodoc, int delta_msec)
         break;
     }
     case ccodoc_tsutsu_state_releasing:
-        ccodoc_tsutsu_release_water(tsutsu, 2);
+        ccodoc_tsutsu_release(tsutsu, 2);
         break;
     }
 }
@@ -65,38 +65,30 @@ static void ccodoc_kakehi_tick_pouring(ccodoc_kakehi* kakehi, int delta_msec)
     ticker_reset(&kakehi->holding_timer.ticker);
 }
 
-static void ccodoc_tsutsu_pour_water(ccodoc_tsutsu* tsutsu, int water_amount)
+static void ccodoc_tsutsu_pour(ccodoc_tsutsu* tsutsu, int amount)
 {
-    if (tsutsu->state != ccodoc_tsutsu_state_holding) {
-        return;
-    }
-
-    tsutsu->water_amount += water_amount;
-    if (tsutsu->water_amount < tsutsu->water_capacity) {
+    tsutsu->amount += amount;
+    if (tsutsu->amount < tsutsu->capacity) {
         return;
     }
 
     tsutsu->state = ccodoc_tsutsu_state_releasing;
-    tsutsu->water_amount = tsutsu->water_capacity;
+    tsutsu->amount = tsutsu->capacity;
 }
 
-static void ccodoc_tsutsu_release_water(ccodoc_tsutsu* tsutsu, int water_amount)
+static void ccodoc_tsutsu_release(ccodoc_tsutsu* tsutsu, int amount)
 {
-    if (tsutsu->state != ccodoc_tsutsu_state_releasing) {
-        return;
-    }
-
-    tsutsu->water_amount -= water_amount;
-    if (tsutsu->water_amount > 0) {
+    tsutsu->amount -= amount;
+    if (tsutsu->amount > 0) {
         return;
     }
 
     tsutsu->state = ccodoc_tsutsu_state_holding;
-    tsutsu->water_amount = 0;
+    tsutsu->amount = 0;
 }
 
-float ccodoc_tsutsu_holding_water_ratio(const ccodoc_tsutsu* tsutsu)
+float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu)
 {
-    assert(tsutsu->water_capacity != 0);
-    return (float)tsutsu->water_amount / tsutsu->water_capacity;
+    assert(tsutsu->capacity != 0);
+    return (float)tsutsu->amount / tsutsu->capacity;
 }

@@ -32,8 +32,8 @@ typedef enum {
 // tsutsu（筒）
 typedef struct {
     ccodoc_tsutsu_state state;
-    unsigned int water_amount;
-    unsigned int water_capacity;
+    unsigned int amount;
+    unsigned int capacity;
 } ccodoc_tsutsu;
 
 // ccodoc (鹿威し)
@@ -44,7 +44,7 @@ typedef struct {
 
 // ccodoc.c
 extern void ccodoc_tick(ccodoc* ccodoc, int delta_msec);
-extern float ccodoc_tsutsu_holding_water_ratio(const ccodoc_tsutsu* tsutsu);
+extern float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu);
 
 // time.c
 extern void ticker_tick(ticker* ticker, int delta_msec);
