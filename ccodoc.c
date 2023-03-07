@@ -1,12 +1,9 @@
 #include "ccodoc.h"
 
-// kakehi
 static void ccodoc_tick_kakehi_holding(ccodoc* ccodoc, duration delta);
 static void ccodoc_tick_kakehi_pouring(ccodoc* ccodoc, duration delta);
 static void ccodoc_tick_tsutsu_holding(ccodoc* ccodoc, duration delta);
 static void ccodoc_tick_tsutsu_releasing(ccodoc* ccodoc, duration delta);
-
-// tsutsu
 static void ccodoc_tsutsu_pour_by(ccodoc_tsutsu* tsutsu, float ratio);
 static void ccodoc_tsutsu_set_amount_by(ccodoc_tsutsu* tsutsu, float ratio);
 
