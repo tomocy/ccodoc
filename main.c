@@ -15,16 +15,16 @@ int main(int argc, char** argv)
         .kakehi = {
             .pour_ratio = 0.1,
             .holding_timer = {
-                .period_msec = 2500,
+                .duration = { .msec = 2500 },
             },
             .pouring_timer = {
-                .period_msec = 500,
+                .duration = { .msec = 500 },
             },
         },
         .tsutsu = {
             .capacity = 10,
             .releasing_timer = {
-                .period_msec = 1800,
+                .duration = { .msec = 1800 },
             },
         },
     };
@@ -45,14 +45,14 @@ static void config_with_args(ccodoc_context* ctx, int argc, char** argv)
 
 static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
 {
-    static const int delta_msec = 100;
+    static const duration delta = { .msec = 100 };
 
     while (1) {
-        ccodoc_tick(ccodoc, delta_msec);
+        ccodoc_tick(ccodoc, delta);
 
         ccodoc_render(ctx, ccodoc);
 
-        sleep_msec(delta_msec);
+        sleep_for(delta);
     }
 
     return 0;

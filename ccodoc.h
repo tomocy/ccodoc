@@ -3,12 +3,15 @@
 #include <stdlib.h>
 
 typedef struct {
-    long sec;
-    int msec;
+    unsigned long msec;
+} duration;
+
+typedef struct {
+    duration elapsed;
 } ticker;
 
 typedef struct {
-    int period_msec;
+    duration duration;
     ticker ticker;
 } timer;
 
@@ -49,7 +52,7 @@ typedef struct {
 } ccodoc;
 
 // ccodoc.c
-extern void ccodoc_tick(ccodoc* ccodoc, int delta_msec);
+extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
 extern float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu);
 
 // view.c
@@ -59,9 +62,8 @@ extern void ccodoc_render(const ccodoc_context* ctx, const ccodoc* ccodoc);
 extern bool str_equal_to(char* str, char* other);
 
 // time.c
-extern void ticker_tick(ticker* ticker, int delta_msec);
+extern void ticker_tick(ticker* ticker, const duration delta);
 extern void ticker_reset(ticker* ticker);
-extern int ticker_elapsed_msec(const ticker* ticker);
 extern bool timer_is_timeout(const timer* timer);
 extern float timer_timeout_ratio(const timer* timer);
-extern void sleep_msec(int msec);
+extern void sleep_for(const duration duration);

@@ -3,27 +3,14 @@
 
 extern int nanosleep(const struct timespec* requested_time, struct timespec* remaining);
 
-void ticker_tick(ticker* clock, int delta_msec)
+void ticker_tick(ticker* ticker, const duration delta)
 {
-    clock->msec += delta_msec;
-    if (clock->msec < 1000) {
-        return;
-    }
-
-    int carried_sec = clock->msec / 1000;
-    clock->sec += carried_sec;
-    clock->msec = clock->msec - carried_sec * 1000;
+    ticker->elapsed.msec += delta.msec;
 }
 
-void ticker_reset(ticker* clock)
+void ticker_reset(ticker* ticker)
 {
-    clock->sec = 0;
-    clock->msec = 0;
-}
-
-int ticker_elapsed_msec(const ticker* clock)
-{
-    return clock->sec * 1000 + clock->msec;
+    ticker->elapsed.msec = 0;
 }
 
 bool timer_is_timeout(const timer* timer)
@@ -33,19 +20,19 @@ bool timer_is_timeout(const timer* timer)
 
 float timer_timeout_ratio(const timer* timer)
 {
-    assert(timer->period_msec != 0);
-    return (float)ticker_elapsed_msec(&timer->ticker) / timer->period_msec;
+    assert(timer->duration.msec != 0);
+    return (double)timer->ticker.elapsed.msec / timer->duration.msec;
 }
 
-void sleep_msec(int msec)
+void sleep_for(const duration duration)
 {
-    if (msec < 0) {
+    if (duration.msec < 0) {
         return;
     }
 
     struct timespec time_spec;
-    time_spec.tv_sec = msec / 1000;
-    time_spec.tv_nsec = (msec % 1000) * 1000000;
+    time_spec.tv_sec = duration.msec / 1000;
+    time_spec.tv_nsec = (duration.msec % 1000) * 1000000;
 
     int slept = -1;
     do {
