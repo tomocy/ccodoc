@@ -25,9 +25,12 @@ static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer);
 static ccodoc_rendering_context ccodoc_init_rendering_context(const ccodoc_context* ctx, point origin);
 static void ccodoc_wrap_rendering_lines(ccodoc_rendering_context* ctx, unsigned int n);
 
+#define ccodoc_print(y, x, s) mvprintw((int)(y), (int)(x), (s))
+#define ccodoc_printf(y, x, format, ...) mvprintw((int)(y), (int)(x), (format), __VA_ARGS__)
+
 void ccodoc_init_renderer(ccodoc_renderer* render)
 {
-    setlocale(LC_ALL, "");
+    (void)setlocale(LC_ALL, "");
 
     render->window = initscr();
     noecho();
@@ -61,7 +64,7 @@ void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const c
 
     ccodoc_render_kakehi(&rctx, &ccodoc->kakehi);
     ccodoc_render_tsutsu(&rctx, &ccodoc->tsutsu);
-    mvprintw(rctx.current.y, rctx.current.x, "▭▭▭▭━━━━━━▨▨▨▨");
+    ccodoc_print(rctx.current.y, rctx.current.x, "▭▭▭▭━━━━━━▨▨▨▨");
 
     if (ctx->debug) {
         ccodoc_render_debug_info(renderer, ccodoc);
@@ -89,7 +92,7 @@ static void ccodoc_render_kakehi(ccodoc_rendering_context* ctx, const ccodoc_kak
 
     for (int j = 0; j < kakehi_len; j++) {
         const char* water = (j == holding_index) ? "━" : "═";
-        mvprintw(ctx->current.y, ctx->current.x + j, water);
+        ccodoc_print(ctx->current.y, ctx->current.x + j, water);
     }
     ccodoc_wrap_rendering_lines(ctx, 1);
 }
@@ -150,7 +153,7 @@ static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsu
     assert(tsutsu != NULL);
 
     for (size_t h = 0; h < tsutsu_height; h++) {
-        mvprintw(ctx->current.y + h, ctx->current.x + 3, tsutsu_art[h]);
+        ccodoc_print(ctx->current.y + h, ctx->current.x + 3, tsutsu_art[h]);
     }
     ccodoc_wrap_rendering_lines(ctx, tsutsu_height);
 }
@@ -166,9 +169,9 @@ void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc* cco
         .y = window_size.y - height,
     };
 
-    mvprintw(origin.y, origin.x, "DEBUG -------");
-    mvprintw(origin.y + 1, origin.x, "- tsutsu");
-    mvprintw(origin.y + 2, origin.x, "holding_ratio: %f\n", ccodoc_tsutsu_holding_ratio(&ccodoc->tsutsu));
+    ccodoc_print(origin.y, origin.x, "DEBUG -------");
+    ccodoc_print(origin.y + 1, origin.x, "- tsutsu");
+    ccodoc_printf(origin.y + 2, origin.x, "holding_ratio: %f\n", ccodoc_tsutsu_holding_ratio(&ccodoc->tsutsu));
 }
 
 point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer)

@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 
     ccodoc ccodoc = {
         .kakehi = {
-            .pour_ratio = 0.1,
+            .pour_ratio = 0.1f,
             .holding_timer = {
                 .duration = { .msec = 2500 },
             },

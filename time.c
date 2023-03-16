@@ -21,7 +21,7 @@ bool timer_is_timeout(const timer* timer)
 float timer_timeout_ratio(const timer* timer)
 {
     assert(timer->duration.msec != 0);
-    return (double)timer->ticker.elapsed.msec / timer->duration.msec;
+    return (float)((double)timer->ticker.elapsed.msec / (double)timer->duration.msec);
 }
 
 void sleep_for(const duration duration)
@@ -31,8 +31,8 @@ void sleep_for(const duration duration)
     }
 
     struct timespec time_spec;
-    time_spec.tv_sec = duration.msec / 1000;
-    time_spec.tv_nsec = (duration.msec % 1000) * 1000000;
+    time_spec.tv_sec = (__time_t)duration.msec / 1000;
+    time_spec.tv_nsec = (__time_t)duration.msec % 1000 * 1000000;
 
     int slept = -1;
     do {

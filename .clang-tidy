@@ -1,0 +1,16 @@
+Checks: '
+-*,
+bugprone-*,
+-bugprone-easily-swappable-parameters,
+cert-*,
+clang-analyzer-*,
+clang-diagnostic-*,
+misc-*,
+-misc-non-private-member-variables-in-classes,
+modernize-*,
+-modernize-use-trailing-return-type,
+performance-*,
+portability-*
+'
+
+WarningsAsErrors: true
