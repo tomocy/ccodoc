@@ -61,9 +61,9 @@ extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
 extern float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu);
 
 // renderer.c
-extern void ccodoc_init_renderer(ccodoc_renderer* render);
-extern void ccodoc_deinit_renderer(ccodoc_renderer* render);
-extern void ccodoc_render(ccodoc_renderer* render, const ccodoc_context* ctx, const ccodoc* ccodoc);
+extern void ccodoc_init_renderer(ccodoc_renderer* renderer);
+extern void ccodoc_deinit_renderer(ccodoc_renderer* renderer);
+extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const ccodoc* ccodoc);
 
 // string.c
 extern bool str_equals_to(char* str, char* other);
