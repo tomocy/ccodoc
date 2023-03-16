@@ -4,8 +4,10 @@ static void ccodoc_tick_kakehi_holding(ccodoc* ccodoc, duration delta);
 static void ccodoc_tick_kakehi_pouring(ccodoc* ccodoc, duration delta);
 static void ccodoc_tick_tsutsu_holding(ccodoc* ccodoc, duration delta);
 static void ccodoc_tick_tsutsu_releasing(ccodoc* ccodoc, duration delta);
+static void ccodoc_tick_hachi_releasing(ccodoc* ccodoc, duration delta);
 static void ccodoc_tsutsu_pour_by(ccodoc_tsutsu* tsutsu, float ratio);
 static void ccodoc_tsutsu_set_amount_by(ccodoc_tsutsu* tsutsu, float ratio);
+static void ccodoc_shift_hachi_state(ccodoc_hachi* hachi, ccodoc_hachi_state state);
 
 void ccodoc_tick(ccodoc* ccodoc, const duration delta)
 {
@@ -24,6 +26,14 @@ void ccodoc_tick(ccodoc* ccodoc, const duration delta)
         break;
     case ccodoc_tsutsu_state_releasing:
         ccodoc_tick_tsutsu_releasing(ccodoc, delta);
+        break;
+    }
+
+    switch (ccodoc->hachi.state) {
+    case ccodoc_hachi_state_holding:
+        break;
+    case ccodoc_hachi_state_releasing:
+        ccodoc_tick_hachi_releasing(ccodoc, delta);
         break;
     }
 }
@@ -82,15 +92,30 @@ static void ccodoc_tick_tsutsu_releasing(ccodoc* ccodoc, const duration delta)
 
     ccodoc_tsutsu_set_amount_by(tsutsu, 1 - releasing_ratio);
 
+    ccodoc_shift_hachi_state(&ccodoc->hachi, ccodoc_hachi_state_releasing);
+
     if (releasing_ratio >= 1) {
         tsutsu->state = ccodoc_tsutsu_state_holding;
         tsutsu->amount = 0;
     }
 }
 
+static void ccodoc_tick_hachi_releasing(ccodoc* ccodoc, duration delta)
+{
+    ccodoc_hachi* hachi = &ccodoc->hachi;
+
+    ticker_tick(&hachi->releasing_timer.ticker, delta);
+
+    if (!timer_is_timeout(&hachi->releasing_timer)) {
+        return;
+    }
+
+    ccodoc_shift_hachi_state(hachi, ccodoc_hachi_state_holding);
+}
+
 static void ccodoc_tsutsu_pour_by(ccodoc_tsutsu* tsutsu, float ratio)
 {
-    unsigned int delta = tsutsu->capacity * ratio;
+    unsigned int delta = (unsigned int)((float)tsutsu->capacity * ratio);
     tsutsu->amount = (tsutsu->capacity - tsutsu->amount > delta)
         ? tsutsu->amount + delta
         : tsutsu->capacity;
@@ -106,11 +131,28 @@ static void ccodoc_tsutsu_set_amount_by(ccodoc_tsutsu* tsutsu, float ratio)
         r = 1;
     }
 
-    tsutsu->amount = tsutsu->capacity * r;
+    tsutsu->amount = (unsigned int)((float)tsutsu->capacity * r);
 }
 
 float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu)
 {
     assert(tsutsu->capacity != 0);
-    return (double)tsutsu->amount / tsutsu->capacity;
+    return (float)tsutsu->amount / (float)tsutsu->capacity;
+}
+
+static void ccodoc_shift_hachi_state(ccodoc_hachi* hachi, ccodoc_hachi_state state)
+{
+    if (hachi->state == state) {
+        return;
+    }
+
+    hachi->state = state;
+
+    switch (hachi->state) {
+    case ccodoc_hachi_state_releasing:
+        ticker_reset(&hachi->releasing_timer.ticker);
+        break;
+    default:
+        break;
+    }
 }

@@ -17,6 +17,7 @@ typedef struct {
 
 static void ccodoc_render_kakehi(ccodoc_rendering_context* ctx, const ccodoc_kakehi* kakehi);
 static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsutsu* tsutsu);
+static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hachi* hachi);
 
 static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc* ccodoc);
 
@@ -64,7 +65,8 @@ void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const c
 
     ccodoc_render_kakehi(&rctx, &ccodoc->kakehi);
     ccodoc_render_tsutsu(&rctx, &ccodoc->tsutsu);
-    ccodoc_print(rctx.current.y, rctx.current.x, "▭▭▭▭━━━━━━▨▨▨▨");
+    ccodoc_render_hachi(&rctx, &ccodoc->hachi);
+    ccodoc_print(rctx.current.y, rctx.current.x, "━━━━━━▨▨▨▨");
 
     if (ctx->debug) {
         ccodoc_render_debug_info(renderer, ccodoc);
@@ -158,7 +160,33 @@ static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsu
     ccodoc_wrap_rendering_lines(ctx, tsutsu_height);
 }
 
-void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc* ccodoc)
+static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hachi* hachi)
+{
+    static unsigned int width = 4;
+
+    switch (hachi->state) {
+    case ccodoc_hachi_state_holding:
+        ccodoc_print(ctx->current.y, ctx->current.x, "▭▭▭▭");
+        break;
+    case ccodoc_hachi_state_releasing: {
+        float ratio = timer_timeout_ratio(&hachi->releasing_timer);
+
+        if (ratio < 0.35) {
+            ccodoc_print(ctx->current.y, ctx->current.x, "▭▬▬▭");
+        } else if (ratio < 0.65) {
+            ccodoc_print(ctx->current.y, ctx->current.x, "▬▭▭▬");
+        } else {
+            ccodoc_print(ctx->current.y, ctx->current.x, "▭▭▭▭");
+        }
+
+        break;
+    }
+    }
+
+    ctx->current.x += width;
+}
+
+static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc* ccodoc)
 {
     static const unsigned int height = 3;
 
@@ -174,7 +202,7 @@ void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc* cco
     ccodoc_printf(origin.y + 2, origin.x, "holding_ratio: %f\n", ccodoc_tsutsu_holding_ratio(&ccodoc->tsutsu));
 }
 
-point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer)
+static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer)
 {
     return (point) {
         .x = getmaxx(renderer->window),
@@ -182,7 +210,7 @@ point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer)
     };
 }
 
-ccodoc_rendering_context ccodoc_init_rendering_context(const ccodoc_context* ctx, point origin)
+static ccodoc_rendering_context ccodoc_init_rendering_context(const ccodoc_context* ctx, point origin)
 {
     return (ccodoc_rendering_context) {
         .app = ctx,
@@ -191,7 +219,7 @@ ccodoc_rendering_context ccodoc_init_rendering_context(const ccodoc_context* ctx
     };
 }
 
-void ccodoc_wrap_rendering_lines(ccodoc_rendering_context* ctx, unsigned int n)
+static void ccodoc_wrap_rendering_lines(ccodoc_rendering_context* ctx, unsigned int n)
 {
     ctx->current.y += n;
     ctx->current.x = ctx->origin.x;

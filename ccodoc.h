@@ -46,10 +46,22 @@ typedef struct {
     timer releasing_timer;
 } ccodoc_tsutsu;
 
-// ccodoc (鹿威し)
+typedef enum {
+    ccodoc_hachi_state_holding,
+    ccodoc_hachi_state_releasing,
+} ccodoc_hachi_state;
+
+// hachi（手水鉢）
+typedef struct {
+    ccodoc_hachi_state state;
+    timer releasing_timer;
+} ccodoc_hachi;
+
+// ccodoc（鹿威し）
 typedef struct {
     ccodoc_kakehi kakehi;
     ccodoc_tsutsu tsutsu;
+    ccodoc_hachi hachi;
 } ccodoc;
 
 typedef struct {

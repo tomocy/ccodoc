@@ -27,6 +27,11 @@ int main(int argc, char** argv)
                 .duration = { .msec = 1800 },
             },
         },
+        .hachi = {
+            .releasing_timer = {
+                .duration = { .msec = 1000 },
+            },
+        },
     };
 
     return run(&ctx, &ccodoc);
