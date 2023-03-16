@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <curses.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -51,14 +52,18 @@ typedef struct {
     ccodoc_tsutsu tsutsu;
 } ccodoc;
 
+typedef struct {
+    WINDOW* window;
+} ccodoc_renderer;
+
 // ccodoc.c
 extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
 extern float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu);
 
 // renderer.c
-extern void ccodoc_renderer_init(void);
-extern void ccodoc_renderer_deinit(void);
-extern void ccodoc_render(const ccodoc_context* ctx, const ccodoc* ccodoc);
+extern void ccodoc_init_renderer(ccodoc_renderer* render);
+extern void ccodoc_deinit_renderer(ccodoc_renderer* render);
+extern void ccodoc_render(ccodoc_renderer* render, const ccodoc_context* ctx, const ccodoc* ccodoc);
 
 // string.c
 extern bool str_equals_to(char* str, char* other);

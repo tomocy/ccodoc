@@ -47,17 +47,19 @@ static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
 {
     static const duration delta = { .msec = 100 };
 
-    ccodoc_renderer_init();
+    ccodoc_renderer renderer = { 0 };
+
+    ccodoc_init_renderer(&renderer);
 
     while (1) {
         ccodoc_tick(ccodoc, delta);
 
-        ccodoc_render(ctx, ccodoc);
+        ccodoc_render(&renderer, ctx, ccodoc);
 
         sleep_for(delta);
     }
 
-    ccodoc_renderer_deinit();
+    ccodoc_deinit_renderer(&renderer);
 
     return 0;
 }
