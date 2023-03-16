@@ -47,6 +47,8 @@ static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
 {
     static const duration delta = { .msec = 100 };
 
+    ccodoc_renderer_init();
+
     while (1) {
         ccodoc_tick(ccodoc, delta);
 
@@ -54,6 +56,8 @@ static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
 
         sleep_for(delta);
     }
+
+    ccodoc_renderer_deinit();
 
     return 0;
 }

@@ -1,21 +1,39 @@
 #include "ccodoc.h"
+#include <locale.h>
+#include <ncursesw/curses.h>
 #include <stdio.h>
 
 static void ccodoc_kakehi_render(const ccodoc_kakehi* kakehi);
 static void ccodoc_tsutsu_render(const ccodoc_tsutsu* tsutsu);
 
+void ccodoc_renderer_init(void)
+{
+    setlocale(LC_ALL, "");
+
+    initscr();
+    noecho();
+    curs_set(0);
+}
+
+void ccodoc_renderer_deinit(void)
+{
+    endwin();
+}
+
 void ccodoc_render(const ccodoc_context* ctx, const ccodoc* ccodoc)
 {
-    system("clear");
+    clear();
+
     ccodoc_kakehi_render(&ccodoc->kakehi);
     ccodoc_tsutsu_render(&ccodoc->tsutsu);
-    printf("▭▭▭▭━━━━━━▨▨▨▨\n");
+    mvprintw(5, 0, "▭▭▭▭━━━━━━▨▨▨▨");
 
     if (ctx->debug) {
-        printf("\n");
-        printf("tsutsu -------\n");
-        printf("holding_ratio: %f\n", ccodoc_tsutsu_holding_ratio(&ccodoc->tsutsu));
+        mvprintw(10, 0, "tsutsu -------");
+        mvprintw(11, 0, "holding_ratio: %f\n", ccodoc_tsutsu_holding_ratio(&ccodoc->tsutsu));
     }
+
+    refresh();
 }
 
 static void ccodoc_kakehi_render(const ccodoc_kakehi* kakehi)
@@ -37,9 +55,8 @@ static void ccodoc_kakehi_render(const ccodoc_kakehi* kakehi)
 
     for (int j = 0; j < kakehi_len; j++) {
         char* water = (j == holding_index) ? "━" : "═";
-        printf("%s", water);
+        mvprintw(0, j, water);
     }
-    printf("\n");
 }
 
 static void ccodoc_tsutsu_render(const ccodoc_tsutsu* tsutsu)
@@ -98,6 +115,6 @@ static void ccodoc_tsutsu_render(const ccodoc_tsutsu* tsutsu)
     assert(tsutsu != NULL);
 
     for (size_t h = 0; h < tsutsu_height; h++) {
-        printf("   %s\n", tsutsu_art[h]);
+        mvprintw(1 + h, 3, tsutsu_art[h]);
     }
 }
