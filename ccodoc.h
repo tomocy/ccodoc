@@ -55,7 +55,7 @@ typedef struct {
 extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
 extern float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu);
 
-// view.c
+// renderer.c
 extern void ccodoc_render(const ccodoc_context* ctx, const ccodoc* ccodoc);
 
 // string.c
