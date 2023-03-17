@@ -20,6 +20,7 @@ typedef struct {
 } timer;
 
 typedef struct {
+    unsigned int fps;
     bool debug;
 } ccodoc_context;
 

@@ -19,7 +19,7 @@ static void ccodoc_render_kakehi(ccodoc_rendering_context* ctx, const ccodoc_kak
 static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsutsu* tsutsu);
 static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hachi* hachi);
 
-static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc* ccodoc);
+static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc_context* ctx, const ccodoc* ccodoc);
 
 static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer);
 
@@ -69,7 +69,7 @@ void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const c
     ccodoc_print(rctx.current.y, rctx.current.x, "━━━━━━▨▨▨▨");
 
     if (ctx->debug) {
-        ccodoc_render_debug_info(renderer, ccodoc);
+        ccodoc_render_debug_info(renderer, ctx, ccodoc);
     }
 
     refresh();
@@ -196,7 +196,7 @@ static const char* ccodoc_water_flow_state_str(ccodoc_water_flow_state state)
     }
 }
 
-static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc* ccodoc)
+static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc_context* ctx, const ccodoc* ccodoc)
 {
     static const unsigned int height = 8;
 
@@ -208,6 +208,8 @@ static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccod
     };
 
     ccodoc_print(p.y++, p.x, "DEBUG -------");
+    ccodoc_print(p.y++, p.x, "- engine");
+    ccodoc_printf(p.y++, p.x, "fps: %d", ctx->fps);
     ccodoc_print(p.y++, p.x, "- kakehi");
     ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->kakehi.state));
     ccodoc_print(p.y++, p.x, "- tsutsu");

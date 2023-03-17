@@ -1,4 +1,5 @@
 #include "ccodoc.h"
+#include <stdio.h>
 
 static void configure_with_args(ccodoc_context* ctx, int argc, char** argv);
 static int run(const ccodoc_context* ctx, ccodoc* ccodoc);
@@ -6,6 +7,7 @@ static int run(const ccodoc_context* ctx, ccodoc* ccodoc);
 int main(int argc, char** argv)
 {
     ccodoc_context ctx = {
+        .fps = 24,
         .debug = false,
     };
 
@@ -42,7 +44,14 @@ static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
     for (int i = 1; i < argc; i++) {
         char* arg = argv[i];
 
-        if (str_equals_to(arg, "-debug")) {
+        if (str_equals_to(arg, "--fps")) {
+            const unsigned long fps = strtoul(argv[i + 1], NULL, 10);
+            if (fps != 0) {
+                ctx->fps = fps;
+            }
+        }
+
+        if (str_equals_to(arg, "--debug")) {
             ctx->debug = true;
         }
     }
@@ -50,7 +59,11 @@ static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
 
 static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
 {
-    static const duration delta = { .msec = 50 };
+    assert(ctx->fps != 0);
+
+    const duration delta = {
+        .msec = 1000 / ctx->fps,
+    };
 
     ccodoc_renderer renderer = { 0 };
 
