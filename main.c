@@ -17,12 +17,12 @@ int main(int argc, char** argv)
             .holding_timer = {
                 .duration = { .msec = 2500 },
             },
-            .pouring_timer = {
+            .releasing_timer = {
                 .duration = { .msec = 500 },
             },
         },
         .tsutsu = {
-            .capacity = 10,
+            .water_capacity = 10,
             .releasing_timer = {
                 .duration = { .msec = 1800 },
             },

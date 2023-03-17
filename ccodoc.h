@@ -21,39 +21,29 @@ typedef struct {
 } ccodoc_context;
 
 typedef enum {
-    ccodoc_kakehi_state_holding,
-    ccodoc_kakehi_state_pouring,
-} ccodoc_kakehi_state;
+    ccodoc_holding_water,
+    ccodoc_releasing_water,
+} ccodoc_water_flow_state;
 
 // kakehi（筧）
 typedef struct {
-    ccodoc_kakehi_state state;
+    ccodoc_water_flow_state state;
     float pour_ratio;
     timer holding_timer;
-    timer pouring_timer;
+    timer releasing_timer;
 } ccodoc_kakehi;
-
-typedef enum {
-    ccodoc_tsutsu_state_holding,
-    ccodoc_tsutsu_state_releasing,
-} ccodoc_tsutsu_state;
 
 // tsutsu（筒）
 typedef struct {
-    ccodoc_tsutsu_state state;
-    unsigned int amount;
-    unsigned int capacity;
+    ccodoc_water_flow_state state;
+    unsigned int water_amount;
+    unsigned int water_capacity;
     timer releasing_timer;
 } ccodoc_tsutsu;
 
-typedef enum {
-    ccodoc_hachi_state_holding,
-    ccodoc_hachi_state_releasing,
-} ccodoc_hachi_state;
-
 // hachi（手水鉢）
 typedef struct {
-    ccodoc_hachi_state state;
+    ccodoc_water_flow_state state;
     timer releasing_timer;
 } ccodoc_hachi;
 
@@ -70,7 +60,7 @@ typedef struct {
 
 // ccodoc.c
 extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
-extern float ccodoc_tsutsu_holding_ratio(const ccodoc_tsutsu* tsutsu);
+extern float ccodoc_tsutsu_water_amount_ratio(const ccodoc_tsutsu* tsutsu);
 
 // renderer.c
 extern void ccodoc_init_renderer(ccodoc_renderer* renderer);

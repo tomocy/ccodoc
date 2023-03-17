@@ -129,10 +129,10 @@ static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsu
 
     const char** tsutsu_art = NULL;
 
-    const float holding_ratio = ccodoc_tsutsu_holding_ratio(tsutsu);
+    const float holding_ratio = ccodoc_tsutsu_water_amount_ratio(tsutsu);
 
     switch (tsutsu->state) {
-    case ccodoc_tsutsu_state_holding:
+    case ccodoc_holding_water:
         if (holding_ratio < 0.8) {
             tsutsu_art = tsutsu_art_jo;
         } else if (holding_ratio < 1) {
@@ -141,7 +141,7 @@ static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsu
             tsutsu_art = tsutsu_art_kyu;
         }
         break;
-    case ccodoc_tsutsu_state_releasing:
+    case ccodoc_releasing_water:
         if (holding_ratio < 0.35) {
             tsutsu_art = tsutsu_art_jo;
         } else if (holding_ratio < 0.65) {
@@ -165,10 +165,10 @@ static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hach
     static unsigned int width = 4;
 
     switch (hachi->state) {
-    case ccodoc_hachi_state_holding:
+    case ccodoc_holding_water:
         ccodoc_print(ctx->current.y, ctx->current.x, "▭▭▭▭");
         break;
-    case ccodoc_hachi_state_releasing: {
+    case ccodoc_releasing_water: {
         float ratio = timer_timeout_ratio(&hachi->releasing_timer);
 
         if (ratio < 0.35) {
@@ -199,7 +199,7 @@ static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccod
 
     ccodoc_print(origin.y, origin.x, "DEBUG -------");
     ccodoc_print(origin.y + 1, origin.x, "- tsutsu");
-    ccodoc_printf(origin.y + 2, origin.x, "holding_ratio: %f\n", ccodoc_tsutsu_holding_ratio(&ccodoc->tsutsu));
+    ccodoc_printf(origin.y + 2, origin.x, "water_amount_ratio: %f\n", ccodoc_tsutsu_water_amount_ratio(&ccodoc->tsutsu));
 }
 
 static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer)
