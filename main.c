@@ -3,6 +3,7 @@
 
 static void configure_with_args(ccodoc_context* ctx, int argc, char** argv);
 static int run(const ccodoc_context* ctx, ccodoc* ccodoc);
+static int test(void);
 
 int main(int argc, char** argv)
 {
@@ -36,6 +37,10 @@ int main(int argc, char** argv)
         },
     };
 
+    if (ctx.test) {
+        return test();
+    }
+
     return run(&ctx, &ccodoc);
 }
 
@@ -53,6 +58,10 @@ static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
 
         if (str_equals_to(arg, "--debug")) {
             ctx->debug = true;
+        }
+
+        if (str_equals_to(arg, "--test")) {
+            ctx->test = true;
         }
     }
 }
@@ -78,6 +87,24 @@ static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
     }
 
     ccodoc_deinit_renderer(&renderer);
+
+    return 0;
+}
+
+static int test(void)
+{
+    printf("# ccodoc\n");
+    test_ccodoc();
+    printf("\n");
+
+    printf("# string\n");
+    test_str();
+    printf("\n");
+
+    printf("# time\n");
+    test_time();
+
+    printf("OK\n");
 
     return 0;
 }

@@ -1,6 +1,9 @@
+#pragma once
+
 #include <assert.h>
 #include <curses.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -22,6 +25,7 @@ typedef struct {
 typedef struct {
     unsigned int fps;
     bool debug;
+    bool test;
 } ccodoc_context;
 
 typedef enum {
@@ -66,6 +70,8 @@ typedef struct {
 extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
 // - debug
 extern float ccodoc_tsutsu_water_amount_ratio(const ccodoc_tsutsu* tsutsu);
+// - test
+extern void test_ccodoc(void);
 
 // renderer.c
 extern void ccodoc_init_renderer(ccodoc_renderer* renderer);
@@ -74,10 +80,32 @@ extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, 
 
 // string.c
 extern bool str_equals_to(char* str, char* other);
+// - test
+extern void test_str(void);
 
 // time.c
+// - timer
 extern void timer_tick(timer* timer, const duration delta);
 extern void timer_reset(timer* timer);
 extern bool timer_is_timeout(const timer* timer);
 extern float timer_timeout_ratio(const timer* timer);
+// - sleep
 extern void sleep_for(const duration duration);
+// - test
+extern void test_time(void);
+
+// test.c
+#define EXPECT(actual, expected)               \
+    {                                          \
+        printf(#actual " -> " #expected ": "); \
+                                               \
+        const bool x = (actual) == (expected); \
+        printf(x ? "OK" : "Failed");           \
+        printf("\n");                          \
+        if (!x) {                              \
+            exit(1);                           \
+        }                                      \
+    }
+
+#define EXPECT_TRUE(actual) EXPECT(actual, true)
+#define EXPECT_FALSE(actual) EXPECT(actual, false)

@@ -8,6 +8,10 @@ ccodoc: main.o ccodoc.o renderer.o string.o time.o
 run: ccodoc
 	./ccodoc $(ARGS)
 
+.PHONY: test
+test: ccodoc
+	./ccodoc --test
+
 .PHONY: clean
 clean:
 	$(RM) ccodoc *.o
