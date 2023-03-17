@@ -71,6 +71,8 @@ moment moment_from_duration(const duration d, time_precision precision)
         if (precision == time_min) {
             mins = ceil(mins);
         }
+        mins = MIN(mins, 59);
+
         moment.mins = (unsigned int)mins;
 
         current.msecs -= (unsigned long)moment.mins * time_min;
@@ -81,6 +83,8 @@ moment moment_from_duration(const duration d, time_precision precision)
         if (precision == time_sec) {
             secs = ceil(secs);
         }
+        secs = MIN(secs, 59);
+
         moment.secs = (unsigned int)secs;
 
         current.msecs -= (unsigned long)moment.secs * time_sec;
@@ -91,6 +95,8 @@ moment moment_from_duration(const duration d, time_precision precision)
         if (precision == time_msec) {
             msecs = ceil(msecs);
         }
+        msecs = MIN(msecs, 999);
+
         moment.msecs = (unsigned int)msecs;
 
         current.msecs -= (unsigned long)moment.msecs * time_msec;
@@ -121,7 +127,7 @@ void test_time(void)
     printf("# time\n");
 
     {
-        printf("## timer\n");
+        printf("## timer (duration: 00:00:01:00)\n");
 
         timer timer = {
             .duration = { .msecs = 1000 },
@@ -160,59 +166,124 @@ void test_time(void)
             EXPECT(timer_timeout_ratio(&timer), 0);
             EXPECT(timer_remaining_time(&timer).msecs, 1000);
         }
-
-        printf("\n");
     }
 
     {
-        printf("## duration\n");
-
-        duration duration = duration_from_moment((moment) {
-            .hours = 2,
-            .mins = 45,
-            .secs = 20,
-            .msecs = 500,
-        });
+        printf("\n## duration\n");
 
         {
-            printf("- in msecs\n");
-            EXPECT(duration.msecs, 2 * time_hour + 45 * time_min + 20 * time_sec + 500 * time_msec);
+            printf("### 02:45:20:500\n");
+
+            duration duration = duration_from_moment((moment) {
+                .hours = 2,
+                .mins = 45,
+                .secs = 20,
+                .msecs = 500,
+            });
+
+            {
+                printf("- msecs\n");
+                EXPECT(duration.msecs, 2 * time_hour + 45 * time_min + 20 * time_sec + 500 * time_msec);
+            }
+
+            {
+                printf("- moment (precision: hour)\n");
+                moment m = moment_from_duration(duration, time_hour);
+                EXPECT(m.hours, 3);
+                EXPECT(m.mins, 0);
+                EXPECT(m.secs, 0);
+                EXPECT(m.msecs, 0);
+            }
+
+            {
+                printf("- moment (precision: min)\n");
+                moment m = moment_from_duration(duration, time_min);
+                EXPECT(m.hours, 2);
+                EXPECT(m.mins, 46);
+                EXPECT(m.secs, 0);
+                EXPECT(m.msecs, 0);
+            }
+
+            {
+                printf("- moment (precision: sec)\n");
+                moment m = moment_from_duration(duration, time_sec);
+                EXPECT(m.hours, 2);
+                EXPECT(m.mins, 45);
+                EXPECT(m.secs, 21);
+                EXPECT(m.msecs, 0);
+            }
+
+            {
+                printf("- moment (precision: msec)\n");
+                moment m = moment_from_duration(duration, time_msec);
+                EXPECT(m.hours, 2);
+                EXPECT(m.mins, 45);
+                EXPECT(m.secs, 20);
+                EXPECT(m.msecs, 500);
+            }
         }
 
         {
-            printf("- to moment (precision: hour)\n");
-            moment moment1 = moment_from_duration(duration, time_hour);
-            EXPECT(moment1.hours, 3);
-            EXPECT(moment1.mins, 0);
-            EXPECT(moment1.secs, 0);
-            EXPECT(moment1.msecs, 0);
+            printf("\n### 01:00:00:000\n");
+
+            duration duration = duration_from_moment((moment) {
+                .hours = 1,
+            });
+
+            {
+                printf("- moment (precision: min)\n");
+                moment m = moment_from_duration(duration, time_min);
+                EXPECT(m.hours, 1);
+                EXPECT(m.mins, 0);
+                EXPECT(m.secs, 0);
+                EXPECT(m.msecs, 0);
+            }
         }
 
         {
-            printf("- to moment (precision: min)\n");
-            moment moment1 = moment_from_duration(duration, time_min);
-            EXPECT(moment1.hours, 2);
-            EXPECT(moment1.mins, 46);
-            EXPECT(moment1.secs, 0);
-            EXPECT(moment1.msecs, 0);
-        }
+            printf("\n### 00:59:59:999\n");
 
-        {
-            printf("- to moment (precision: sec)\n");
-            moment moment1 = moment_from_duration(duration, time_sec);
-            EXPECT(moment1.hours, 2);
-            EXPECT(moment1.mins, 45);
-            EXPECT(moment1.secs, 21);
-            EXPECT(moment1.msecs, 0);
-        }
+            duration duration = duration_from_moment((moment) {
+                .mins = 59,
+                .secs = 59,
+                .msecs = 999,
+            });
 
-        {
-            printf("- to moment (precision: msec)\n");
-            moment moment1 = moment_from_duration(duration, time_msec);
-            EXPECT(moment1.hours, 2);
-            EXPECT(moment1.mins, 45);
-            EXPECT(moment1.secs, 20);
-            EXPECT(moment1.msecs, 500);
+            {
+                printf("- moment (precision: hour)\n");
+                moment m = moment_from_duration(duration, time_hour);
+                EXPECT(m.hours, 1);
+                EXPECT(m.mins, 0);
+                EXPECT(m.secs, 0);
+                EXPECT(m.msecs, 0);
+            }
+
+            {
+                printf("- moment (precision: min)\n");
+                moment m = moment_from_duration(duration, time_min);
+                EXPECT(m.hours, 0);
+                EXPECT(m.mins, 59);
+                EXPECT(m.secs, 0);
+                EXPECT(m.msecs, 0);
+            }
+
+            {
+                printf("- moment (precision: sec)\n");
+                moment m = moment_from_duration(duration, time_sec);
+                EXPECT(m.hours, 0);
+                EXPECT(m.mins, 59);
+                EXPECT(m.secs, 59);
+                EXPECT(m.msecs, 0);
+            }
+
+            {
+                printf("- moment (precision: msec)\n");
+                moment m = moment_from_duration(duration, time_msec);
+                EXPECT(m.hours, 0);
+                EXPECT(m.mins, 59);
+                EXPECT(m.secs, 59);
+                EXPECT(m.msecs, 999);
+            }
         }
     }
 }
