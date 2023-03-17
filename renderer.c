@@ -186,20 +186,35 @@ static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hach
     ctx->current.x += width;
 }
 
+static const char* ccodoc_water_flow_state_str(ccodoc_water_flow_state state)
+{
+    switch (state) {
+    case ccodoc_holding_water:
+        return "holding";
+    case ccodoc_releasing_water:
+        return "releasing";
+    }
+}
+
 static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc* ccodoc)
 {
-    static const unsigned int height = 3;
+    static const unsigned int height = 8;
 
     const point window_size = ccodoc_get_rendering_window_size(renderer);
 
-    const point origin = {
+    point p = {
         .x = 0,
         .y = window_size.y - height,
     };
 
-    ccodoc_print(origin.y, origin.x, "DEBUG -------");
-    ccodoc_print(origin.y + 1, origin.x, "- tsutsu");
-    ccodoc_printf(origin.y + 2, origin.x, "water_amount_ratio: %f\n", ccodoc_tsutsu_water_amount_ratio(&ccodoc->tsutsu));
+    ccodoc_print(p.y++, p.x, "DEBUG -------");
+    ccodoc_print(p.y++, p.x, "- kakehi");
+    ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->kakehi.state));
+    ccodoc_print(p.y++, p.x, "- tsutsu");
+    ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->tsutsu.state));
+    ccodoc_printf(p.y++, p.x, "water_amount_ratio: %f", ccodoc_tsutsu_water_amount_ratio(&ccodoc->tsutsu));
+    ccodoc_print(p.y++, p.x, "- hachi");
+    ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->hachi.state));
 }
 
 static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer)
