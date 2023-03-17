@@ -19,7 +19,14 @@ static void ccodoc_render_kakehi(ccodoc_rendering_context* ctx, const ccodoc_kak
 static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsutsu* tsutsu);
 static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hachi* hachi);
 
-static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc_context* ctx, const ccodoc* ccodoc);
+static void ccodoc_render_timer(ccodoc_rendering_context* ctx, const timer* timer);
+
+static void ccodoc_render_debug_info(
+    const ccodoc_renderer* renderer,
+    const ccodoc_context* ctx,
+    const timer* timer,
+    const ccodoc* ccodoc
+);
 
 static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer);
 
@@ -44,7 +51,7 @@ void ccodoc_deinit_renderer(ccodoc_renderer* render)
     render->window = NULL;
 }
 
-void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const ccodoc* ccodoc)
+void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const timer* timer, const ccodoc* ccodoc)
 {
     static const point ccodoc_size = {
         .x = 16,
@@ -67,9 +74,12 @@ void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const c
     ccodoc_render_tsutsu(&rctx, &ccodoc->tsutsu);
     ccodoc_render_hachi(&rctx, &ccodoc->hachi);
     ccodoc_print(rctx.current.y, rctx.current.x, "━━━━━━▨▨▨▨");
+    ccodoc_wrap_rendering_lines(&rctx, 1);
+
+    ccodoc_render_timer(&rctx, timer);
 
     if (ctx->debug) {
-        ccodoc_render_debug_info(renderer, ctx, ccodoc);
+        ccodoc_render_debug_info(renderer, ctx, timer, ccodoc);
     }
 
     refresh();
@@ -196,7 +206,19 @@ static const char* ccodoc_water_flow_state_str(ccodoc_water_flow_state state)
     }
 }
 
-static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccodoc_context* ctx, const ccodoc* ccodoc)
+static void ccodoc_render_timer(ccodoc_rendering_context* ctx, const timer* timer)
+{
+    const moment moment = moment_from_duration(timer_remaining_time(timer), time_min);
+
+    ccodoc_printf(ctx->current.y + 2, ctx->current.x + 4, "%02d:%02d", moment.hours, moment.mins);
+}
+
+static void ccodoc_render_debug_info(
+    const ccodoc_renderer* renderer,
+    const ccodoc_context* ctx,
+    const timer* timer,
+    const ccodoc* ccodoc
+)
 {
     static const unsigned int height = 8;
 
@@ -208,15 +230,30 @@ static void ccodoc_render_debug_info(const ccodoc_renderer* renderer, const ccod
     };
 
     ccodoc_print(p.y++, p.x, "DEBUG -------");
-    ccodoc_print(p.y++, p.x, "- engine");
-    ccodoc_printf(p.y++, p.x, "fps: %d", ctx->fps);
-    ccodoc_print(p.y++, p.x, "- kakehi");
-    ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->kakehi.state));
-    ccodoc_print(p.y++, p.x, "- tsutsu");
-    ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->tsutsu.state));
-    ccodoc_printf(p.y++, p.x, "water_amount_ratio: %f", ccodoc_tsutsu_water_amount_ratio(&ccodoc->tsutsu));
-    ccodoc_print(p.y++, p.x, "- hachi");
-    ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->hachi.state));
+
+    {
+        moment m = moment_from_duration(timer_remaining_time(timer), time_msec);
+        ccodoc_print(p.y++, p.x, "- timer");
+        ccodoc_printf(p.y++, p.x, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
+    }
+
+    {
+        ccodoc_print(p.y++, p.x, "- engine");
+        ccodoc_printf(p.y++, p.x, "fps: %d", ctx->fps);
+    }
+
+    {
+
+        ccodoc_print(p.y++, p.x, "- kakehi");
+        ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->kakehi.state));
+
+        ccodoc_print(p.y++, p.x, "- tsutsu");
+        ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->tsutsu.state));
+        ccodoc_printf(p.y++, p.x, "water_amount_ratio: %f", ccodoc_tsutsu_water_amount_ratio(&ccodoc->tsutsu));
+
+        ccodoc_print(p.y++, p.x, "- hachi");
+        ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->hachi.state));
+    }
 }
 
 static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer)

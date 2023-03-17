@@ -9,8 +9,22 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+typedef enum {
+    time_msec = 1,
+    time_sec = 1000 * time_msec,
+    time_min = 60 * time_sec,
+    time_hour = 60 * time_min,
+} time_precision;
+
 typedef struct {
-    unsigned long msec;
+    unsigned int hours;
+    unsigned int mins;
+    unsigned int secs;
+    unsigned int msecs;
+} moment;
+
+typedef struct {
+    unsigned long msecs;
 } duration;
 
 typedef struct {
@@ -76,7 +90,7 @@ extern void test_ccodoc(void);
 // renderer.c
 extern void ccodoc_init_renderer(ccodoc_renderer* renderer);
 extern void ccodoc_deinit_renderer(ccodoc_renderer* renderer);
-extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const ccodoc* ccodoc);
+extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const timer* timer, const ccodoc* ccodoc);
 
 // string.c
 extern bool str_equals_to(char* str, char* other);
@@ -89,8 +103,13 @@ extern void timer_tick(timer* timer, const duration delta);
 extern void timer_reset(timer* timer);
 extern bool timer_is_timeout(const timer* timer);
 extern float timer_timeout_ratio(const timer* timer);
+extern duration timer_remaining_time(const timer* timer);
 // - sleep
 extern void sleep_for(const duration duration);
+// - moment
+extern moment moment_from_duration(const duration duration, time_precision precision);
+// - duration
+extern duration duration_from_moment(const moment moment);
 // - test
 extern void test_time(void);
 

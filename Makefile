@@ -2,7 +2,7 @@ CC := clang
 CFLAGS := -std=c17 -Wall -Wextra -pedantic
 
 ccodoc: main.o ccodoc.o renderer.o string.o time.o
-	$(CC) $(CFLAGS) -lncursesw -o $@ $^
+	$(CC) $(CFLAGS) -lm -lncursesw -o $@ $^
 
 .PHONY: run
 run: ccodoc

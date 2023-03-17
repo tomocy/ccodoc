@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 static void configure_with_args(ccodoc_context* ctx, int argc, char** argv);
-static int run(const ccodoc_context* ctx, ccodoc* ccodoc);
+static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc);
 static int test(void);
 
 int main(int argc, char** argv)
@@ -14,25 +14,32 @@ int main(int argc, char** argv)
 
     configure_with_args(&ctx, argc, argv);
 
+    timer timer = {
+        .duration = duration_from_moment((moment) {
+            .mins = 1,
+            .secs = 30,
+        }),
+    };
+
     ccodoc ccodoc = {
         .kakehi = {
             .release_water_ratio = 0.1f,
             .holding_water_timer = {
-                .duration = { .msec = 2500 },
+                .duration = { .msecs = 2500 },
             },
             .releasing_water_timer = {
-                .duration = { .msec = 500 },
+                .duration = { .msecs = 500 },
             },
         },
         .tsutsu = {
             .water_capacity = 10,
             .releasing_water_timer = {
-                .duration = { .msec = 1800 },
+                .duration = { .msecs = 1800 },
             },
         },
         .hachi = {
             .releasing_water_timer = {
-                .duration = { .msec = 1000 },
+                .duration = { .msecs = 1000 },
             },
         },
     };
@@ -41,7 +48,7 @@ int main(int argc, char** argv)
         return test();
     }
 
-    return run(&ctx, &ccodoc);
+    return run(&ctx, &timer, &ccodoc);
 }
 
 static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
@@ -66,12 +73,12 @@ static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
     }
 }
 
-static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
+static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc)
 {
     assert(ctx->fps != 0);
 
     const duration delta = {
-        .msec = 1000 / ctx->fps,
+        .msecs = 1000 / ctx->fps,
     };
 
     ccodoc_renderer renderer = { 0 };
@@ -79,9 +86,10 @@ static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
     ccodoc_init_renderer(&renderer);
 
     while (1) {
+        timer_tick(timer, delta);
         ccodoc_tick(ccodoc, delta);
 
-        ccodoc_render(&renderer, ctx, ccodoc);
+        ccodoc_render(&renderer, ctx, timer, ccodoc);
 
         sleep_for(delta);
     }
@@ -93,16 +101,14 @@ static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
 
 static int test(void)
 {
-    printf("# ccodoc\n");
     test_ccodoc();
     printf("\n");
 
-    printf("# string\n");
     test_str();
     printf("\n");
 
-    printf("# time\n");
     test_time();
+    printf("\n");
 
     printf("OK\n");
 
