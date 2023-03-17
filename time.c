@@ -3,14 +3,17 @@
 
 extern int nanosleep(const struct timespec* requested_time, struct timespec* remaining);
 
-void ticker_tick(ticker* ticker, const duration delta)
+static void ticker_tick(ticker* ticker, const duration delta);
+static void ticker_reset(ticker* ticker);
+
+void timer_tick(timer* timer, const duration delta)
 {
-    ticker->elapsed.msec += delta.msec;
+    ticker_tick(&timer->ticker, delta);
 }
 
-void ticker_reset(ticker* ticker)
+void timer_reset(timer* timer)
 {
-    ticker->elapsed.msec = 0;
+    ticker_reset(&timer->ticker);
 }
 
 bool timer_is_timeout(const timer* timer)
@@ -38,4 +41,14 @@ void sleep_for(const duration duration)
     do {
         slept = nanosleep(&time_spec, &time_spec);
     } while (slept != 0);
+}
+
+static void ticker_tick(ticker* ticker, const duration delta)
+{
+    ticker->elapsed.msec += delta.msec;
+}
+
+static void ticker_reset(ticker* ticker)
+{
+    ticker->elapsed.msec = 0;
 }

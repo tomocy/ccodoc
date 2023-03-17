@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 typedef struct {
     unsigned long msec;
 } duration;
@@ -60,6 +63,7 @@ typedef struct {
 
 // ccodoc.c
 extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
+// - debug
 extern float ccodoc_tsutsu_water_amount_ratio(const ccodoc_tsutsu* tsutsu);
 
 // renderer.c
@@ -71,8 +75,8 @@ extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, 
 extern bool str_equals_to(char* str, char* other);
 
 // time.c
-extern void ticker_tick(ticker* ticker, const duration delta);
-extern void ticker_reset(ticker* ticker);
+extern void timer_tick(timer* timer, const duration delta);
+extern void timer_reset(timer* timer);
 extern bool timer_is_timeout(const timer* timer);
 extern float timer_timeout_ratio(const timer* timer);
 extern void sleep_for(const duration duration);

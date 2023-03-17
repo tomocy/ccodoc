@@ -31,7 +31,7 @@ static void ccodoc_tick_kakehi(ccodoc* ccodoc, const duration delta)
 
     switch (kakehi->state) {
     case ccodoc_holding_water:
-        ticker_tick(&kakehi->holding_water_timer.ticker, delta);
+        timer_tick(&kakehi->holding_water_timer, delta);
 
         if (!timer_is_timeout(&kakehi->holding_water_timer)) {
             return;
@@ -41,7 +41,7 @@ static void ccodoc_tick_kakehi(ccodoc* ccodoc, const duration delta)
 
         break;
     case ccodoc_releasing_water:
-        ticker_tick(&kakehi->releasing_water_timer.ticker, delta);
+        timer_tick(&kakehi->releasing_water_timer, delta);
 
         if (!timer_is_timeout(&kakehi->releasing_water_timer)) {
             return;
@@ -67,7 +67,7 @@ static void ccodoc_tick_tsutsu(ccodoc* ccodoc, const duration delta)
 
         break;
     case ccodoc_releasing_water: {
-        ticker_tick(&tsutsu->releasing_water_timer.ticker, delta);
+        timer_tick(&tsutsu->releasing_water_timer, delta);
 
         float water_ratio = timer_timeout_ratio(&tsutsu->releasing_water_timer);
 
@@ -90,7 +90,7 @@ static void ccodoc_tick_hachi(ccodoc* ccodoc, const duration delta)
     case ccodoc_holding_water:
         break;
     case ccodoc_releasing_water:
-        ticker_tick(&hachi->releasing_water_timer.ticker, delta);
+        timer_tick(&hachi->releasing_water_timer, delta);
 
         if (!timer_is_timeout(&hachi->releasing_water_timer)) {
             break;
@@ -112,7 +112,7 @@ static void ccodoc_hold_kakehi_water(ccodoc* ccodoc)
     }
 
     kakehi->state = state;
-    ticker_reset(&kakehi->holding_water_timer.ticker);
+    timer_reset(&kakehi->holding_water_timer);
 }
 
 static void ccodoc_release_kakehi_water(ccodoc* ccodoc)
@@ -125,7 +125,7 @@ static void ccodoc_release_kakehi_water(ccodoc* ccodoc)
     }
 
     kakehi->state = state;
-    ticker_reset(&kakehi->releasing_water_timer.ticker);
+    timer_reset(&kakehi->releasing_water_timer);
 
     ccodoc_pour_tsutsu_by(&ccodoc->tsutsu, kakehi->release_water_ratio);
 }
@@ -153,7 +153,7 @@ static void ccodoc_release_tsutsu_water(ccodoc* ccodoc)
     }
 
     tsutsu->state = state;
-    ticker_reset(&tsutsu->releasing_water_timer.ticker);
+    timer_reset(&tsutsu->releasing_water_timer);
 
     ccodoc_release_hachi_water(ccodoc);
 }
@@ -180,7 +180,7 @@ static void ccodoc_release_hachi_water(ccodoc* ccodoc)
     }
 
     hachi->state = state;
-    ticker_reset(&hachi->releasing_water_timer.ticker);
+    timer_reset(&hachi->releasing_water_timer);
 }
 
 static void ccodoc_pour_tsutsu_by(ccodoc_tsutsu* tsutsu, float ratio)
