@@ -10,16 +10,14 @@ int main(int argc, char** argv)
     ccodoc_context ctx = {
         .fps = 24,
         .debug = false,
+        .duration = duration_from_moment((moment) {
+            .mins = 30,
+        }),
     };
 
     configure_with_args(&ctx, argc, argv);
 
-    timer timer = {
-        .duration = duration_from_moment((moment) {
-            .mins = 1,
-            .secs = 30,
-        }),
-    };
+    timer timer = { .duration = ctx.duration };
 
     ccodoc ccodoc = {
         .kakehi = {
@@ -69,6 +67,17 @@ static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
 
         if (str_equals_to(arg, "--test")) {
             ctx->test = true;
+        }
+
+        if (str_equals_to(arg, "--duration")) {
+            moment m = { 0 };
+            // NOLINTNEXTLINE(cert-err34-c)
+            (void)sscanf(argv[i + 1], "%d:%d", &m.hours, &m.mins);
+
+            const duration d = duration_from_moment(m);
+            if (d.msecs != 0) {
+                ctx->duration = d;
+            }
         }
     }
 }

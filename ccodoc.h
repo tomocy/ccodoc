@@ -40,6 +40,8 @@ typedef struct {
     unsigned int fps;
     bool debug;
     bool test;
+
+    duration duration;
 } ccodoc_context;
 
 typedef enum {
