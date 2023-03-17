@@ -79,7 +79,7 @@ static void ccodoc_render_kakehi(ccodoc_rendering_context* ctx, const ccodoc_kak
 {
     static const int kakehi_len = 3;
 
-    float holding_ratio = timer_timeout_ratio(&kakehi->holding_timer);
+    float holding_ratio = timer_timeout_ratio(&kakehi->holding_water_timer);
 
     int holding_index = 0;
     if (0.3 <= holding_ratio && holding_ratio < 0.6) {
@@ -169,7 +169,7 @@ static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hach
         ccodoc_print(ctx->current.y, ctx->current.x, "▭▭▭▭");
         break;
     case ccodoc_releasing_water: {
-        float ratio = timer_timeout_ratio(&hachi->releasing_timer);
+        float ratio = timer_timeout_ratio(&hachi->releasing_water_timer);
 
         if (ratio < 0.35) {
             ccodoc_print(ctx->current.y, ctx->current.x, "▭▬▬▭");

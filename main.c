@@ -13,22 +13,22 @@ int main(int argc, char** argv)
 
     ccodoc ccodoc = {
         .kakehi = {
-            .pour_ratio = 0.1f,
-            .holding_timer = {
+            .release_water_ratio = 0.1f,
+            .holding_water_timer = {
                 .duration = { .msec = 2500 },
             },
-            .releasing_timer = {
+            .releasing_water_timer = {
                 .duration = { .msec = 500 },
             },
         },
         .tsutsu = {
             .water_capacity = 10,
-            .releasing_timer = {
+            .releasing_water_timer = {
                 .duration = { .msec = 1800 },
             },
         },
         .hachi = {
-            .releasing_timer = {
+            .releasing_water_timer = {
                 .duration = { .msec = 1000 },
             },
         },
@@ -50,7 +50,7 @@ static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
 
 static int run(const ccodoc_context* ctx, ccodoc* ccodoc)
 {
-    static const duration delta = { .msec = 100 };
+    static const duration delta = { .msec = 50 };
 
     ccodoc_renderer renderer = { 0 };
 

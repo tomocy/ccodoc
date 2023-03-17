@@ -28,9 +28,9 @@ typedef enum {
 // kakehi（筧）
 typedef struct {
     ccodoc_water_flow_state state;
-    float pour_ratio;
-    timer holding_timer;
-    timer releasing_timer;
+    float release_water_ratio;
+    timer holding_water_timer;
+    timer releasing_water_timer;
 } ccodoc_kakehi;
 
 // tsutsu（筒）
@@ -38,13 +38,13 @@ typedef struct {
     ccodoc_water_flow_state state;
     unsigned int water_amount;
     unsigned int water_capacity;
-    timer releasing_timer;
+    timer releasing_water_timer;
 } ccodoc_tsutsu;
 
 // hachi（手水鉢）
 typedef struct {
     ccodoc_water_flow_state state;
-    timer releasing_timer;
+    timer releasing_water_timer;
 } ccodoc_hachi;
 
 // ccodoc（鹿威し）
