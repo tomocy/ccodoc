@@ -37,7 +37,7 @@ typedef struct {
 } timer;
 
 typedef struct {
-    unsigned int fps;
+    bool help;
     bool debug;
     bool test;
 
@@ -95,7 +95,7 @@ extern void ccodoc_deinit_renderer(ccodoc_renderer* renderer);
 extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const timer* timer, const ccodoc* ccodoc);
 
 // string.c
-extern bool str_equals_to(char* str, char* other);
+extern bool str_equals_to(const char* str, const char* other);
 // - test
 extern void test_str(void);
 

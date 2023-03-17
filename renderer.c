@@ -220,7 +220,9 @@ static void ccodoc_render_debug_info(
     const ccodoc* ccodoc
 )
 {
-    static const unsigned int height = 8;
+    static const unsigned int height = 10;
+
+    (void)ctx;
 
     const point window_size = ccodoc_get_rendering_window_size(renderer);
 
@@ -235,11 +237,6 @@ static void ccodoc_render_debug_info(
         moment m = moment_from_duration(timer_remaining_time(timer), time_msec);
         ccodoc_print(p.y++, p.x, "- timer");
         ccodoc_printf(p.y++, p.x, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
-    }
-
-    {
-        ccodoc_print(p.y++, p.x, "- engine");
-        ccodoc_printf(p.y++, p.x, "fps: %d", ctx->fps);
     }
 
     {

@@ -1,21 +1,38 @@
 #include "ccodoc.h"
 #include <stdio.h>
 
-static void configure_with_args(ccodoc_context* ctx, int argc, char** argv);
-static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc);
+static const char* configure_with_args(ccodoc_context* ctx, int argc, const char** argv);
+static void help(void);
 static int test(void);
+static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc);
 
-int main(int argc, char** argv)
+int main(int argc, const char** argv)
 {
     ccodoc_context ctx = {
-        .fps = 24,
         .debug = false,
         .duration = duration_from_moment((moment) {
             .mins = 30,
         }),
     };
 
-    configure_with_args(&ctx, argc, argv);
+    {
+        const char* err = configure_with_args(&ctx, argc, argv);
+        if (err != NULL) {
+            help();
+            printf("\n");
+            (void)fprintf(stderr, "invalid options: %s\n", err);
+            return 1;
+        }
+    }
+
+    if (ctx.help) {
+        help();
+        return 0;
+    }
+
+    if (ctx.test) {
+        return test();
+    }
 
     timer timer = { .duration = ctx.duration };
 
@@ -42,23 +59,27 @@ int main(int argc, char** argv)
         },
     };
 
-    if (ctx.test) {
-        return test();
-    }
-
     return run(&ctx, &timer, &ccodoc);
 }
 
-static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
+static const char* read_arg(int* i, const char** argv)
+{
+    int next = *i + 1;
+    if (!argv[next]) {
+        return NULL;
+    }
+
+    *i = next;
+    return argv[*i];
+}
+
+static const char* configure_with_args(ccodoc_context* ctx, int argc, const char** argv)
 {
     for (int i = 1; i < argc; i++) {
-        char* arg = argv[i];
+        const char* arg = argv[i];
 
-        if (str_equals_to(arg, "--fps")) {
-            const unsigned long fps = strtoul(argv[i + 1], NULL, 10);
-            if (fps != 0) {
-                ctx->fps = fps;
-            }
+        if (str_equals_to(arg, "--help")) {
+            ctx->help = true;
         }
 
         if (str_equals_to(arg, "--debug")) {
@@ -70,9 +91,14 @@ static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
         }
 
         if (str_equals_to(arg, "--duration")) {
+            const char* raw = read_arg(&i, argv);
+            if (raw == NULL) {
+                return "duration: the value should be provided";
+            }
+
             moment m = { 0 };
             // NOLINTNEXTLINE(cert-err34-c)
-            (void)sscanf(argv[i + 1], "%d:%d", &m.hours, &m.mins);
+            (void)sscanf(raw, "%d:%d", &m.hours, &m.mins);
 
             const duration d = duration_from_moment(m);
             if (d.msecs != 0) {
@@ -80,14 +106,31 @@ static void configure_with_args(ccodoc_context* ctx, int argc, char** argv)
             }
         }
     }
+
+    return NULL;
+}
+
+static void print_arg_help(const char* arg, const char* description)
+{
+    printf("%s\n", arg);
+    printf("  %s\n\n", description);
+}
+
+static void help(void)
+{
+    printf("# ccodoc\n");
+    printf("timer with ccodoc（ししおどし）\n");
+
+    printf("\n## options\n");
+    print_arg_help("--help", "Print help.");
+    print_arg_help("--debug", "Show debug info.");
+    print_arg_help("--duration HH:mm", "Set the timer for this duration. (default: 00:30)");
 }
 
 static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc)
 {
-    assert(ctx->fps != 0);
-
-    const duration delta = {
-        .msecs = 1000 / ctx->fps,
+    static const duration delta = {
+        .msecs = 1000 / 24,
     };
 
     ccodoc_renderer renderer = { 0 };
