@@ -34,26 +34,39 @@ static rendering_context init_rendering_context(const context* ctx, point origin
 static void wrap_rendering_lines(rendering_context* ctx, unsigned int n);
 
 typedef enum {
-    color_green = 1,
+    color_black = 1,
+    color_red,
+    color_green,
+    color_yellow,
     color_blue,
     color_white,
 } color;
 
 typedef struct {
     color color;
+    bool dim;
+    bool bold;
+    bool underline;
 } rendering_attr;
 
-#define WITH_RENDERING_ATTR(attr, ...)     \
-    {                                      \
-        attron(COLOR_PAIR((attr).color));  \
-        __VA_ARGS__                        \
-        attroff(COLOR_PAIR((attr).color)); \
+#define WITH_RENDERING_ATTR(attr, ...)          \
+    {                                           \
+        const rendering_attr x = (attr);        \
+        int attrs = 0;                          \
+        attrs |= COLOR_PAIR(x.color);           \
+        attrs |= x.dim ? A_DIM : 0;             \
+        attrs |= x.bold ? A_BOLD : 0;           \
+        attrs |= x.underline ? A_UNDERLINE : 0; \
+                                                \
+        attron(attrs);                          \
+        __VA_ARGS__;                            \
+        attroff(attrs);                         \
     }
 
 #define PREFER_RENDERING_WITH_ATTR(with_attr, attr, ...) \
     {                                                    \
         if (with_attr) {                                 \
-            WITH_RENDERING_ATTR(attr, __VA_ARGS__);      \
+            WITH_RENDERING_ATTR((attr), __VA_ARGS__);    \
         } else {                                         \
             __VA_ARGS__                                  \
         }                                                \
@@ -72,7 +85,10 @@ void init_renderer(renderer* render, const context* ctx)
 
     if (ctx->decorative && has_colors()) {
         start_color();
+        init_pair(color_black, COLOR_BLACK, COLOR_BLACK);
+        init_pair(color_red, COLOR_RED, COLOR_BLACK);
         init_pair(color_green, COLOR_GREEN, COLOR_BLACK);
+        init_pair(color_yellow, COLOR_YELLOW, COLOR_BLACK);
         init_pair(color_blue, COLOR_BLUE, COLOR_BLACK);
         init_pair(color_white, COLOR_WHITE, COLOR_BLACK);
     }
@@ -120,7 +136,7 @@ void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, c
 
 static void render_kakehi(rendering_context* ctx, const kakehi* kakehi)
 {
-    float holding_ratio = elapsed_ratio(&kakehi->holding_water_timer);
+    const float holding_ratio = elapsed_ratio(&kakehi->holding_water_timer);
 
     const char* art = "━══";
     if (0.3 <= holding_ratio && holding_ratio < 0.6) {
@@ -134,13 +150,13 @@ static void render_kakehi(rendering_context* ctx, const kakehi* kakehi)
     if (ctx->app->decorative) {
         int i = 0;
         for (const char* c = art; *c;) {
-            size_t len = decode_char_utf8(c);
-            const color color = str_equals_n(c, "━", len)
-                ? color_blue
-                : color_white;
+            const size_t len = decode_char_utf8(c);
+            const bool has_water = str_equals_n(c, "━", len);
 
             WITH_RENDERING_ATTR(
-                (rendering_attr) { .color = color },
+                ((rendering_attr) {
+                    .color = has_water ? color_blue : color_yellow,
+                }),
                 {
                     renderf(ctx->current.y, ctx->current.x + i, "%.*s", len, c);
                 }
@@ -222,24 +238,27 @@ static void render_tsutsu(rendering_context* ctx, const tsutsu* tsutsu)
         int i = 0;
         const char* c = art[h];
         while (*c) {
-            size_t len = decode_char_utf8(c);
+            const size_t len = decode_char_utf8(c);
 
-            color color = color_white;
+            rendering_attr attr = (rendering_attr) { .color = color_white };
+
             if (
                 str_equals_n(c, "◥", len)
                 || str_equals_n(c, "◣", len)
                 || str_equals_n(c, "◢", len)
                 || str_equals_n(c, "◤", len)
             ) {
-                color = color_green;
+                attr.color = color_green;
             }
 
-            WITH_RENDERING_ATTR(
-                (rendering_attr) { .color = color },
-                {
-                    renderf(origin.y + h, origin.x + i, "%.*s", len, c);
-                }
-            );
+            if (str_equals_n(c, "▕", len)) {
+                attr.color = color_yellow;
+                attr.dim = true;
+            }
+
+            WITH_RENDERING_ATTR(attr, {
+                renderf(origin.y + h, origin.x + i, "%.*s", len, c);
+            });
 
             i++;
             c += len;
@@ -251,7 +270,7 @@ static void render_tsutsu(rendering_context* ctx, const tsutsu* tsutsu)
 
 static void render_hachi(rendering_context* ctx, const hachi* hachi)
 {
-    static unsigned int width = 4;
+    static const unsigned int width = 4;
 
     const char* art = NULL;
 
@@ -278,12 +297,13 @@ static void render_hachi(rendering_context* ctx, const hachi* hachi)
         int i = 0;
         const char* c = art;
         while (*c) {
-            size_t len = decode_char_utf8(c);
-
-            color color = str_equals_n(c, "▬", len) ? color_blue : color_white;
+            const size_t len = decode_char_utf8(c);
+            const bool has_water = str_equals_n(c, "▬", len);
 
             WITH_RENDERING_ATTR(
-                (rendering_attr) { .color = color },
+                ((rendering_attr) {
+                    .color = has_water ? color_blue : color_white,
+                }),
                 {
                     renderf(ctx->current.y, ctx->current.x + i, "%.*s", len, c);
                 }
@@ -301,9 +321,17 @@ static void render_roji(const rendering_context* ctx)
 {
     PREFER_RENDERING_WITH_ATTR(
         ctx->app->decorative,
-        (rendering_attr) { .color = color_white },
+        ((rendering_attr) { .color = color_green, .dim = true }),
         {
-            render(ctx->current.y, ctx->current.x, "━━━━━━▨▨▨▨");
+            render(ctx->current.y, ctx->current.x, "━━━━━━");
+        }
+    );
+
+    PREFER_RENDERING_WITH_ATTR(
+        ctx->app->decorative,
+        ((rendering_attr) { .color = color_white }),
+        {
+            render(ctx->current.y, ctx->current.x + 6, "▨▨▨▨");
         }
     );
 }
@@ -324,7 +352,7 @@ static void render_timer(rendering_context* ctx, const timer* timer)
 
     PREFER_RENDERING_WITH_ATTR(
         ctx->app->decorative,
-        (rendering_attr) { .color = color_white },
+        ((rendering_attr) { .color = color_white }),
         {
             renderf(ctx->current.y + 2, ctx->current.x + 4, "%02d:%02d", moment.hours, moment.mins);
         }
@@ -339,38 +367,55 @@ static void render_debug_info(
 {
     PREFER_RENDERING_WITH_ATTR(
         ctx->decorative,
-        (rendering_attr) { .color = color_blue },
+        ((rendering_attr) { .color = color_white }),
         {
             point p = {
                 .x = 0,
                 .y = 0,
             };
 
-            render(p.y++, p.x, "DEBUG -------");
+            PREFER_RENDERING_WITH_ATTR(
+                ctx->decorative,
+                ((rendering_attr) { .bold = true }),
+                {
+                    render(p.y++, p.x, "DEBUG -------");
+                }
+            );
 
             {
                 render(p.y++, p.x, "# engine");
+
                 renderf(p.y++, p.x, "decorative: %s", ctx->decorative ? "yes" : "no");
             }
 
             {
-                moment m = moment_from_duration(remaining_time(timer), time_msec);
                 render(p.y++, p.x, "# timer");
+
+                const moment m = moment_from_duration(remaining_time(timer), time_msec);
                 renderf(p.y++, p.x, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
             }
 
             {
                 render(p.y++, p.x, "# ccodoc");
 
-                render(p.y++, p.x, "## kakehi");
-                renderf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->kakehi.state));
+                {
+                    render(p.y++, p.x, "## kakehi");
 
-                render(p.y++, p.x, "## tsutsu");
-                renderf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->tsutsu.state));
-                renderf(p.y++, p.x, "water_amount_ratio: %f", tsutsu_water_amount_ratio(&ccodoc->tsutsu));
+                    renderf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->kakehi.state));
+                }
 
-                render(p.y++, p.x, "## hachi");
-                renderf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->hachi.state));
+                {
+                    render(p.y++, p.x, "## tsutsu");
+
+                    renderf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->tsutsu.state));
+                    renderf(p.y++, p.x, "water_amount_ratio: %f", tsutsu_water_amount_ratio(&ccodoc->tsutsu));
+                }
+
+                {
+                    render(p.y++, p.x, "## hachi");
+
+                    renderf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->hachi.state));
+                }
             }
         }
     );

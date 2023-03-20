@@ -69,7 +69,7 @@ static void tick_tsutsu(ccodoc* ccodoc, const duration delta)
     case releasing_water: {
         tick_timer(&tsutsu->releasing_water_timer, delta);
 
-        float water_ratio = elapsed_ratio(&tsutsu->releasing_water_timer);
+        const float water_ratio = elapsed_ratio(&tsutsu->releasing_water_timer);
 
         fill_tsutsu_by(tsutsu, 1.0f - water_ratio);
 
@@ -106,7 +106,7 @@ static void hold_kakehi_water(ccodoc* ccodoc)
 {
     kakehi* kakehi = &ccodoc->kakehi;
 
-    water_flow_state state = holding_water;
+    const water_flow_state state = holding_water;
     if (kakehi->state == state) {
         return;
     }
@@ -119,7 +119,7 @@ static void release_kakehi_water(ccodoc* ccodoc)
 {
     kakehi* kakehi = &ccodoc->kakehi;
 
-    water_flow_state state = releasing_water;
+    const water_flow_state state = releasing_water;
     if (kakehi->state == state) {
         return;
     }
@@ -134,7 +134,7 @@ static void hold_tsutsu_water(ccodoc* ccodoc)
 {
     tsutsu* tsutsu = &ccodoc->tsutsu;
 
-    water_flow_state state = holding_water;
+    const water_flow_state state = holding_water;
     if (tsutsu->state == state) {
         return;
     }
@@ -147,7 +147,7 @@ static void release_tsutsu_water(ccodoc* ccodoc)
 {
     tsutsu* tsutsu = &ccodoc->tsutsu;
 
-    water_flow_state state = releasing_water;
+    const water_flow_state state = releasing_water;
     if (tsutsu->state == state) {
         return;
     }
@@ -162,7 +162,7 @@ static void hold_hachi_water(ccodoc* ccodoc)
 {
     hachi* hachi = &ccodoc->hachi;
 
-    water_flow_state state = holding_water;
+    const water_flow_state state = holding_water;
     if (hachi->state == state) {
         return;
     }
@@ -174,7 +174,7 @@ static void release_hachi_water(ccodoc* ccodoc)
 {
     hachi* hachi = &ccodoc->hachi;
 
-    water_flow_state state = releasing_water;
+    const water_flow_state state = releasing_water;
     if (hachi->state == state) {
         return;
     }
@@ -185,7 +185,7 @@ static void release_hachi_water(ccodoc* ccodoc)
 
 static void pour_tsutsu_by(tsutsu* tsutsu, float ratio)
 {
-    unsigned int delta = (unsigned int)((float)tsutsu->water_capacity * ratio);
+    const unsigned int delta = (unsigned int)((float)tsutsu->water_capacity * ratio);
     tsutsu->water_amount = (tsutsu->water_capacity - tsutsu->water_amount > delta)
         ? tsutsu->water_amount + delta
         : tsutsu->water_capacity;
