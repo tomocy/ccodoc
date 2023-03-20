@@ -119,15 +119,8 @@ static int help(void)
 
     printf("\n## options\n");
     print_arg_help("--decorative", "Render ccodoc with decoration.");
-    print_arg_help(
-        "--color-theme",
-        "Render ccodoc in this color theme."
-        " (value: dark, light) (default: dark)"
-        " (this has no effect without --decorative)"
-    );
     print_arg_help("--duration HH:mm", "Set the timer for this duration. (default: 00:30)");
     print_arg_help("--help", "Print help.");
-    print_arg_help("--debug", "Show debug info.");
 
     return EXIT_SUCCESS;
 }
