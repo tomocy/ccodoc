@@ -39,7 +39,6 @@ typedef struct {
 typedef struct {
     bool help;
     bool debug;
-    bool test;
 
     duration duration;
 } ccodoc_context;
@@ -82,12 +81,10 @@ typedef struct {
     WINDOW* window;
 } ccodoc_renderer;
 
-// ccodoc.c
+// engine.c
 extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
 // - debug
 extern float ccodoc_tsutsu_water_amount_ratio(const ccodoc_tsutsu* tsutsu);
-// - test
-extern int test_ccodoc(void);
 
 // renderer.c
 extern void ccodoc_init_renderer(ccodoc_renderer* renderer);
@@ -96,8 +93,6 @@ extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, 
 
 // string.c
 extern bool str_equals_to(const char* str, const char* other);
-// - test
-extern int test_str(void);
 
 // time.c
 // - timer
@@ -112,20 +107,3 @@ extern void sleep_for(const duration duration);
 extern moment moment_from_duration(const duration duration, time_precision precision);
 // - duration
 extern duration duration_from_moment(const moment moment);
-// - test
-extern int test_time(void);
-
-// test
-#define EXPECT(actual, expected)               \
-    {                                          \
-        const bool x = (actual) == (expected); \
-        printf("%s: ", x ? "PASS" : "FAIL");   \
-        printf(#actual " == " #expected);      \
-        printf("\n");                          \
-        if (!x) {                              \
-            return EXIT_FAILURE;               \
-        }                                      \
-    }
-
-#define EXPECT_TRUE(actual) EXPECT(actual, true)
-#define EXPECT_FALSE(actual) EXPECT(actual, false)

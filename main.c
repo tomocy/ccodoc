@@ -3,7 +3,6 @@
 
 static const char* configure_with_args(ccodoc_context* ctx, int argc, const char** argv);
 static int help(void);
-static int test(void);
 static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc);
 
 int main(int argc, const char** argv)
@@ -27,10 +26,6 @@ int main(int argc, const char** argv)
 
     if (ctx.help) {
         return help();
-    }
-
-    if (ctx.test) {
-        return test();
     }
 
     timer timer = { .duration = ctx.duration };
@@ -84,10 +79,6 @@ static const char* configure_with_args(ccodoc_context* ctx, int argc, const char
 
         if (str_equals_to(arg, "--debug")) {
             ctx->debug = true;
-        }
-
-        if (str_equals_to(arg, "--test")) {
-            ctx->test = true;
         }
 
         if (str_equals_to(arg, "--duration")) {
@@ -149,30 +140,6 @@ static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc)
     }
 
     ccodoc_deinit_renderer(&renderer);
-
-    return EXIT_SUCCESS;
-}
-
-#define EXPECT_PASS(label, actual)      \
-    {                                   \
-        printf(label);                  \
-        if ((actual) != EXIT_SUCCESS) { \
-            return EXIT_FAILURE;        \
-        }                               \
-    }
-
-static int test(void)
-{
-    EXPECT_PASS("# ccodoc\n", test_ccodoc());
-    printf("\n");
-
-    EXPECT_PASS("# string\n", test_str());
-    printf("\n");
-
-    EXPECT_PASS("# time\n", test_time());
-    printf("\n");
-
-    printf("ALL PASS\n");
 
     return EXIT_SUCCESS;
 }
