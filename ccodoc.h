@@ -9,6 +9,7 @@
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define CLAMP(min, max, x) MIN(MAX(x, min), max)
 
 typedef enum {
     time_msec = 1,

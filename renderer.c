@@ -34,12 +34,13 @@ static rendering_context init_rendering_context(const context* ctx, point origin
 static void wrap_rendering_lines(rendering_context* ctx, unsigned int n);
 
 typedef enum {
-    color_black = 1,
-    color_red,
-    color_green,
-    color_yellow,
-    color_blue,
-    color_white,
+    color_black = COLOR_BLACK,
+    color_red = COLOR_RED,
+    color_green = COLOR_GREEN,
+    color_yellow = COLOR_YELLOW,
+    color_blue = COLOR_BLUE,
+    color_grey = COLOR_MAGENTA,
+    color_white = COLOR_WHITE,
 } color;
 
 typedef struct {
@@ -75,6 +76,22 @@ typedef struct {
 #define render(y, x, s) mvprintw((int)(y), (int)(x), (s))
 #define renderf(y, x, format, ...) mvprintw((int)(y), (int)(x), (format), __VA_ARGS__)
 
+static void set_color(color color, short r, short g, short b, short supplement)
+{
+    static const float factor = 1000.0f / 255;
+
+    if (can_change_color()) {
+        init_color(
+            color,
+            CLAMP(0, 1000, (r + 1 * supplement) * factor),
+            CLAMP(0, 1000, (g + 1 * supplement) * factor),
+            CLAMP(0, 1000, (b + 1 * supplement) * factor)
+        );
+    }
+
+    init_pair(color, color, color_black);
+}
+
 void init_renderer(renderer* render, const context* ctx)
 {
     (void)setlocale(LC_ALL, "");
@@ -85,12 +102,18 @@ void init_renderer(renderer* render, const context* ctx)
 
     if (ctx->decorative && has_colors()) {
         start_color();
-        init_pair(color_black, COLOR_BLACK, COLOR_BLACK);
-        init_pair(color_red, COLOR_RED, COLOR_BLACK);
-        init_pair(color_green, COLOR_GREEN, COLOR_BLACK);
-        init_pair(color_yellow, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(color_blue, COLOR_BLUE, COLOR_BLACK);
-        init_pair(color_white, COLOR_WHITE, COLOR_BLACK);
+
+        const short supplement = 10;
+
+        set_color(color_black, 0, 0, 0, 0);
+        set_color(color_red, 255, 123, 84, supplement);
+        set_color(color_green, 90, 190, 50, supplement);
+        set_color(color_yellow, 205, 180, 90, supplement);
+        set_color(color_blue, 0, 200, 220, supplement);
+        set_color(color_grey, 170, 160, 180, supplement);
+        set_color(color_white, 225, 230, 255, 0);
+
+        bkgd(COLOR_PAIR(color_black));
     }
 }
 
@@ -302,7 +325,7 @@ static void render_hachi(rendering_context* ctx, const hachi* hachi)
 
             WITH_RENDERING_ATTR(
                 ((rendering_attr) {
-                    .color = has_water ? color_blue : color_white,
+                    .color = has_water ? color_blue : color_grey,
                 }),
                 {
                     renderf(ctx->current.y, ctx->current.x + i, "%.*s", len, c);
@@ -329,7 +352,7 @@ static void render_roji(const rendering_context* ctx)
 
     PREFER_RENDERING_WITH_ATTR(
         ctx->app->decorative,
-        ((rendering_attr) { .color = color_white }),
+        ((rendering_attr) { .color = color_grey }),
         {
             render(ctx->current.y, ctx->current.x + 6, "▨▨▨▨");
         }
