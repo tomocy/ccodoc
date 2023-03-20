@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 static const char* configure_with_args(ccodoc_context* ctx, int argc, const char** argv);
-static void help(void);
+static int help(void);
 static int test(void);
 static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc);
 
@@ -21,13 +21,12 @@ int main(int argc, const char** argv)
             help();
             printf("\n");
             (void)fprintf(stderr, "invalid options: %s\n", err);
-            return 1;
+            return EXIT_FAILURE;
         }
     }
 
     if (ctx.help) {
-        help();
-        return 0;
+        return help();
     }
 
     if (ctx.test) {
@@ -64,13 +63,14 @@ int main(int argc, const char** argv)
 
 static const char* read_arg(int* i, const char** argv)
 {
-    int next = *i + 1;
-    if (!argv[next]) {
+    const int next_i = *i + 1;
+    const char* next_arg = argv[next_i];
+    if (!next_arg) {
         return NULL;
     }
 
-    *i = next;
-    return argv[*i];
+    *i = next_i;
+    return next_arg;
 }
 
 static const char* configure_with_args(ccodoc_context* ctx, int argc, const char** argv)
@@ -116,7 +116,7 @@ static void print_arg_help(const char* arg, const char* description)
     printf("  %s\n\n", description);
 }
 
-static void help(void)
+static int help(void)
 {
     printf("# ccodoc\n");
     printf("timer with ccodoc（ししおどし）\n");
@@ -125,6 +125,8 @@ static void help(void)
     print_arg_help("--help", "Print help.");
     print_arg_help("--debug", "Show debug info.");
     print_arg_help("--duration HH:mm", "Set the timer for this duration. (default: 00:30)");
+
+    return EXIT_SUCCESS;
 }
 
 static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc)
@@ -148,21 +150,29 @@ static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc)
 
     ccodoc_deinit_renderer(&renderer);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
+
+#define EXPECT_PASS(label, actual)      \
+    {                                   \
+        printf(label);                  \
+        if ((actual) != EXIT_SUCCESS) { \
+            return EXIT_FAILURE;        \
+        }                               \
+    }
 
 static int test(void)
 {
-    test_ccodoc();
+    EXPECT_PASS("# ccodoc\n", test_ccodoc());
     printf("\n");
 
-    test_str();
+    EXPECT_PASS("# string\n", test_str());
     printf("\n");
 
-    test_time();
+    EXPECT_PASS("# time\n", test_time());
     printf("\n");
 
-    printf("OK\n");
+    printf("ALL PASS\n");
 
-    return 0;
+    return EXIT_SUCCESS;
 }

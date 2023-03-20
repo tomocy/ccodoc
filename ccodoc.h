@@ -87,7 +87,7 @@ extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
 // - debug
 extern float ccodoc_tsutsu_water_amount_ratio(const ccodoc_tsutsu* tsutsu);
 // - test
-extern void test_ccodoc(void);
+extern int test_ccodoc(void);
 
 // renderer.c
 extern void ccodoc_init_renderer(ccodoc_renderer* renderer);
@@ -97,7 +97,7 @@ extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, 
 // string.c
 extern bool str_equals_to(const char* str, const char* other);
 // - test
-extern void test_str(void);
+extern int test_str(void);
 
 // time.c
 // - timer
@@ -113,18 +113,17 @@ extern moment moment_from_duration(const duration duration, time_precision preci
 // - duration
 extern duration duration_from_moment(const moment moment);
 // - test
-extern void test_time(void);
+extern int test_time(void);
 
-// test.c
+// test
 #define EXPECT(actual, expected)               \
     {                                          \
-        printf(#actual " -> " #expected ": "); \
-                                               \
         const bool x = (actual) == (expected); \
-        printf(x ? "OK" : "Failed");           \
+        printf("%s: ", x ? "PASS" : "FAIL");   \
+        printf(#actual " == " #expected);      \
         printf("\n");                          \
         if (!x) {                              \
-            exit(1);                           \
+            return EXIT_FAILURE;               \
         }                                      \
     }
 

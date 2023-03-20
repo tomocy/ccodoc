@@ -210,10 +210,8 @@ float ccodoc_tsutsu_water_amount_ratio(const ccodoc_tsutsu* tsutsu)
     return (float)tsutsu->water_amount / (float)tsutsu->water_capacity;
 }
 
-void test_ccodoc(void)
+int test_ccodoc(void)
 {
-    printf("# ccodoc\n");
-
     ccodoc ccodoc = {
         .kakehi = {
             .release_water_ratio = 0.5f,
@@ -379,4 +377,6 @@ void test_ccodoc(void)
         EXPECT(ccodoc.hachi.state, ccodoc_holding_water);
         EXPECT(timer_timeout_ratio(&ccodoc.hachi.releasing_water_timer), 2.5);
     }
+
+    return EXIT_SUCCESS;
 }

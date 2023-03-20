@@ -122,10 +122,8 @@ static void ticker_reset(ticker* ticker)
     ticker->elapsed.msecs = 0;
 }
 
-void test_time(void)
+int test_time(void)
 {
-    printf("# time\n");
-
     {
         printf("## timer (duration: 00:00:01:00)\n");
 
@@ -286,4 +284,6 @@ void test_time(void)
             }
         }
     }
+
+    return EXIT_SUCCESS;
 }
