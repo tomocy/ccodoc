@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <curses.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -37,10 +38,11 @@ typedef struct {
 } timer;
 
 typedef struct {
+    bool decorative;
+    duration duration;
+
     bool help;
     bool debug;
-
-    duration duration;
 } ccodoc_context;
 
 typedef enum {
@@ -87,12 +89,14 @@ extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
 extern float ccodoc_tsutsu_water_amount_ratio(const ccodoc_tsutsu* tsutsu);
 
 // renderer.c
-extern void ccodoc_init_renderer(ccodoc_renderer* renderer);
+extern void ccodoc_init_renderer(ccodoc_renderer* renderer, const ccodoc_context* ctx);
 extern void ccodoc_deinit_renderer(ccodoc_renderer* renderer);
 extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const timer* timer, const ccodoc* ccodoc);
 
 // string.c
-extern bool str_equals_to(const char* str, const char* other);
+extern bool str_equals(const char* str, const char* other);
+extern bool str_equals_n(const char* str, const char* other, unsigned int n);
+extern size_t decode_char_utf8(const char* src);
 
 // time.c
 // - timer

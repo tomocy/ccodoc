@@ -8,6 +8,7 @@ static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc);
 int main(int argc, const char** argv)
 {
     ccodoc_context ctx = {
+        .decorative = false,
         .debug = false,
         .duration = duration_from_moment((moment) {
             .mins = 30,
@@ -73,15 +74,11 @@ static const char* configure_with_args(ccodoc_context* ctx, int argc, const char
     for (int i = 1; i < argc; i++) {
         const char* arg = argv[i];
 
-        if (str_equals_to(arg, "--help")) {
-            ctx->help = true;
+        if (str_equals(arg, "--decorative")) {
+            ctx->decorative = true;
         }
 
-        if (str_equals_to(arg, "--debug")) {
-            ctx->debug = true;
-        }
-
-        if (str_equals_to(arg, "--duration")) {
+        if (str_equals(arg, "--duration")) {
             const char* raw = read_arg(&i, argv);
             if (raw == NULL) {
                 return "duration: the value should be provided";
@@ -95,6 +92,14 @@ static const char* configure_with_args(ccodoc_context* ctx, int argc, const char
             if (d.msecs != 0) {
                 ctx->duration = d;
             }
+        }
+
+        if (str_equals(arg, "--help")) {
+            ctx->help = true;
+        }
+
+        if (str_equals(arg, "--debug")) {
+            ctx->debug = true;
         }
     }
 
@@ -128,7 +133,7 @@ static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc)
 
     ccodoc_renderer renderer = { 0 };
 
-    ccodoc_init_renderer(&renderer);
+    ccodoc_init_renderer(&renderer, ctx);
 
     while (1) {
         timer_tick(timer, delta);
