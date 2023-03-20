@@ -1,80 +1,80 @@
 #include "ccodoc.h"
 
-static void ccodoc_tick_kakehi(ccodoc* ccodoc, const duration delta);
-static void ccodoc_tick_tsutsu(ccodoc* ccodoc, const duration delta);
-static void ccodoc_tick_hachi(ccodoc* ccodoc, const duration delta);
+static void tick_kakehi(ccodoc* ccodoc, const duration delta);
+static void tick_tsutsu(ccodoc* ccodoc, const duration delta);
+static void tick_hachi(ccodoc* ccodoc, const duration delta);
 
-static void ccodoc_hold_kakehi_water(ccodoc* ccodoc);
-static void ccodoc_release_kakehi_water(ccodoc* ccodoc);
+static void hold_kakehi_water(ccodoc* ccodoc);
+static void release_kakehi_water(ccodoc* ccodoc);
 
-static void ccodoc_hold_tsutsu_water(ccodoc* ccodoc);
-static void ccodoc_release_tsutsu_water(ccodoc* ccodoc);
+static void hold_tsutsu_water(ccodoc* ccodoc);
+static void release_tsutsu_water(ccodoc* ccodoc);
 
-static void ccodoc_hold_hachi_water(ccodoc* ccodoc);
-static void ccodoc_release_hachi_water(ccodoc* ccodoc);
+static void hold_hachi_water(ccodoc* ccodoc);
+static void release_hachi_water(ccodoc* ccodoc);
 
-static void ccodoc_pour_tsutsu_by(ccodoc_tsutsu* tsutsu, float ratio);
-static void ccodoc_fill_tsutsu_with_water_by(ccodoc_tsutsu* tsutsu, float ratio);
+static void pour_tsutsu_by(tsutsu* tsutsu, float ratio);
+static void fill_tsutsu_by(tsutsu* tsutsu, float ratio);
 
-void ccodoc_tick(ccodoc* ccodoc, const duration delta)
+void tick_ccodoc(ccodoc* ccodoc, const duration delta)
 {
-    ccodoc_tick_kakehi(ccodoc, delta);
+    tick_kakehi(ccodoc, delta);
 
-    ccodoc_tick_tsutsu(ccodoc, delta);
+    tick_tsutsu(ccodoc, delta);
 
-    ccodoc_tick_hachi(ccodoc, delta);
+    tick_hachi(ccodoc, delta);
 }
 
-static void ccodoc_tick_kakehi(ccodoc* ccodoc, const duration delta)
+static void tick_kakehi(ccodoc* ccodoc, const duration delta)
 {
-    ccodoc_kakehi* kakehi = &ccodoc->kakehi;
+    kakehi* kakehi = &ccodoc->kakehi;
 
     switch (kakehi->state) {
-    case ccodoc_holding_water:
-        timer_tick(&kakehi->holding_water_timer, delta);
+    case holding_water:
+        tick_timer(&kakehi->holding_water_timer, delta);
 
-        if (!timer_is_timeout(&kakehi->holding_water_timer)) {
+        if (!is_timeout(&kakehi->holding_water_timer)) {
             return;
         }
 
-        ccodoc_release_kakehi_water(ccodoc);
+        release_kakehi_water(ccodoc);
 
         break;
-    case ccodoc_releasing_water:
-        timer_tick(&kakehi->releasing_water_timer, delta);
+    case releasing_water:
+        tick_timer(&kakehi->releasing_water_timer, delta);
 
-        if (!timer_is_timeout(&kakehi->releasing_water_timer)) {
+        if (!is_timeout(&kakehi->releasing_water_timer)) {
             return;
         }
 
-        ccodoc_hold_kakehi_water(ccodoc);
+        hold_kakehi_water(ccodoc);
 
         break;
     }
 }
 
-static void ccodoc_tick_tsutsu(ccodoc* ccodoc, const duration delta)
+static void tick_tsutsu(ccodoc* ccodoc, const duration delta)
 {
-    ccodoc_tsutsu* tsutsu = &ccodoc->tsutsu;
+    tsutsu* tsutsu = &ccodoc->tsutsu;
 
     switch (ccodoc->tsutsu.state) {
-    case ccodoc_holding_water:
-        if (ccodoc_tsutsu_water_amount_ratio(tsutsu) < 1) {
+    case holding_water:
+        if (tsutsu_water_amount_ratio(tsutsu) < 1) {
             break;
         }
 
-        ccodoc_release_tsutsu_water(ccodoc);
+        release_tsutsu_water(ccodoc);
 
         break;
-    case ccodoc_releasing_water: {
-        timer_tick(&tsutsu->releasing_water_timer, delta);
+    case releasing_water: {
+        tick_timer(&tsutsu->releasing_water_timer, delta);
 
-        float water_ratio = timer_timeout_ratio(&tsutsu->releasing_water_timer);
+        float water_ratio = elapsed_ratio(&tsutsu->releasing_water_timer);
 
-        ccodoc_fill_tsutsu_with_water_by(tsutsu, 1.0f - water_ratio);
+        fill_tsutsu_by(tsutsu, 1.0f - water_ratio);
 
         if (water_ratio >= 1) {
-            ccodoc_hold_tsutsu_water(ccodoc);
+            hold_tsutsu_water(ccodoc);
         }
 
         break;
@@ -82,59 +82,59 @@ static void ccodoc_tick_tsutsu(ccodoc* ccodoc, const duration delta)
     }
 }
 
-static void ccodoc_tick_hachi(ccodoc* ccodoc, const duration delta)
+static void tick_hachi(ccodoc* ccodoc, const duration delta)
 {
-    ccodoc_hachi* hachi = &ccodoc->hachi;
+    hachi* hachi = &ccodoc->hachi;
 
     switch (ccodoc->hachi.state) {
-    case ccodoc_holding_water:
+    case holding_water:
         break;
-    case ccodoc_releasing_water:
-        timer_tick(&hachi->releasing_water_timer, delta);
+    case releasing_water:
+        tick_timer(&hachi->releasing_water_timer, delta);
 
-        if (!timer_is_timeout(&hachi->releasing_water_timer)) {
+        if (!is_timeout(&hachi->releasing_water_timer)) {
             break;
         }
 
-        ccodoc_hold_hachi_water(ccodoc);
+        hold_hachi_water(ccodoc);
 
         break;
     }
 }
 
-static void ccodoc_hold_kakehi_water(ccodoc* ccodoc)
+static void hold_kakehi_water(ccodoc* ccodoc)
 {
-    ccodoc_kakehi* kakehi = &ccodoc->kakehi;
+    kakehi* kakehi = &ccodoc->kakehi;
 
-    ccodoc_water_flow_state state = ccodoc_holding_water;
+    water_flow_state state = holding_water;
     if (kakehi->state == state) {
         return;
     }
 
     kakehi->state = state;
-    timer_reset(&kakehi->holding_water_timer);
+    reset_timer(&kakehi->holding_water_timer);
 }
 
-static void ccodoc_release_kakehi_water(ccodoc* ccodoc)
+static void release_kakehi_water(ccodoc* ccodoc)
 {
-    ccodoc_kakehi* kakehi = &ccodoc->kakehi;
+    kakehi* kakehi = &ccodoc->kakehi;
 
-    ccodoc_water_flow_state state = ccodoc_releasing_water;
+    water_flow_state state = releasing_water;
     if (kakehi->state == state) {
         return;
     }
 
     kakehi->state = state;
-    timer_reset(&kakehi->releasing_water_timer);
+    reset_timer(&kakehi->releasing_water_timer);
 
-    ccodoc_pour_tsutsu_by(&ccodoc->tsutsu, kakehi->release_water_ratio);
+    pour_tsutsu_by(&ccodoc->tsutsu, kakehi->release_water_ratio);
 }
 
-static void ccodoc_hold_tsutsu_water(ccodoc* ccodoc)
+static void hold_tsutsu_water(ccodoc* ccodoc)
 {
-    ccodoc_tsutsu* tsutsu = &ccodoc->tsutsu;
+    tsutsu* tsutsu = &ccodoc->tsutsu;
 
-    ccodoc_water_flow_state state = ccodoc_holding_water;
+    water_flow_state state = holding_water;
     if (tsutsu->state == state) {
         return;
     }
@@ -143,26 +143,26 @@ static void ccodoc_hold_tsutsu_water(ccodoc* ccodoc)
     tsutsu->water_amount = 0;
 }
 
-static void ccodoc_release_tsutsu_water(ccodoc* ccodoc)
+static void release_tsutsu_water(ccodoc* ccodoc)
 {
-    ccodoc_tsutsu* tsutsu = &ccodoc->tsutsu;
+    tsutsu* tsutsu = &ccodoc->tsutsu;
 
-    ccodoc_water_flow_state state = ccodoc_releasing_water;
+    water_flow_state state = releasing_water;
     if (tsutsu->state == state) {
         return;
     }
 
     tsutsu->state = state;
-    timer_reset(&tsutsu->releasing_water_timer);
+    reset_timer(&tsutsu->releasing_water_timer);
 
-    ccodoc_release_hachi_water(ccodoc);
+    release_hachi_water(ccodoc);
 }
 
-static void ccodoc_hold_hachi_water(ccodoc* ccodoc)
+static void hold_hachi_water(ccodoc* ccodoc)
 {
-    ccodoc_hachi* hachi = &ccodoc->hachi;
+    hachi* hachi = &ccodoc->hachi;
 
-    ccodoc_water_flow_state state = ccodoc_holding_water;
+    water_flow_state state = holding_water;
     if (hachi->state == state) {
         return;
     }
@@ -170,20 +170,20 @@ static void ccodoc_hold_hachi_water(ccodoc* ccodoc)
     hachi->state = state;
 }
 
-static void ccodoc_release_hachi_water(ccodoc* ccodoc)
+static void release_hachi_water(ccodoc* ccodoc)
 {
-    ccodoc_hachi* hachi = &ccodoc->hachi;
+    hachi* hachi = &ccodoc->hachi;
 
-    ccodoc_water_flow_state state = ccodoc_releasing_water;
+    water_flow_state state = releasing_water;
     if (hachi->state == state) {
         return;
     }
 
     hachi->state = state;
-    timer_reset(&hachi->releasing_water_timer);
+    reset_timer(&hachi->releasing_water_timer);
 }
 
-static void ccodoc_pour_tsutsu_by(ccodoc_tsutsu* tsutsu, float ratio)
+static void pour_tsutsu_by(tsutsu* tsutsu, float ratio)
 {
     unsigned int delta = (unsigned int)((float)tsutsu->water_capacity * ratio);
     tsutsu->water_amount = (tsutsu->water_capacity - tsutsu->water_amount > delta)
@@ -191,7 +191,7 @@ static void ccodoc_pour_tsutsu_by(ccodoc_tsutsu* tsutsu, float ratio)
         : tsutsu->water_capacity;
 }
 
-static void ccodoc_fill_tsutsu_with_water_by(ccodoc_tsutsu* tsutsu, float ratio)
+static void fill_tsutsu_by(tsutsu* tsutsu, float ratio)
 {
     float r = ratio;
     if (ratio < 0) {
@@ -204,7 +204,7 @@ static void ccodoc_fill_tsutsu_with_water_by(ccodoc_tsutsu* tsutsu, float ratio)
     tsutsu->water_amount = (unsigned int)((float)tsutsu->water_capacity * r);
 }
 
-float ccodoc_tsutsu_water_amount_ratio(const ccodoc_tsutsu* tsutsu)
+float tsutsu_water_amount_ratio(const tsutsu* tsutsu)
 {
     assert(tsutsu->water_capacity != 0);
     return (float)tsutsu->water_amount / (float)tsutsu->water_capacity;

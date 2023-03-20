@@ -1,13 +1,13 @@
 #include "ccodoc.h"
 #include <stdio.h>
 
-static const char* configure_with_args(ccodoc_context* ctx, int argc, const char** argv);
+static const char* configure_with_args(context* ctx, int argc, const char** argv);
 static int help(void);
-static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc);
+static int run(const context* ctx, timer* timer, ccodoc* ccodoc);
 
 int main(int argc, const char** argv)
 {
-    ccodoc_context ctx = {
+    context ctx = {
         .decorative = false,
         .debug = false,
         .duration = duration_from_moment((moment) {
@@ -69,7 +69,7 @@ static const char* read_arg(int* i, const char** argv)
     return next_arg;
 }
 
-static const char* configure_with_args(ccodoc_context* ctx, int argc, const char** argv)
+static const char* configure_with_args(context* ctx, int argc, const char** argv)
 {
     for (int i = 1; i < argc; i++) {
         const char* arg = argv[i];
@@ -115,7 +115,7 @@ static void print_arg_help(const char* arg, const char* description)
 static int help(void)
 {
     printf("# ccodoc\n");
-    printf("timer with ccodoc（ししおどし）\n");
+    printf("timer with ccodoc（鹿威し）\n");
 
     printf("\n## options\n");
     print_arg_help("--help", "Print help.");
@@ -125,26 +125,26 @@ static int help(void)
     return EXIT_SUCCESS;
 }
 
-static int run(const ccodoc_context* ctx, timer* timer, ccodoc* ccodoc)
+static int run(const context* ctx, timer* timer, ccodoc* ccodoc)
 {
     static const duration delta = {
         .msecs = 1000 / 24,
     };
 
-    ccodoc_renderer renderer = { 0 };
+    renderer renderer = { 0 };
 
-    ccodoc_init_renderer(&renderer, ctx);
+    init_renderer(&renderer, ctx);
 
     while (1) {
-        timer_tick(timer, delta);
-        ccodoc_tick(ccodoc, delta);
+        tick_timer(timer, delta);
+        tick_ccodoc(ccodoc, delta);
 
-        ccodoc_render(&renderer, ctx, timer, ccodoc);
+        render_ccodoc(&renderer, ctx, timer, ccodoc);
 
         sleep_for(delta);
     }
 
-    ccodoc_deinit_renderer(&renderer);
+    deinit_renderer(&renderer);
 
     return EXIT_SUCCESS;
 }

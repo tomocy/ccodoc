@@ -43,55 +43,55 @@ typedef struct {
 
     bool help;
     bool debug;
-} ccodoc_context;
+} context;
 
 typedef enum {
-    ccodoc_holding_water,
-    ccodoc_releasing_water,
-} ccodoc_water_flow_state;
+    holding_water,
+    releasing_water,
+} water_flow_state;
 
 // kakehi（筧）
 typedef struct {
-    ccodoc_water_flow_state state;
+    water_flow_state state;
     float release_water_ratio;
     timer holding_water_timer;
     timer releasing_water_timer;
-} ccodoc_kakehi;
+} kakehi;
 
 // tsutsu（筒）
 typedef struct {
-    ccodoc_water_flow_state state;
+    water_flow_state state;
     unsigned int water_amount;
     unsigned int water_capacity;
     timer releasing_water_timer;
-} ccodoc_tsutsu;
+} tsutsu;
 
 // hachi（手水鉢）
 typedef struct {
-    ccodoc_water_flow_state state;
+    water_flow_state state;
     timer releasing_water_timer;
-} ccodoc_hachi;
+} hachi;
 
 // ccodoc（鹿威し）
 typedef struct {
-    ccodoc_kakehi kakehi;
-    ccodoc_tsutsu tsutsu;
-    ccodoc_hachi hachi;
+    kakehi kakehi;
+    tsutsu tsutsu;
+    hachi hachi;
 } ccodoc;
 
 typedef struct {
     WINDOW* window;
-} ccodoc_renderer;
+} renderer;
 
 // engine.c
-extern void ccodoc_tick(ccodoc* ccodoc, const duration delta);
+extern void tick_ccodoc(ccodoc* ccodoc, const duration delta);
 // - debug
-extern float ccodoc_tsutsu_water_amount_ratio(const ccodoc_tsutsu* tsutsu);
+extern float tsutsu_water_amount_ratio(const tsutsu* tsutsu);
 
 // renderer.c
-extern void ccodoc_init_renderer(ccodoc_renderer* renderer, const ccodoc_context* ctx);
-extern void ccodoc_deinit_renderer(ccodoc_renderer* renderer);
-extern void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const timer* timer, const ccodoc* ccodoc);
+extern void init_renderer(renderer* renderer, const context* ctx);
+extern void deinit_renderer(renderer* renderer);
+extern void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc);
 
 // string.c
 extern bool str_equals(const char* str, const char* other);
@@ -100,11 +100,11 @@ extern size_t decode_char_utf8(const char* src);
 
 // time.c
 // - timer
-extern void timer_tick(timer* timer, const duration delta);
-extern void timer_reset(timer* timer);
-extern bool timer_is_timeout(const timer* timer);
-extern float timer_timeout_ratio(const timer* timer);
-extern duration timer_remaining_time(const timer* timer);
+extern void tick_timer(timer* timer, const duration delta);
+extern void reset_timer(timer* timer);
+extern bool is_timeout(const timer* timer);
+extern float elapsed_ratio(const timer* timer);
+extern duration remaining_time(const timer* timer);
 // - sleep
 extern void sleep_for(const duration duration);
 // - moment

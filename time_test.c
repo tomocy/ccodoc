@@ -12,36 +12,36 @@ int test_time(void)
 
         {
             printf("- initial\n");
-            EXPECT(timer_timeout_ratio(&timer), 0);
-            EXPECT(timer_remaining_time(&timer).msecs, 1000);
+            EXPECT(elapsed_ratio(&timer), 0);
+            EXPECT(remaining_time(&timer).msecs, 1000);
         }
 
         {
             printf("- tick (200ms)\n");
-            timer_tick(&timer, (duration) { .msecs = 200 });
-            EXPECT(timer_timeout_ratio(&timer), 0.2f);
-            EXPECT(timer_remaining_time(&timer).msecs, 800);
+            tick_timer(&timer, (duration) { .msecs = 200 });
+            EXPECT(elapsed_ratio(&timer), 0.2f);
+            EXPECT(remaining_time(&timer).msecs, 800);
         }
 
         {
             printf("- tick (400ms)\n");
-            timer_tick(&timer, (duration) { .msecs = 400 });
-            EXPECT(timer_timeout_ratio(&timer), 0.6f);
-            EXPECT(timer_remaining_time(&timer).msecs, 400);
+            tick_timer(&timer, (duration) { .msecs = 400 });
+            EXPECT(elapsed_ratio(&timer), 0.6f);
+            EXPECT(remaining_time(&timer).msecs, 400);
         }
 
         {
             printf("- tick (600ms)\n");
-            timer_tick(&timer, (duration) { .msecs = 600 });
-            EXPECT(timer_timeout_ratio(&timer), 1.2f);
-            EXPECT(timer_remaining_time(&timer).msecs, 0);
+            tick_timer(&timer, (duration) { .msecs = 600 });
+            EXPECT(elapsed_ratio(&timer), 1.2f);
+            EXPECT(remaining_time(&timer).msecs, 0);
         }
 
         {
             printf("- reset\n");
-            timer_reset(&timer);
-            EXPECT(timer_timeout_ratio(&timer), 0);
-            EXPECT(timer_remaining_time(&timer).msecs, 1000);
+            reset_timer(&timer);
+            EXPECT(elapsed_ratio(&timer), 0);
+            EXPECT(remaining_time(&timer).msecs, 1000);
         }
     }
 

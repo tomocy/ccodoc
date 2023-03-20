@@ -9,48 +9,47 @@ typedef struct {
 } point;
 
 typedef struct {
-    const ccodoc_context* app;
+    const context* app;
 
     point origin;
     point current;
-} ccodoc_rendering_context;
+} rendering_context;
 
-static void ccodoc_render_kakehi(ccodoc_rendering_context* ctx, const ccodoc_kakehi* kakehi);
-static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsutsu* tsutsu);
-static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hachi* hachi);
-static void ccodoc_render_roji(const ccodoc_rendering_context* ctx);
+static void render_kakehi(rendering_context* ctx, const kakehi* kakehi);
+static void render_tsutsu(rendering_context* ctx, const tsutsu* tsutsu);
+static void render_hachi(rendering_context* ctx, const hachi* hachi);
+static void render_roji(const rendering_context* ctx);
 
-static void ccodoc_render_timer(ccodoc_rendering_context* ctx, const timer* timer);
+static void render_timer(rendering_context* ctx, const timer* timer);
 
-static void ccodoc_render_debug_info(
-    const ccodoc_renderer* renderer,
-    const ccodoc_context* ctx,
+static void render_debug_info(
+    const context* ctx,
     const timer* timer,
     const ccodoc* ccodoc
 );
 
-static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer);
+static point rendering_viewport_size(const renderer* renderer);
 
-static ccodoc_rendering_context ccodoc_init_rendering_context(const ccodoc_context* ctx, point origin);
-static void ccodoc_wrap_rendering_lines(ccodoc_rendering_context* ctx, unsigned int n);
+static rendering_context init_rendering_context(const context* ctx, point origin);
+static void wrap_rendering_lines(rendering_context* ctx, unsigned int n);
 
 typedef enum {
-    ccodoc_color_green = 1,
-    ccodoc_color_blue,
-    ccodoc_color_white,
-} ccodoc_color;
+    color_green = 1,
+    color_blue,
+    color_white,
+} color;
 
-#define CCODOC_WITH_COLOR(color, block) \
-    {                                   \
-        attron(COLOR_PAIR(color));      \
-        block;                          \
-        attroff(COLOR_PAIR(color));     \
+#define WITH_COLOR(color, block)    \
+    {                               \
+        attron(COLOR_PAIR(color));  \
+        block;                      \
+        attroff(COLOR_PAIR(color)); \
     }
 
-#define ccodoc_print(y, x, s) mvprintw((int)(y), (int)(x), (s))
-#define ccodoc_printf(y, x, format, ...) mvprintw((int)(y), (int)(x), (format), __VA_ARGS__)
+#define render(y, x, s) mvprintw((int)(y), (int)(x), (s))
+#define renderf(y, x, format, ...) mvprintw((int)(y), (int)(x), (format), __VA_ARGS__)
 
-void ccodoc_init_renderer(ccodoc_renderer* render, const ccodoc_context* ctx)
+void init_renderer(renderer* render, const context* ctx)
 {
     (void)setlocale(LC_ALL, "");
 
@@ -60,55 +59,55 @@ void ccodoc_init_renderer(ccodoc_renderer* render, const ccodoc_context* ctx)
 
     if (ctx->decorative) {
         start_color();
-        init_pair(ccodoc_color_green, COLOR_GREEN, COLOR_BLACK);
-        init_pair(ccodoc_color_blue, COLOR_BLUE, COLOR_BLACK);
-        init_pair(ccodoc_color_white, COLOR_WHITE, COLOR_BLACK);
+        init_pair(color_green, COLOR_GREEN, COLOR_BLACK);
+        init_pair(color_blue, COLOR_BLUE, COLOR_BLACK);
+        init_pair(color_white, COLOR_WHITE, COLOR_BLACK);
     }
 }
 
-void ccodoc_deinit_renderer(ccodoc_renderer* render)
+void deinit_renderer(renderer* render)
 {
     endwin();
     render->window = NULL;
 }
 
-void ccodoc_render(ccodoc_renderer* renderer, const ccodoc_context* ctx, const timer* timer, const ccodoc* ccodoc)
+void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc)
 {
     static const point ccodoc_size = {
         .x = 16,
         .y = 8,
     };
 
-    const point window_size = ccodoc_get_rendering_window_size(renderer);
+    const point viewport_size = rendering_viewport_size(renderer);
 
-    ccodoc_rendering_context rctx = ccodoc_init_rendering_context(
+    rendering_context rctx = init_rendering_context(
         ctx,
         (point) {
-            .x = (window_size.x - ccodoc_size.x) / 2,
-            .y = (window_size.y - ccodoc_size.y) / 2,
+            .x = (viewport_size.x - ccodoc_size.x) / 2,
+            .y = (viewport_size.y - ccodoc_size.y) / 2,
         }
     );
 
     clear();
 
-    ccodoc_render_kakehi(&rctx, &ccodoc->kakehi);
-    ccodoc_render_tsutsu(&rctx, &ccodoc->tsutsu);
-    ccodoc_render_hachi(&rctx, &ccodoc->hachi);
-    ccodoc_render_roji(&rctx);
-    ccodoc_wrap_rendering_lines(&rctx, 1);
+    render_kakehi(&rctx, &ccodoc->kakehi);
+    render_tsutsu(&rctx, &ccodoc->tsutsu);
+    render_hachi(&rctx, &ccodoc->hachi);
+    render_roji(&rctx);
+    wrap_rendering_lines(&rctx, 1);
 
-    ccodoc_render_timer(&rctx, timer);
+    render_timer(&rctx, timer);
 
     if (ctx->debug) {
-        ccodoc_render_debug_info(renderer, ctx, timer, ccodoc);
+        render_debug_info(ctx, timer, ccodoc);
     }
 
     refresh();
 }
 
-static void ccodoc_render_kakehi(ccodoc_rendering_context* ctx, const ccodoc_kakehi* kakehi)
+static void render_kakehi(rendering_context* ctx, const kakehi* kakehi)
 {
-    float holding_ratio = timer_timeout_ratio(&kakehi->holding_water_timer);
+    float holding_ratio = elapsed_ratio(&kakehi->holding_water_timer);
 
     const char* art = "━══";
     if (0.3 <= holding_ratio && holding_ratio < 0.6) {
@@ -123,30 +122,30 @@ static void ccodoc_render_kakehi(ccodoc_rendering_context* ctx, const ccodoc_kak
         int i = 0;
         for (const char* c = art; *c;) {
             size_t len = decode_char_utf8(c);
-            const ccodoc_color color = str_equals_n(c, "━", len)
-                ? ccodoc_color_blue
-                : ccodoc_color_white;
+            const color color = str_equals_n(c, "━", len)
+                ? color_blue
+                : color_white;
 
-            CCODOC_WITH_COLOR(color, {
-                ccodoc_printf(ctx->current.y, ctx->current.x + i, "%.*s", len, c);
+            WITH_COLOR(color, {
+                renderf(ctx->current.y, ctx->current.x + i, "%.*s", len, c);
             });
 
             i++;
             c += len;
         }
     } else {
-        ccodoc_print(ctx->current.y, ctx->current.x, art);
+        render(ctx->current.y, ctx->current.x, art);
     }
 
-    ccodoc_wrap_rendering_lines(ctx, 1);
+    wrap_rendering_lines(ctx, 1);
 }
 
-static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsutsu* tsutsu)
+static void render_tsutsu(rendering_context* ctx, const tsutsu* tsutsu)
 {
-    static const size_t tsutsu_height = 4;
+    static const size_t art_height = 4;
 
     // jo (序)
-    static const char* tsutsu_art_jo[] = {
+    static const char* art_jo[] = {
         "◥◣",
         "  ◥◣",
         "  ▕ ◥◣",
@@ -154,7 +153,7 @@ static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsu
     };
 
     // ha (破)
-    static const char* tsutsu_art_ha[] = {
+    static const char* art_ha[] = {
         "",
         "◢◤◢◤◢◤◢◤",
         "  ▕ ",
@@ -162,61 +161,61 @@ static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsu
     };
 
     // kyu (急)
-    static const char* tsutsu_art_kyu[] = {
+    static const char* art_kyu[] = {
         "      ◢◤",
         "    ◢◤",
         "  ◢◤",
         "◢◤▕",
     };
 
-    const char** tsutsu_art = NULL;
+    const char** art = NULL;
 
-    const float holding_ratio = ccodoc_tsutsu_water_amount_ratio(tsutsu);
+    const float water_amount_ratio = tsutsu_water_amount_ratio(tsutsu);
 
     switch (tsutsu->state) {
-    case ccodoc_holding_water:
-        if (holding_ratio < 0.8) {
-            tsutsu_art = tsutsu_art_jo;
-        } else if (holding_ratio < 1) {
-            tsutsu_art = tsutsu_art_ha;
+    case holding_water:
+        if (water_amount_ratio < 0.8) {
+            art = art_jo;
+        } else if (water_amount_ratio < 1) {
+            art = art_ha;
         } else {
-            tsutsu_art = tsutsu_art_kyu;
+            art = art_kyu;
         }
         break;
-    case ccodoc_releasing_water:
-        if (holding_ratio < 0.35) {
-            tsutsu_art = tsutsu_art_jo;
-        } else if (holding_ratio < 0.65) {
-            tsutsu_art = tsutsu_art_ha;
+    case releasing_water:
+        if (water_amount_ratio < 0.35) {
+            art = art_jo;
+        } else if (water_amount_ratio < 0.65) {
+            art = art_ha;
         } else {
-            tsutsu_art = tsutsu_art_kyu;
+            art = art_kyu;
         }
         break;
     }
 
-    assert(tsutsu_art != NULL);
+    assert(art != NULL);
 
     point origin = ctx->current;
     origin.x += 3;
 
-    for (size_t h = 0; h < tsutsu_height; h++) {
+    for (size_t h = 0; h < art_height; h++) {
         if (ctx->app->decorative) {
             int i = 0;
-            for (const char* c = tsutsu_art[h]; *c;) {
+            for (const char* c = art[h]; *c;) {
                 size_t len = decode_char_utf8(c);
 
-                ccodoc_color color = ccodoc_color_white;
+                color color = color_white;
                 if (
                     str_equals_n(c, "◥", len)
                     || str_equals_n(c, "◣", len)
                     || str_equals_n(c, "◢", len)
                     || str_equals_n(c, "◤", len)
                 ) {
-                    color = ccodoc_color_green;
+                    color = color_green;
                 }
 
-                CCODOC_WITH_COLOR(color, {
-                    ccodoc_printf(origin.y + h, origin.x + i, "%.*s", len, c);
+                WITH_COLOR(color, {
+                    renderf(origin.y + h, origin.x + i, "%.*s", len, c);
                 });
 
                 i++;
@@ -226,24 +225,24 @@ static void ccodoc_render_tsutsu(ccodoc_rendering_context* ctx, const ccodoc_tsu
             continue;
         }
 
-        ccodoc_print(origin.y + h, origin.x, tsutsu_art[h]);
+        render(origin.y + h, origin.x, art[h]);
     }
 
-    ccodoc_wrap_rendering_lines(ctx, tsutsu_height);
+    wrap_rendering_lines(ctx, art_height);
 }
 
-static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hachi* hachi)
+static void render_hachi(rendering_context* ctx, const hachi* hachi)
 {
     static unsigned int width = 4;
 
     const char* art = NULL;
 
     switch (hachi->state) {
-    case ccodoc_holding_water:
+    case holding_water:
         art = "▭▭▭▭";
         break;
-    case ccodoc_releasing_water: {
-        float ratio = timer_timeout_ratio(&hachi->releasing_water_timer);
+    case releasing_water: {
+        float ratio = elapsed_ratio(&hachi->releasing_water_timer);
 
         if (ratio < 0.35) {
             art = "▭▬▬▭";
@@ -261,10 +260,10 @@ static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hach
     for (const char* c = art; *c;) {
         size_t len = decode_char_utf8(c);
 
-        ccodoc_color color = str_equals_n(c, "▬", len) ? ccodoc_color_blue : ccodoc_color_white;
+        color color = str_equals_n(c, "▬", len) ? color_blue : color_white;
 
-        CCODOC_WITH_COLOR(color, {
-            ccodoc_printf(ctx->current.y, ctx->current.x + i, "%.*s", len, c);
+        WITH_COLOR(color, {
+            renderf(ctx->current.y, ctx->current.x + i, "%.*s", len, c);
         });
 
         i++;
@@ -274,84 +273,80 @@ static void ccodoc_render_hachi(ccodoc_rendering_context* ctx, const ccodoc_hach
     ctx->current.x += width;
 }
 
-static void ccodoc_render_roji(const ccodoc_rendering_context* ctx)
+static void render_roji(const rendering_context* ctx)
 {
     if (ctx->app->decorative) {
-        CCODOC_WITH_COLOR(ccodoc_color_white, {
-            ccodoc_print(ctx->current.y, ctx->current.x, "━━━━━━▨▨▨▨");
+        WITH_COLOR(color_white, {
+            render(ctx->current.y, ctx->current.x, "━━━━━━▨▨▨▨");
         });
     } else {
-        ccodoc_print(ctx->current.y, ctx->current.x, "━━━━━━▨▨▨▨");
+        render(ctx->current.y, ctx->current.x, "━━━━━━▨▨▨▨");
     }
 }
 
-static const char* ccodoc_water_flow_state_str(ccodoc_water_flow_state state)
+static const char* water_flow_state_to_str(water_flow_state state)
 {
     switch (state) {
-    case ccodoc_holding_water:
+    case holding_water:
         return "holding";
-    case ccodoc_releasing_water:
+    case releasing_water:
         return "releasing";
     }
 }
 
-static void ccodoc_render_timer(ccodoc_rendering_context* ctx, const timer* timer)
+static void render_timer(rendering_context* ctx, const timer* timer)
 {
-    const moment moment = moment_from_duration(timer_remaining_time(timer), time_min);
+    const moment moment = moment_from_duration(remaining_time(timer), time_min);
 
     if (ctx->app->decorative) {
-        CCODOC_WITH_COLOR(ccodoc_color_white, {
-            ccodoc_printf(ctx->current.y + 2, ctx->current.x + 4, "%02d:%02d", moment.hours, moment.mins);
+        WITH_COLOR(color_white, {
+            renderf(ctx->current.y + 2, ctx->current.x + 4, "%02d:%02d", moment.hours, moment.mins);
         });
     } else {
-        ccodoc_printf(ctx->current.y + 2, ctx->current.x + 4, "%02d:%02d", moment.hours, moment.mins);
+        renderf(ctx->current.y + 2, ctx->current.x + 4, "%02d:%02d", moment.hours, moment.mins);
     }
 }
 
-static void ccodoc_render_debug_info(
-    const ccodoc_renderer* renderer,
-    const ccodoc_context* ctx,
+static void render_debug_info(
+    const context* ctx,
     const timer* timer,
     const ccodoc* ccodoc
 )
 {
-    static const unsigned int height = 10;
-
-    const point window_size = ccodoc_get_rendering_window_size(renderer);
-
     point p = {
         .x = 0,
-        .y = window_size.y - height,
+        .y = 0,
     };
 
-    ccodoc_print(p.y++, p.x, "DEBUG -------");
+    render(p.y++, p.x, "DEBUG -------");
 
     {
-        moment m = moment_from_duration(timer_remaining_time(timer), time_msec);
-        ccodoc_print(p.y++, p.x, "- timer");
-        ccodoc_printf(p.y++, p.x, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
+        render(p.y++, p.x, "# engine");
+        renderf(p.y++, p.x, "decorative: %s", ctx->decorative ? "yes" : "no");
     }
 
     {
-        ccodoc_print(p.y++, p.x, "- engine");
-        ccodoc_printf(p.y++, p.x, "decorative: %s", ctx->decorative ? "yes" : "no");
+        moment m = moment_from_duration(remaining_time(timer), time_msec);
+        render(p.y++, p.x, "# timer");
+        renderf(p.y++, p.x, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
     }
 
     {
+        render(p.y++, p.x, "# ccodoc");
 
-        ccodoc_print(p.y++, p.x, "- kakehi");
-        ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->kakehi.state));
+        render(p.y++, p.x, "## kakehi");
+        renderf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->kakehi.state));
 
-        ccodoc_print(p.y++, p.x, "- tsutsu");
-        ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->tsutsu.state));
-        ccodoc_printf(p.y++, p.x, "water_amount_ratio: %f", ccodoc_tsutsu_water_amount_ratio(&ccodoc->tsutsu));
+        render(p.y++, p.x, "## tsutsu");
+        renderf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->tsutsu.state));
+        renderf(p.y++, p.x, "water_amount_ratio: %f", tsutsu_water_amount_ratio(&ccodoc->tsutsu));
 
-        ccodoc_print(p.y++, p.x, "- hachi");
-        ccodoc_printf(p.y++, p.x, "state: %s", ccodoc_water_flow_state_str(ccodoc->hachi.state));
+        render(p.y++, p.x, "## hachi");
+        renderf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->hachi.state));
     }
 }
 
-static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer)
+static point rendering_viewport_size(const renderer* renderer)
 {
     return (point) {
         .x = getmaxx(renderer->window),
@@ -359,16 +354,16 @@ static point ccodoc_get_rendering_window_size(const ccodoc_renderer* renderer)
     };
 }
 
-static ccodoc_rendering_context ccodoc_init_rendering_context(const ccodoc_context* ctx, point origin)
+static rendering_context init_rendering_context(const context* ctx, point origin)
 {
-    return (ccodoc_rendering_context) {
+    return (rendering_context) {
         .app = ctx,
         .origin = origin,
         .current = origin,
     };
 }
 
-static void ccodoc_wrap_rendering_lines(ccodoc_rendering_context* ctx, unsigned int n)
+static void wrap_rendering_lines(rendering_context* ctx, unsigned int n)
 {
     ctx->current.y += n;
     ctx->current.x = ctx->origin.x;

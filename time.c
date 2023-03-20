@@ -7,28 +7,28 @@ extern int nanosleep(const struct timespec* requested_time, struct timespec* rem
 static void ticker_tick(ticker* ticker, const duration delta);
 static void ticker_reset(ticker* ticker);
 
-void timer_tick(timer* timer, const duration delta)
+void tick_timer(timer* timer, const duration delta)
 {
     ticker_tick(&timer->ticker, delta);
 }
 
-void timer_reset(timer* timer)
+void reset_timer(timer* timer)
 {
     ticker_reset(&timer->ticker);
 }
 
-bool timer_is_timeout(const timer* timer)
+bool is_timeout(const timer* timer)
 {
-    return timer_timeout_ratio(timer) >= 1;
+    return elapsed_ratio(timer) >= 1;
 }
 
-float timer_timeout_ratio(const timer* timer)
+float elapsed_ratio(const timer* timer)
 {
     assert(timer->duration.msecs != 0);
     return (float)((double)timer->ticker.elapsed.msecs / (double)timer->duration.msecs);
 }
 
-duration timer_remaining_time(const timer* timer)
+duration remaining_time(const timer* timer)
 {
     return (duration) {
         .msecs = timer->duration.msecs - MIN(timer->ticker.elapsed.msecs, timer->duration.msecs),
