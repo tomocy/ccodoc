@@ -10,9 +10,7 @@ int main(int argc, const char** argv)
     context ctx = {
         .decorative = false,
         .debug = false,
-        .duration = duration_from_moment((moment) {
-            .mins = 30,
-        }),
+        .duration = duration_from_moment((moment) { .mins = 30 }),
     };
 
     {
@@ -69,7 +67,8 @@ static const char* read_arg(int* i, const char** argv)
     return next_arg;
 }
 
-static const char* configure_with_args(context* ctx, int argc, const char** argv)
+static const char*
+configure_with_args(context* ctx, int argc, const char** argv)
 {
     for (int i = 1; i < argc; i++) {
         const char* arg = argv[i];
@@ -81,7 +80,7 @@ static const char* configure_with_args(context* ctx, int argc, const char** argv
         if (str_equals(arg, "--duration")) {
             const char* raw = read_arg(&i, argv);
             if (raw == NULL) {
-                return "duration: the value should be provided";
+                return "duration: the value must be specified";
             }
 
             moment m = { 0 };
@@ -89,9 +88,10 @@ static const char* configure_with_args(context* ctx, int argc, const char** argv
             (void)sscanf(raw, "%d:%d", &m.hours, &m.mins);
 
             const duration d = duration_from_moment(m);
-            if (d.msecs != 0) {
-                ctx->duration = d;
+            if (d.msecs == 0) {
+                return "duration: format must be HH:mm";
             }
+            ctx->duration = d;
         }
 
         if (str_equals(arg, "--help")) {
@@ -118,9 +118,16 @@ static int help(void)
     printf("timer with ccodoc（鹿威し）\n");
 
     printf("\n## options\n");
+    print_arg_help("--decorative", "Render ccodoc with decoration.");
+    print_arg_help(
+        "--color-theme",
+        "Render ccodoc in this color theme."
+        " (value: dark, light) (default: dark)"
+        " (this has no effect without --decorative)"
+    );
+    print_arg_help("--duration HH:mm", "Set the timer for this duration. (default: 00:30)");
     print_arg_help("--help", "Print help.");
     print_arg_help("--debug", "Show debug info.");
-    print_arg_help("--duration HH:mm", "Set the timer for this duration. (default: 00:30)");
 
     return EXIT_SUCCESS;
 }
