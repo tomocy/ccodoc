@@ -371,8 +371,6 @@ static const char* water_flow_state_to_str(water_flow_state state)
 
 static void render_timer(rendering_context* ctx, const timer* timer)
 {
-    static const size_t progress_bar_width = 14;
-
     ctx->current.y += 4;
 
     {
@@ -390,20 +388,37 @@ static void render_timer(rendering_context* ctx, const timer* timer)
     }
 
     {
-        const float elapsed_ratio = elapsed_time_ratio(timer);
-        const size_t remaining_index = progress_bar_width - (int)(14 * elapsed_ratio);
+        static const size_t progress_bar_width = 14;
+        static const size_t progress_bar_index_timeout_away_1 = (size_t)((float)progress_bar_width * 0.2f);
+        static const size_t progress_bar_index_timeout_away_2 = (size_t)((float)progress_bar_width * 0.4f);
+
+        rendering_attr attr = { 0 };
+
+        const float remaining_ratio = 1 - elapsed_time_ratio(timer);
+
+        const size_t remaining_index = (size_t)((float)progress_bar_width * remaining_ratio);
+        if (remaining_index <= progress_bar_index_timeout_away_1) {
+            attr.color = color_red;
+        } else if (remaining_index <= progress_bar_index_timeout_away_2) {
+            attr.color = color_yellow;
+        } else {
+            attr.color = color_green;
+        }
+
         for (size_t i = 0; i < progress_bar_width; i++) {
-            const bool remaining = i < remaining_index;
+            const float ratio = (float)i / (float)progress_bar_width;
+            const bool remaining = ratio < remaining_ratio;
 
-            if (ctx->app->decorative) {
-                WITH_RENDERING_ATTR(((rendering_attr) { .color = color_white, .dim = !remaining }), {
-                    render(ctx->current.y, ctx->current.x + i, "─");
-                });
-
+            if (!ctx->app->decorative) {
+                render(ctx->current.y, ctx->current.x + i, remaining ? "━" : "═");
                 continue;
             }
 
-            render(ctx->current.y, ctx->current.x + i, remaining ? "━" : "═");
+            attr.dim = !remaining;
+
+            WITH_RENDERING_ATTR(attr, {
+                render(ctx->current.y, ctx->current.x + i, "─");
+            });
         }
 
         wrap_rendering_lines(ctx, 1);
@@ -445,7 +460,7 @@ static void render_debug_info(
                 const moment m = moment_from_duration(remaining_time(timer), time_msec);
                 renderf(p.y++, p.x, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
 
-                renderf(p.y++, p.x, "elapsed ratio: %f", elapsed_time_ratio(timer));
+                renderf(p.y++, p.x, "elapsed time ratio: %f", elapsed_time_ratio(timer));
             }
 
             {

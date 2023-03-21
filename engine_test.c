@@ -78,7 +78,7 @@ int test_engine(void)
         tick_ccodoc(&ccodoc, (duration) { .msecs = 1000 });
 
         EXPECT(ccodoc.kakehi.state, releasing_water);
-        EXPECT(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 1.2f);
+        EXPECT(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 1);
         EXPECT(elapsed_time_ratio(&ccodoc.kakehi.releasing_water_timer), 0);
 
         EXPECT(ccodoc.tsutsu.state, holding_water);
@@ -94,7 +94,7 @@ int test_engine(void)
         tick_ccodoc(&ccodoc, (duration) { .msecs = 250 });
 
         EXPECT(ccodoc.kakehi.state, releasing_water);
-        EXPECT(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 1.2f);
+        EXPECT(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 1);
         EXPECT(elapsed_time_ratio(&ccodoc.kakehi.releasing_water_timer), 0.5f);
 
         EXPECT(ccodoc.tsutsu.state, holding_water);
@@ -134,7 +134,7 @@ int test_engine(void)
         EXPECT(tsutsu_water_amount_ratio(&ccodoc.tsutsu), 1);
 
         EXPECT(ccodoc.hachi.state, holding_water);
-        EXPECT(elapsed_time_ratio(&ccodoc.hachi.releasing_water_timer), 2.5);
+        EXPECT(elapsed_time_ratio(&ccodoc.hachi.releasing_water_timer), 1);
     }
 
     {
@@ -150,7 +150,7 @@ int test_engine(void)
         EXPECT(tsutsu_water_amount_ratio(&ccodoc.tsutsu), 0.6f);
 
         EXPECT(ccodoc.hachi.state, holding_water);
-        EXPECT(elapsed_time_ratio(&ccodoc.hachi.releasing_water_timer), 2.5);
+        EXPECT(elapsed_time_ratio(&ccodoc.hachi.releasing_water_timer), 1);
     }
 
     {
@@ -166,7 +166,7 @@ int test_engine(void)
         EXPECT(tsutsu_water_amount_ratio(&ccodoc.tsutsu), 0);
 
         EXPECT(ccodoc.hachi.state, holding_water);
-        EXPECT(elapsed_time_ratio(&ccodoc.hachi.releasing_water_timer), 2.5);
+        EXPECT(elapsed_time_ratio(&ccodoc.hachi.releasing_water_timer), 1);
     }
 
     return EXIT_SUCCESS;

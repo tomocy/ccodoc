@@ -33,7 +33,7 @@ int test_time(void)
         {
             printf("- tick (600ms)\n");
             tick_timer(&timer, (duration) { .msecs = 600 });
-            EXPECT(elapsed_time_ratio(&timer), 1.2f);
+            EXPECT(elapsed_time_ratio(&timer), 1);
             EXPECT(remaining_time(&timer).msecs, 0);
         }
 

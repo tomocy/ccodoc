@@ -1,5 +1,6 @@
 #include "ccodoc.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 static const char* configure_with_args(context* ctx, int argc, const char** argv);
 static int help(void);
