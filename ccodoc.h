@@ -104,7 +104,7 @@ extern size_t decode_char_utf8(const char* src);
 extern void tick_timer(timer* timer, const duration delta);
 extern void reset_timer(timer* timer);
 extern bool is_timeout(const timer* timer);
-extern float elapsed_ratio(const timer* timer);
+extern float elapsed_time_ratio(const timer* timer);
 extern duration remaining_time(const timer* timer);
 // - sleep
 extern void sleep_for(const duration duration);

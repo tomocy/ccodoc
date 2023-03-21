@@ -12,35 +12,35 @@ int test_time(void)
 
         {
             printf("- initial\n");
-            EXPECT(elapsed_ratio(&timer), 0);
+            EXPECT(elapsed_time_ratio(&timer), 0);
             EXPECT(remaining_time(&timer).msecs, 1000);
         }
 
         {
             printf("- tick (200ms)\n");
             tick_timer(&timer, (duration) { .msecs = 200 });
-            EXPECT(elapsed_ratio(&timer), 0.2f);
+            EXPECT(elapsed_time_ratio(&timer), 0.2f);
             EXPECT(remaining_time(&timer).msecs, 800);
         }
 
         {
             printf("- tick (400ms)\n");
             tick_timer(&timer, (duration) { .msecs = 400 });
-            EXPECT(elapsed_ratio(&timer), 0.6f);
+            EXPECT(elapsed_time_ratio(&timer), 0.6f);
             EXPECT(remaining_time(&timer).msecs, 400);
         }
 
         {
             printf("- tick (600ms)\n");
             tick_timer(&timer, (duration) { .msecs = 600 });
-            EXPECT(elapsed_ratio(&timer), 1.2f);
+            EXPECT(elapsed_time_ratio(&timer), 1.2f);
             EXPECT(remaining_time(&timer).msecs, 0);
         }
 
         {
             printf("- reset\n");
             reset_timer(&timer);
-            EXPECT(elapsed_ratio(&timer), 0);
+            EXPECT(elapsed_time_ratio(&timer), 0);
             EXPECT(remaining_time(&timer).msecs, 1000);
         }
     }

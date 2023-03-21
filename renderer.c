@@ -159,7 +159,7 @@ void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, c
 
 static void render_kakehi(rendering_context* ctx, const kakehi* kakehi)
 {
-    const float holding_ratio = elapsed_ratio(&kakehi->holding_water_timer);
+    const float holding_ratio = elapsed_time_ratio(&kakehi->holding_water_timer);
 
     const char* art = "━══";
     if (0.3 <= holding_ratio && holding_ratio < 0.6) {
@@ -302,7 +302,7 @@ static void render_hachi(rendering_context* ctx, const hachi* hachi)
         art = "▭▭▭▭";
         break;
     case releasing_water: {
-        float ratio = elapsed_ratio(&hachi->releasing_water_timer);
+        float ratio = elapsed_time_ratio(&hachi->releasing_water_timer);
 
         if (ratio < 0.35) {
             art = "▭▬▬▭";

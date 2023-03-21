@@ -69,7 +69,7 @@ static void tick_tsutsu(ccodoc* ccodoc, const duration delta)
     case releasing_water: {
         tick_timer(&tsutsu->releasing_water_timer, delta);
 
-        const float water_ratio = elapsed_ratio(&tsutsu->releasing_water_timer);
+        const float water_ratio = elapsed_time_ratio(&tsutsu->releasing_water_timer);
 
         fill_tsutsu_by(tsutsu, 1.0f - water_ratio);
 

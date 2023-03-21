@@ -19,10 +19,10 @@ void reset_timer(timer* timer)
 
 bool is_timeout(const timer* timer)
 {
-    return elapsed_ratio(timer) >= 1;
+    return elapsed_time_ratio(timer) >= 1;
 }
 
-float elapsed_ratio(const timer* timer)
+float elapsed_time_ratio(const timer* timer)
 {
     assert(timer->duration.msecs != 0);
     return (float)((double)timer->ticker.elapsed.msecs / (double)timer->duration.msecs);
