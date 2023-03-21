@@ -451,6 +451,7 @@ static void render_debug_info(
             {
                 render(p.y++, p.x, "# engine");
 
+                renderf(p.y++, p.x, "platform: %s", platform());
                 renderf(p.y++, p.x, "decorative: %s", ctx->decorative ? "yes" : "no");
             }
 

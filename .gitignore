@@ -1,3 +1,4 @@
 ccodoc
 ccodoc_test
 *.o
+compile_flags.txt

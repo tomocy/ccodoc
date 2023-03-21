@@ -1,7 +1,18 @@
 CC := clang
 CFLAGS := -std=c17 -Wall -Wextra -pedantic
-
 OBJS := engine.o renderer.o string.o time.o
+
+ifeq ($(PLATFORM), linux)
+	CFLAGS += -include ccodoc_macros_linux.h
+	OBJS += ccodoc_linux.o
+	COMPILE_FLAGS := compile_flags_linux.txt
+endif
+
+ifeq ($(PLATFORM), mac)
+	CFLAGS += -include ccodoc_macros_mac.h
+	OBJS += ccodoc_mac.o
+	COMPILE_FLAGS := compile_flags_mac.txt
+endif
 
 # ccodoc
 ccodoc: main.o $(OBJS)
@@ -19,7 +30,10 @@ ccodoc_test: test.o $(OBJS) engine_test.o string_test.o time_test.o
 test: ccodoc_test
 	./ccodoc_test $(ARGS)
 
-# utils
+# dev
+compile_flags.txt: $(COMPILE_FLAGS)
+	cat compile_flags_vanilla.txt $(COMPILE_FLAGS) > $@
+
 .PHONY: clean
 clean:
 	$(RM) ccodoc ccodoc_test *.o

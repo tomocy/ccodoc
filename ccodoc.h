@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ccodoc_linux.h"
+#include "ccodoc_mac.h"
+
 #include <assert.h>
 #include <curses.h>
 #include <stdbool.h>
