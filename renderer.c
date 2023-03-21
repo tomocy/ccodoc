@@ -410,7 +410,7 @@ static void render_timer(rendering_context* ctx, const timer* timer)
             const bool remaining = ratio < remaining_ratio;
 
             if (!ctx->app->decorative) {
-                render(ctx->current.y, ctx->current.x + i, remaining ? "━" : "═");
+                render(ctx->current.y, ctx->current.x + i, remaining ? "─" : " ");
                 continue;
             }
 
