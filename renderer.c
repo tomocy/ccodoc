@@ -371,18 +371,43 @@ static const char* water_flow_state_to_str(water_flow_state state)
 
 static void render_timer(rendering_context* ctx, const timer* timer)
 {
+    static const size_t progress_bar_width = 14;
+
     ctx->current.y += 4;
 
-    const moment moment = moment_from_duration(remaining_time(timer), time_min);
+    {
+        const moment moment = moment_from_duration(remaining_time(timer), time_min);
 
-    PREFER_RENDERING_WITH_ATTR(
-        ctx->app->decorative,
-        ((rendering_attr) { .color = color_white }),
-        {
-            renderf(ctx->current.y, ctx->current.x + 4, "%02dᴴ%02dᴹ", moment.hours, moment.mins);
+        PREFER_RENDERING_WITH_ATTR(
+            ctx->app->decorative,
+            ((rendering_attr) { .color = color_white }),
+            {
+                renderf(ctx->current.y, ctx->current.x + 4, "%02dᴴ%02dᴹ", moment.hours, moment.mins);
+            }
+        );
+
+        wrap_rendering_lines(ctx, 1);
+    }
+
+    {
+        const float elapsed_ratio = elapsed_time_ratio(timer);
+        const size_t remaining_index = progress_bar_width - (int)(14 * elapsed_ratio);
+        for (size_t i = 0; i < progress_bar_width; i++) {
+            const bool remaining = i < remaining_index;
+
+            if (ctx->app->decorative) {
+                WITH_RENDERING_ATTR(((rendering_attr) { .color = color_white, .dim = !remaining }), {
+                    render(ctx->current.y, ctx->current.x + i, "─");
+                });
+
+                continue;
+            }
+
+            render(ctx->current.y, ctx->current.x + i, remaining ? "━" : "═");
         }
-    );
-    wrap_rendering_lines(ctx, 1);
+
+        wrap_rendering_lines(ctx, 1);
+    }
 }
 
 static void render_debug_info(
@@ -419,6 +444,8 @@ static void render_debug_info(
 
                 const moment m = moment_from_duration(remaining_time(timer), time_msec);
                 renderf(p.y++, p.x, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
+
+                renderf(p.y++, p.x, "elapsed ratio: %f", elapsed_time_ratio(timer));
             }
 
             {

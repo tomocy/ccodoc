@@ -9,6 +9,10 @@ static void ticker_reset(ticker* ticker);
 
 void tick_timer(timer* timer, const duration delta)
 {
+    if (is_timeout(timer)) {
+        return;
+    }
+
     ticker_tick(&timer->ticker, delta);
 }
 
@@ -25,7 +29,7 @@ bool is_timeout(const timer* timer)
 float elapsed_time_ratio(const timer* timer)
 {
     assert(timer->duration.msecs != 0);
-    return (float)((double)timer->ticker.elapsed.msecs / (double)timer->duration.msecs);
+    return CLAMP(0, 1, (float)((double)timer->ticker.elapsed.msecs / (double)timer->duration.msecs));
 }
 
 duration remaining_time(const timer* timer)
