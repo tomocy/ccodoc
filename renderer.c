@@ -126,7 +126,7 @@ void deinit_renderer(renderer* render)
 void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc)
 {
     static const point ccodoc_size = {
-        .x = 16,
+        .x = 12,
         .y = 8,
     };
 
@@ -371,15 +371,18 @@ static const char* water_flow_state_to_str(water_flow_state state)
 
 static void render_timer(rendering_context* ctx, const timer* timer)
 {
+    ctx->current.y += 4;
+
     const moment moment = moment_from_duration(remaining_time(timer), time_min);
 
     PREFER_RENDERING_WITH_ATTR(
         ctx->app->decorative,
         ((rendering_attr) { .color = color_white }),
         {
-            renderf(ctx->current.y + 2, ctx->current.x + 4, "%02d:%02d", moment.hours, moment.mins);
+            renderf(ctx->current.y, ctx->current.x + 4, "%02dᴴ%02dᴹ", moment.hours, moment.mins);
         }
     );
+    wrap_rendering_lines(ctx, 1);
 }
 
 static void render_debug_info(
