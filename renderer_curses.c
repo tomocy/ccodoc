@@ -376,11 +376,17 @@ static void render_timer(rendering_context* ctx, const timer* timer)
     {
         const moment moment = moment_from_duration(remaining_time(timer), time_min);
 
+#if PLATFORM == PLATFORM_LINUX
+        const char* format = "%02dᴴ%02dᴹ";
+#else
+        const char* format = "%02dh%02dm";
+#endif
+
         PREFER_RENDERING_WITH_ATTR(
             ctx->app->decorative,
             ((rendering_attr) { .color = color_white }),
             {
-                renderf(ctx->current.y, ctx->current.x + 4, "%02dᴴ%02dᴹ", moment.hours, moment.mins);
+                renderf(ctx->current.y, ctx->current.x + 4, format, moment.hours, moment.mins);
             }
         );
 
