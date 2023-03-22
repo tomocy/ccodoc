@@ -11,13 +11,13 @@ if [[ "${PLATFORM}" == "" ]]; then
   fi
 
   if [[ "${NAME}" == "Darwin" ]]; then
-    PLATFORM="mac"
+    PLATFORM="macos"
   fi
 
 fi
 
-if [[ "${PLATFORM}" != "linux" ]] && [[ "${PLATFORM}" != "mac" ]]; then
-  echo "invalid platform: the value must be one of (linux, mac)" >&2
+if [[ "${PLATFORM}" != "linux" ]] && [[ "${PLATFORM}" != "macos" ]]; then
+  echo "invalid platform: the value must be one of (linux, macos)" >&2
   exit 1
 fi
 

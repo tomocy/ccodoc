@@ -3,5 +3,5 @@
 #include "ccodoc_vanilla.h"
 
 #ifndef PLATFORM
-#define PLATFORM PLATFORM_MAC
+#define PLATFORM PLATFORM_MACOS
 #endif

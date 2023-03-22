@@ -1,10 +1,10 @@
 #include "ccodoc.h"
 
-#if PLATFORM == PLATFORM_MAC
+#if PLATFORM == PLATFORM_MACOS
 
 const char* platform(void)
 {
-    return "mac";
+    return "macos";
 }
 
 #endif

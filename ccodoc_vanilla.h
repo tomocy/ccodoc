@@ -7,7 +7,7 @@
 // platform
 #define PLATFORM_UNKNOWN 0
 #define PLATFORM_LINUX 1
-#define PLATFORM_MAC 2
+#define PLATFORM_MACOS 2
 
 // math
 #define MAX(a, b) ((a) > (b) ? (a) : (b))

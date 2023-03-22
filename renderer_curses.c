@@ -7,7 +7,7 @@
 #include <ncursesw/curses.h>
 #endif
 
-#if PLATFORM == PLATFORM_MAC
+#if PLATFORM == PLATFORM_MACOS
 #include <curses.h>
 #endif
 
