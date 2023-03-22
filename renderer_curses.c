@@ -284,7 +284,6 @@ static void render_tsutsu(rendering_context* ctx, const tsutsu* tsutsu)
 
             if (str_equals_n(c, "▕", len)) {
                 attr.color = color_yellow;
-                attr.dim = true;
             }
 
             WITH_RENDERING_ATTR(attr, {
