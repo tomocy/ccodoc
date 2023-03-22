@@ -11,6 +11,7 @@ endif
 ifeq ($(PLATFORM), mac)
 	CFLAGS += -include ccodoc_macros_mac.h
 	OBJS += ccodoc_mac.o
+	VSCODE_SETTINGS := .vscode/settings_mac.json
 	COMPILE_FLAGS := compile_flags_mac.txt
 endif
 
@@ -31,8 +32,11 @@ test: ccodoc_test
 	./ccodoc_test $(ARGS)
 
 # dev
+.vscode/settings.json: $(VSCODE_SETTINGS)
+	cat $^ > $@
+
 compile_flags.txt: $(COMPILE_FLAGS)
-	cat compile_flags_vanilla.txt $(COMPILE_FLAGS) > $@
+	cat compile_flags_vanilla.txt $^ > $@
 
 .PHONY: clean
 clean:
