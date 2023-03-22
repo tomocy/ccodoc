@@ -2,4 +2,3 @@
 -Wall
 -Wextra
 -pedantic
--include ccodoc_macros_linux.h

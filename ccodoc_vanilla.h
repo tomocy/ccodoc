@@ -1,8 +1,8 @@
 #pragma once
 
 #include <assert.h>
-#include <curses.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 // platform
 #define PLATFORM_UNKNOWN 0
@@ -102,10 +102,6 @@ typedef struct {
     tsutsu tsutsu;
     hachi hachi;
 } ccodoc;
-
-typedef struct {
-    WINDOW* window;
-} renderer;
 
 extern void tick_ccodoc(ccodoc* ccodoc, const duration delta);
 // - debug

@@ -132,7 +132,7 @@ static int run(const context* ctx, timer* timer, ccodoc* ccodoc)
         .msecs = 1000 / 24,
     };
 
-    renderer renderer = { 0 };
+    renderer_curses renderer = { 0 };
 
     init_renderer(&renderer, ctx);
 

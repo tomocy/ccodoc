@@ -36,7 +36,7 @@ static void render_debug_info(
     const ccodoc* ccodoc
 );
 
-static point rendering_viewport_size(const renderer* renderer);
+static point rendering_viewport_size(const renderer_curses* renderer);
 
 static rendering_context init_rendering_context(const context* ctx, point origin);
 static void wrap_rendering_lines(rendering_context* ctx, unsigned int n);
@@ -100,7 +100,7 @@ static void set_color(color color, short r, short g, short b, short supplement)
     init_pair(color, color, color_black);
 }
 
-void init_renderer(renderer* render, const context* ctx)
+void init_renderer(renderer_curses* render, const context* ctx)
 {
     (void)setlocale(LC_ALL, "");
 
@@ -125,13 +125,13 @@ void init_renderer(renderer* render, const context* ctx)
     }
 }
 
-void deinit_renderer(renderer* render)
+void deinit_renderer(renderer_curses* render)
 {
     endwin();
     render->window = NULL;
 }
 
-void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc)
+void render_ccodoc(renderer_curses* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc)
 {
     static const point ccodoc_size = {
         .x = 12,
@@ -498,7 +498,7 @@ static void render_debug_info(
     );
 }
 
-static point rendering_viewport_size(const renderer* renderer)
+static point rendering_viewport_size(const renderer_curses* renderer)
 {
     return (point) {
         .x = getmaxx(renderer->window),
