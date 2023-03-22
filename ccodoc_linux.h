@@ -4,7 +4,7 @@
 
 #if PLATFORM == PLATFORM_LINUX
 
-#include <stdio.h>
+#include "renderer_curses.h"
 
 extern const char* platform(void);
 

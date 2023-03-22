@@ -1,8 +1,15 @@
 #include "ccodoc.h"
+
 #include <locale.h>
-// #include <ncursesw/curses.h>
-#include <curses.h>
 #include <stdio.h>
+
+#if PLATFORM == PLATFORM_LINUX
+#include <ncursesw/curses.h>
+#endif
+
+#if PLATFORM == PLATFORM_MAC
+#include <curses.h>
+#endif
 
 typedef struct {
     unsigned int x;
