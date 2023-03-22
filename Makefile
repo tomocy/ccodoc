@@ -1,6 +1,6 @@
 CC := clang
 CFLAGS := -std=c17 -Wall -Wextra -pedantic
-LDLIBS := -lm
+LDLIBS := -lm -lncursesw
 
 LIB_SRCS := engine.c string.c time.c
 SRCS := main.c $(LIB_SRCS)
@@ -13,7 +13,6 @@ endif
 
 ifeq ($(_TARGET), linux)
 CFLAGS += -include ccodoc_macros_linux.h
-LDLIBS += -lncursesw
 
 SRCS += ccodoc_linux.c renderer_curses.c
 
@@ -22,7 +21,6 @@ endif
 
 ifeq ($(_TARGET), macos)
 CFLAGS += -include ccodoc_macros_macos.h
-LDLIBS += -lncurses
 
 SRCS += ccodoc_macos.c renderer_curses.c
 
@@ -35,7 +33,7 @@ TEST_OBJS := $(patsubst %.c, %.o, $(TEST_SRCS))
 
 # ccodoc
 ccodoc: $(OBJS)
-	$(CC) $(CFLAGS) $(LDLIBS) -o $@ $^
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
 
 .PHONY: run
 run: ccodoc
@@ -43,7 +41,7 @@ run: ccodoc
 
 # test
 ccodoc_test: $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(LDLIBS) -o $@ $^
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
 
 .PHONY: test
 test: ccodoc_test
