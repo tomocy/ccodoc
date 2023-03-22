@@ -19,7 +19,9 @@
 			"extensions": [
 				"patbenatar.advanced-new-file",
 				"74th.scrollkey",
-				"llvm-vs-code-extensions.vscode-clangd"
+				"llvm-vs-code-extensions.vscode-clangd",
+				"timonwong.shellcheck",
+				"foxundermoon.shell-format"
 			]
 		}
 	}

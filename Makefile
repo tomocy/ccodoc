@@ -3,21 +3,26 @@ CFLAGS := -std=c17 -Wall -Wextra -pedantic
 LDLIBS := -lm
 OBJS := engine.o string.o time.o
 
-ifeq ($(PLATFORM), linux)
-	CFLAGS += -include ccodoc_macros_linux.h
-	LDLIBS += -lncursesw
-	OBJS += ccodoc_linux.o renderer_curses.o
-
-	COMPILE_FLAGS := compile_flags_linux.txt
+_PLATFORM := $(shell ./tool/build/detect_platform.sh $(PLATFORM))
+ifeq ($(_PLATFORM),)
+$(error failed to detect platform)
 endif
 
-ifeq ($(PLATFORM), mac)
-	CFLAGS += -include ccodoc_macros_mac.h
-	LDLIBS += -lcurses
-	OBJS += ccodoc_mac.o renderer_curses.o
+ifeq ($(_PLATFORM), linux)
+CFLAGS += -include ccodoc_macros_linux.h
+LDLIBS += -lncursesw
+OBJS += ccodoc_linux.o renderer_curses.o
 
-	VSCODE_SETTINGS := .vscode/settings_mac.json
-	COMPILE_FLAGS := compile_flags_mac.txt
+COMPILE_FLAGS := compile_flags_linux.txt
+endif
+
+ifeq ($(_PLATFORM), mac)
+CFLAGS += -include ccodoc_macros_mac.h
+LDLIBS += -lcurses
+OBJS += ccodoc_mac.o renderer_curses.o
+
+VSCODE_SETTINGS := .vscode/settings_mac.json
+COMPILE_FLAGS := compile_flags_mac.txt
 endif
 
 # ccodoc
