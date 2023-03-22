@@ -46,8 +46,8 @@ void sleep_for(const duration duration)
     }
 
     struct timespec time_spec;
-    time_spec.tv_sec = (__time_t)duration.msecs / 1000;
-    time_spec.tv_nsec = (__time_t)duration.msecs % 1000 * 1000000;
+    time_spec.tv_sec = (time_t)duration.msecs / 1000;
+    time_spec.tv_nsec = (time_t)duration.msecs % 1000 * 1000000;
 
     int slept = -1;
     do {
