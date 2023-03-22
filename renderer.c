@@ -1,6 +1,7 @@
 #include "ccodoc.h"
 #include <locale.h>
-#include <ncursesw/curses.h>
+// #include <ncursesw/curses.h>
+#include <curses.h>
 #include <stdio.h>
 
 typedef struct {

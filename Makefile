@@ -1,23 +1,28 @@
 CC := clang
 CFLAGS := -std=c17 -Wall -Wextra -pedantic
+LDLIBS := -lm
 OBJS := engine.o renderer.o string.o time.o
 
 ifeq ($(PLATFORM), linux)
 	CFLAGS += -include ccodoc_macros_linux.h
+	LDLIBS += -lncursesw
 	OBJS += ccodoc_linux.o
+
 	COMPILE_FLAGS := compile_flags_linux.txt
 endif
 
 ifeq ($(PLATFORM), mac)
 	CFLAGS += -include ccodoc_macros_mac.h
+	LDLIBS += -lcurses
 	OBJS += ccodoc_mac.o
+
 	VSCODE_SETTINGS := .vscode/settings_mac.json
 	COMPILE_FLAGS := compile_flags_mac.txt
 endif
 
 # ccodoc
 ccodoc: main.o $(OBJS)
-	$(CC) $(CFLAGS) -lm -lncursesw -o $@ $^
+	$(CC) $(CFLAGS) $(LDLIBS) -o $@ $^
 
 .PHONY: run
 run: ccodoc
@@ -25,7 +30,7 @@ run: ccodoc
 
 # test
 ccodoc_test: test.o $(OBJS) engine_test.o string_test.o time_test.o
-	$(CC) $(CFLAGS) -lm -lncursesw -o $@ $^
+	$(CC) $(CFLAGS) $(LDLIBS) -o $@ $^
 
 .PHONY: test
 test: ccodoc_test
