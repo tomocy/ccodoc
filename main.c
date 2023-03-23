@@ -34,10 +34,10 @@ int main(int argc, const char** argv)
         .kakehi = {
             .release_water_ratio = 0.1f,
             .holding_water_timer = {
-                .duration = { .msecs = 2500 },
+                .duration = { .msecs = 2200 },
             },
             .releasing_water_timer = {
-                .duration = { .msecs = 500 },
+                .duration = { .msecs = 800 },
             },
         },
         .tsutsu = {

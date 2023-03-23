@@ -162,14 +162,28 @@ static void render_kakehi(rendering_context* ctx, const kakehi* kakehi)
 {
     const float holding_ratio = elapsed_time_ratio(&kakehi->holding_water_timer);
 
-    const char* art = "━══";
-    if (0.3 <= holding_ratio && holding_ratio < 0.6) {
-        art = "═━═";
-    } else if (0.6 <= holding_ratio && holding_ratio < 0.9) {
-        art = "══━";
-    } else if (holding_ratio >= 0.9) {
-        art = "═══";
+    const char* art = NULL;
+    switch (kakehi->state) {
+    case holding_water: {
+        static const float holding_ratio_1 = 1.0f / 3 * 1;
+        static const float holding_ratio_2 = 1.0f / 3 * 2;
+
+        if (0 <= holding_ratio && holding_ratio < holding_ratio_1) {
+            art = "━══";
+        } else if (holding_ratio_1 <= holding_ratio && holding_ratio < holding_ratio_2) {
+            art = "═━═";
+        } else {
+            art = "══━";
+        }
+
+        break;
     }
+    case releasing_water:
+        art = "═══";
+        break;
+    }
+
+    assert(art != NULL);
 
     if (ctx->app->decorative) {
         int i = 0;
