@@ -4,3 +4,5 @@ ccodoc_test
 
 .vscode/settings.json
 compile_flags.txt
+
+.DS_Store

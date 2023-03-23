@@ -1,5 +1,4 @@
 #include "ccodoc.h"
-#include <stdio.h>
 #include <stdlib.h>
 
 static const char* configure_with_args(context* ctx, int argc, const char** argv);
@@ -43,7 +42,7 @@ int main(int argc, const char** argv)
         .tsutsu = {
             .water_capacity = 10,
             .releasing_water_timer = {
-                .duration = { .msecs = 1800 },
+                .duration = { .msecs = 1200 },
             },
         },
         .hachi = {
@@ -134,7 +133,7 @@ static int run(const context* ctx, timer* timer, ccodoc* ccodoc)
 
     renderer_curses renderer = { 0 };
 
-    init_renderer(&renderer, ctx);
+    init_renderer(&renderer, ctx, ccodoc);
 
     while (1) {
         tick_timer(timer, delta);
@@ -145,7 +144,7 @@ static int run(const context* ctx, timer* timer, ccodoc* ccodoc)
         sleep_for(delta);
     }
 
-    deinit_renderer(&renderer);
+    deinit_renderer(&renderer, ccodoc);
 
     return EXIT_SUCCESS;
 }

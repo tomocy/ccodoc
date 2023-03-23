@@ -14,6 +14,8 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define CLAMP(min, max, x) MIN(MAX(x, min), max)
 
+typedef void (*void_callback)(void);
+
 // time
 typedef enum {
     time_msec = 1,
@@ -88,6 +90,9 @@ typedef struct {
     unsigned int water_amount;
     unsigned int water_capacity;
     timer releasing_water_timer;
+
+    void_callback on_poured;
+    void_callback on_released_water;
 } tsutsu;
 
 // hachi（手水鉢）

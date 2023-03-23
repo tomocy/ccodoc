@@ -69,12 +69,18 @@ static void tick_tsutsu(ccodoc* ccodoc, const duration delta)
     case releasing_water: {
         tick_timer(&tsutsu->releasing_water_timer, delta);
 
-        const float water_ratio = elapsed_time_ratio(&tsutsu->releasing_water_timer);
+        const float ratio = elapsed_time_ratio(&tsutsu->releasing_water_timer);
 
-        fill_tsutsu_by(tsutsu, 1.0f - water_ratio);
+        fill_tsutsu_by(tsutsu, 1.0f - ratio);
 
-        if (water_ratio >= 1) {
-            hold_tsutsu_water(ccodoc);
+        if (ratio < 1) {
+            break;
+        }
+
+        hold_tsutsu_water(ccodoc);
+
+        if (tsutsu->on_released_water != NULL) {
+            tsutsu->on_released_water();
         }
 
         break;
@@ -189,6 +195,10 @@ static void pour_tsutsu_by(tsutsu* tsutsu, float ratio)
     tsutsu->water_amount = (tsutsu->water_capacity - tsutsu->water_amount > delta)
         ? tsutsu->water_amount + delta
         : tsutsu->water_capacity;
+
+    if (tsutsu->on_poured != NULL) {
+        tsutsu->on_poured();
+    }
 }
 
 static void fill_tsutsu_by(tsutsu* tsutsu, float ratio)

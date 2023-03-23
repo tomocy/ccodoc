@@ -3,6 +3,9 @@
 #include <curses.h>
 #include <locale.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 typedef struct {
     unsigned int x;
@@ -20,6 +23,9 @@ static void render_kakehi(rendering_context* ctx, const kakehi* kakehi);
 static void render_tsutsu(rendering_context* ctx, const tsutsu* tsutsu);
 static void render_hachi(rendering_context* ctx, const hachi* hachi);
 static void render_roji(const rendering_context* ctx);
+
+static void on_tsutsu_poured(void);
+static void on_tsutsu_released_water(void);
 
 static void render_timer(rendering_context* ctx, const timer* timer);
 
@@ -93,35 +99,44 @@ static void set_color(color color, short r, short g, short b, short supplement)
     init_pair(color, color, color_black);
 }
 
-void init_renderer(renderer_curses* render, const context* ctx)
+void init_renderer(renderer_curses* renderer, const context* ctx, ccodoc* ccodoc)
 {
     (void)setlocale(LC_ALL, "");
 
-    render->window = initscr();
+    renderer->window = initscr();
     noecho();
     curs_set(0);
 
-    if (ctx->decorative && has_colors()) {
+    if (!ctx->decorative) {
+        return;
+    }
+
+    if (has_colors()) {
         start_color();
 
-        const short supplement = 10;
+        static const short color_supplement = 10;
 
         set_color(color_black, 0, 0, 0, 0);
-        set_color(color_red, 255, 123, 84, supplement);
-        set_color(color_green, 90, 190, 50, supplement);
-        set_color(color_yellow, 205, 180, 90, supplement);
-        set_color(color_blue, 0, 200, 220, supplement);
-        set_color(color_grey, 170, 160, 180, supplement);
+        set_color(color_red, 255, 123, 84, color_supplement);
+        set_color(color_green, 90, 190, 50, color_supplement);
+        set_color(color_yellow, 205, 180, 90, color_supplement);
+        set_color(color_blue, 0, 200, 220, color_supplement);
+        set_color(color_grey, 170, 160, 180, color_supplement);
         set_color(color_white, 225, 230, 255, 0);
 
         bkgd(COLOR_PAIR(color_black));
     }
+
+    ccodoc->tsutsu.on_poured = on_tsutsu_poured;
+    ccodoc->tsutsu.on_released_water = on_tsutsu_released_water;
 }
 
-void deinit_renderer(renderer_curses* render)
+void deinit_renderer(renderer_curses* renderer, ccodoc* ccodoc)
 {
     endwin();
-    render->window = NULL;
+    renderer->window = NULL;
+
+    ccodoc->tsutsu.on_poured = NULL;
 }
 
 void render_ccodoc(renderer_curses* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc)
@@ -160,13 +175,13 @@ void render_ccodoc(renderer_curses* renderer, const context* ctx, const timer* t
 
 static void render_kakehi(rendering_context* ctx, const kakehi* kakehi)
 {
-    const float holding_ratio = elapsed_time_ratio(&kakehi->holding_water_timer);
-
     const char* art = NULL;
     switch (kakehi->state) {
     case holding_water: {
         static const float holding_ratio_1 = 1.0f / 3 * 1;
         static const float holding_ratio_2 = 1.0f / 3 * 2;
+
+        const float holding_ratio = elapsed_time_ratio(&kakehi->holding_water_timer);
 
         if (0 <= holding_ratio && holding_ratio < holding_ratio_1) {
             art = "━══";
@@ -250,16 +265,21 @@ static void render_tsutsu(rendering_context* ctx, const tsutsu* tsutsu)
         } else {
             art = art_kyu;
         }
+
         break;
-    case releasing_water:
-        if (water_amount_ratio < 0.35) {
-            art = art_jo;
-        } else if (water_amount_ratio < 0.65) {
+    case releasing_water: {
+        const float ratio = elapsed_time_ratio(&tsutsu->releasing_water_timer);
+
+        if (ratio < 0.55) {
+            art = art_kyu;
+        } else if (ratio < 1) {
             art = art_ha;
         } else {
-            art = art_kyu;
+            art = art_jo;
         }
+
         break;
+    }
     }
 
     assert(art != NULL);
@@ -373,14 +393,12 @@ static void render_roji(const rendering_context* ctx)
     );
 }
 
-static const char* water_flow_state_to_str(water_flow_state state)
+static void on_tsutsu_poured(void)
 {
-    switch (state) {
-    case holding_water:
-        return "holding";
-    case releasing_water:
-        return "releasing";
-    }
+}
+
+static void on_tsutsu_released_water(void)
+{
 }
 
 static void render_timer(rendering_context* ctx, const timer* timer)
@@ -442,6 +460,16 @@ static void render_timer(rendering_context* ctx, const timer* timer)
         }
 
         wrap_rendering_lines(ctx, 1);
+    }
+}
+
+static const char* water_flow_state_to_str(water_flow_state state)
+{
+    switch (state) {
+    case holding_water:
+        return "holding";
+    case releasing_water:
+        return "releasing";
     }
 }
 
