@@ -27,8 +27,10 @@ static void draw_tsutsu(drawing_context* ctx, const tsutsu* tsutsu);
 static void draw_hachi(drawing_context* ctx, const hachi* hachi);
 static void draw_roji(const drawing_context* ctx);
 
+#if !TESTING
 static void on_tsutsu_poured(void);
 static void on_tsutsu_released_water(void);
+#endif
 
 static void draw_timer(drawing_context* ctx, const timer* timer);
 
@@ -83,9 +85,30 @@ typedef struct {
         }                                              \
     }
 
+#if TESTING
+static canvas* test_canvas = NULL;
+
+void draw(int y, int x, const char* s)
+{
+    size_t i = 0;
+    const char* c = s;
+
+    while (*c) {
+        char_descriptor desc = decode_char_utf8(c);
+        size_t p = y * TEST_WINDOW_WIDTH + x + i;
+        test_canvas->test_window[p] = desc.code;
+
+        i++;
+        c += desc.len;
+    }
+}
+#else
 #define draw(y, x, s) mvprintw((int)(y), (int)(x), (s))
+#endif
+
 #define drawf(y, x, format, ...) mvprintw((int)(y), (int)(x), (format), __VA_ARGS__)
 
+#if !TESTING
 static void set_color(color color, short r, short g, short b, short supplement)
 {
     static const float factor = 1000.0f / 255;
@@ -101,9 +124,17 @@ static void set_color(color color, short r, short g, short b, short supplement)
 
     init_pair(color, color, color_black);
 }
+#endif
 
 void init_canvas(canvas* canvas, const context* ctx, ccodoc* ccodoc)
 {
+#if TESTING
+    (void)canvas;
+    (void)ctx;
+    (void)ccodoc;
+
+    test_canvas = canvas;
+#else
     (void)setlocale(LC_ALL, "");
 
     canvas->window = initscr();
@@ -132,21 +163,53 @@ void init_canvas(canvas* canvas, const context* ctx, ccodoc* ccodoc)
 
     ccodoc->tsutsu.on_poured = on_tsutsu_poured;
     ccodoc->tsutsu.on_released_water = on_tsutsu_released_water;
+#endif
 }
 
 void deinit_canvas(canvas* canvas, ccodoc* ccodoc)
 {
+#if TESTING
+    (void)canvas;
+    (void)ccodoc;
+
+    test_canvas = NULL;
+#else
     endwin();
     canvas->window = NULL;
 
     ccodoc->tsutsu.on_poured = NULL;
+#endif
+}
+
+void clear_canvas(canvas* canvas)
+{
+#if TESTING
+    for (int h = 0; h < TEST_WINDOW_HEIGHT; h++) {
+        for (int w = 0; w < TEST_WINDOW_WIDTH; w++) {
+            canvas->test_window[h * TEST_WINDOW_WIDTH + w] = ' ';
+        }
+    }
+#else
+    (void)canvas;
+    clear();
+#endif
+}
+
+static void flush_canvas(canvas* canvas)
+{
+#if TESTING
+    (void)canvas;
+#else
+    (void)canvas;
+    refresh();
+#endif
 }
 
 void draw_ccodoc(canvas* canvas, const context* ctx, const timer* timer, const ccodoc* ccodoc)
 {
     static const point ccodoc_size = {
-        .x = 12,
-        .y = 8,
+        .x = 14,
+        .y = 6,
     };
 
     const point window_size = drawing_window_size(canvas);
@@ -159,7 +222,7 @@ void draw_ccodoc(canvas* canvas, const context* ctx, const timer* timer, const c
         }
     );
 
-    clear();
+    clear_canvas(canvas);
 
     draw_kakehi(&dctx, &ccodoc->kakehi);
     draw_tsutsu(&dctx, &ccodoc->tsutsu);
@@ -173,7 +236,7 @@ void draw_ccodoc(canvas* canvas, const context* ctx, const timer* timer, const c
         draw_debug_info(ctx, timer, ccodoc);
     }
 
-    refresh();
+    flush_canvas(canvas);
 }
 
 static void draw_kakehi(drawing_context* ctx, const kakehi* kakehi)
@@ -206,20 +269,20 @@ static void draw_kakehi(drawing_context* ctx, const kakehi* kakehi)
     if (ctx->app->decorative) {
         int i = 0;
         for (const char* c = art; *c;) {
-            const size_t len = decode_char_utf8(c);
-            const bool has_water = str_equals_n(c, "━", len);
+            const char_descriptor desc = decode_char_utf8(c);
+            const bool has_water = str_equals_n(c, "━", desc.len);
 
             WITH_DRAWING_ATTR(
                 ((drawing_attr) {
                     .color = has_water ? color_blue : color_yellow,
                 }),
                 {
-                    drawf(ctx->current.y, ctx->current.x + i, "%.*s", len, c);
+                    drawf(ctx->current.y, ctx->current.x + i, "%.*s", desc.len, c);
                 }
             );
 
             i++;
-            c += len;
+            c += desc.len;
         }
     } else {
         draw(ctx->current.y, ctx->current.x, art);
@@ -299,29 +362,29 @@ static void draw_tsutsu(drawing_context* ctx, const tsutsu* tsutsu)
         int i = 0;
         const char* c = art[h];
         while (*c) {
-            const size_t len = decode_char_utf8(c);
+            const char_descriptor desc = decode_char_utf8(c);
 
             drawing_attr attr = (drawing_attr) { .color = color_white };
 
             if (
-                str_equals_n(c, "◥", len)
-                || str_equals_n(c, "◣", len)
-                || str_equals_n(c, "◢", len)
-                || str_equals_n(c, "◤", len)
+                str_equals_n(c, "◥", desc.len)
+                || str_equals_n(c, "◣", desc.len)
+                || str_equals_n(c, "◢", desc.len)
+                || str_equals_n(c, "◤", desc.len)
             ) {
                 attr.color = color_green;
             }
 
-            if (str_equals_n(c, "▕", len)) {
+            if (str_equals_n(c, "▕", desc.len)) {
                 attr.color = color_yellow;
             }
 
             WITH_DRAWING_ATTR(attr, {
-                drawf(origin.y + h, origin.x + i, "%.*s", len, c);
+                drawf(origin.y + h, origin.x + i, "%.*s", desc.len, c);
             });
 
             i++;
-            c += len;
+            c += desc.len;
         }
     }
 
@@ -353,25 +416,27 @@ static void draw_hachi(drawing_context* ctx, const hachi* hachi)
     }
     }
 
-    {
+    if (ctx->app->decorative) {
         int i = 0;
         const char* c = art;
         while (*c) {
-            const size_t len = decode_char_utf8(c);
-            const bool has_water = str_equals_n(c, "▬", len);
+            const char_descriptor desc = decode_char_utf8(c);
+            const bool has_water = str_equals_n(c, "▬", desc.len);
 
             WITH_DRAWING_ATTR(
                 ((drawing_attr) {
                     .color = has_water ? color_blue : color_grey,
                 }),
                 {
-                    drawf(ctx->current.y, ctx->current.x + i, "%.*s", len, c);
+                    drawf(ctx->current.y, ctx->current.x + i, "%.*s", desc.len, c);
                 }
             );
 
             i++;
-            c += len;
+            c += desc.len;
         }
+    } else {
+        draw(ctx->current.y, ctx->current.x, art);
     }
 
     ctx->current.x += width;
@@ -396,9 +461,17 @@ static void draw_roji(const drawing_context* ctx)
     );
 }
 
-static void on_tsutsu_poured(void) { }
+#if !TESTING
+static void on_tsutsu_poured(void)
+{
+}
+#endif
 
-static void on_tsutsu_released_water(void) { }
+#if !TESTING
+static void on_tsutsu_released_water(void)
+{
+}
+#endif
 
 static void draw_timer(drawing_context* ctx, const timer* timer)
 {
@@ -538,10 +611,18 @@ static void draw_debug_info(
 
 static point drawing_window_size(const canvas* canvas)
 {
+#if TESTING
+    (void)canvas;
+    return (point) {
+        .x = TEST_WINDOW_WIDTH,
+        .y = TEST_WINDOW_HEIGHT,
+    };
+#else
     return (point) {
         .x = getmaxx(canvas->window),
         .y = getmaxy(canvas->window),
     };
+#endif
 }
 
 static drawing_context init_drawing_context(const context* ctx, point origin)

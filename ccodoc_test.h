@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define REPORTF_FAIL(format, ...) printf("FAIL: " format, __VA_ARGS__)
+
 #define EXPECT_EQUAL(actual, expected)         \
     {                                          \
         const bool x = (actual) == (expected); \
@@ -26,3 +28,4 @@
 extern int test_engine(void);
 extern int test_str(void);
 extern int test_time(void);
+extern int test_renderer(void);
