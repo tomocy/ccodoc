@@ -1,4 +1,5 @@
-#include "ccodoc.h"
+#include "string.h"
+
 #include <string.h>
 
 bool str_equals(const char* str, const char* other)

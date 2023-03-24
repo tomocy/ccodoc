@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ccodoc_vanilla.h"
+#include "platform.h"
 
 #ifndef PLATFORM
 #define PLATFORM PLATFORM_MACOS

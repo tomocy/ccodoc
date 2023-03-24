@@ -1,4 +1,6 @@
-#include "ccodoc.h"
+#include "engine.h"
+#include "renderer_curses.h"
+#include "string.h"
 #include <stdlib.h>
 
 static const char* configure_with_args(context* ctx, int argc, const char** argv);

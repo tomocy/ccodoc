@@ -1,4 +1,5 @@
-#include "ccodoc.h"
+#include "string.h"
+
 #include "ccodoc_test.h"
 #include <string.h>
 

@@ -1,4 +1,7 @@
-#include "ccodoc.h"
+#include "engine.h"
+
+#include <assert.h>
+#include <stddef.h>
 
 static void tick_kakehi(ccodoc* ccodoc, const duration delta);
 static void tick_tsutsu(ccodoc* ccodoc, const duration delta);

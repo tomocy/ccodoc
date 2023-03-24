@@ -1,5 +1,6 @@
-#include "ccodoc_vanilla.h"
+#pragma once
 
+#include "engine.h"
 #include <curses.h>
 
 typedef struct {

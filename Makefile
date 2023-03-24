@@ -14,7 +14,7 @@ endif
 ifeq ($(_TARGET), linux)
 CFLAGS += -include ccodoc_macros_linux.h
 
-SRCS += ccodoc_linux.c renderer_curses.c
+SRCS += renderer_curses.c
 
 COMPILE_FLAGS := compile_flags_linux.txt
 endif
@@ -22,7 +22,7 @@ endif
 ifeq ($(_TARGET), macos)
 CFLAGS += -include ccodoc_macros_macos.h
 
-SRCS += ccodoc_macos.c renderer_curses.c
+SRCS += renderer_curses.c
 
 VSCODE_SETTINGS := .vscode/settings_macos.json
 COMPILE_FLAGS := compile_flags_macos.txt

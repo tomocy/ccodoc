@@ -1,5 +1,8 @@
-#include "ccodoc.h"
+#include "renderer_curses.h"
 
+#include "math.h"
+#include "string.h"
+#include <assert.h>
 #include <curses.h>
 #include <locale.h>
 #include <stdio.h>
@@ -499,7 +502,6 @@ static void render_debug_info(
             {
                 render(p.y++, p.x, "# engine");
 
-                renderf(p.y++, p.x, "platform: %s", platform());
                 renderf(p.y++, p.x, "decorative: %s", ctx->decorative ? "yes" : "no");
             }
 

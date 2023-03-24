@@ -1,4 +1,5 @@
-#include "ccodoc.h"
+#include "time.h"
+
 #include "ccodoc_test.h"
 
 int test_time(void)
