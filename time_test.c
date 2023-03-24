@@ -13,36 +13,36 @@ int test_time(void)
 
         {
             printf("- initial\n");
-            EXPECT(elapsed_time_ratio(&timer), 0);
-            EXPECT(remaining_time(&timer).msecs, 1000);
+            EXPECT_EQUAL(elapsed_time_ratio(&timer), 0);
+            EXPECT_EQUAL(remaining_time(&timer).msecs, 1000);
         }
 
         {
             printf("- tick (200ms)\n");
             tick_timer(&timer, (duration) { .msecs = 200 });
-            EXPECT(elapsed_time_ratio(&timer), 0.2f);
-            EXPECT(remaining_time(&timer).msecs, 800);
+            EXPECT_EQUAL(elapsed_time_ratio(&timer), 0.2f);
+            EXPECT_EQUAL(remaining_time(&timer).msecs, 800);
         }
 
         {
             printf("- tick (400ms)\n");
             tick_timer(&timer, (duration) { .msecs = 400 });
-            EXPECT(elapsed_time_ratio(&timer), 0.6f);
-            EXPECT(remaining_time(&timer).msecs, 400);
+            EXPECT_EQUAL(elapsed_time_ratio(&timer), 0.6f);
+            EXPECT_EQUAL(remaining_time(&timer).msecs, 400);
         }
 
         {
             printf("- tick (600ms)\n");
             tick_timer(&timer, (duration) { .msecs = 600 });
-            EXPECT(elapsed_time_ratio(&timer), 1);
-            EXPECT(remaining_time(&timer).msecs, 0);
+            EXPECT_EQUAL(elapsed_time_ratio(&timer), 1);
+            EXPECT_EQUAL(remaining_time(&timer).msecs, 0);
         }
 
         {
             printf("- reset\n");
             reset_timer(&timer);
-            EXPECT(elapsed_time_ratio(&timer), 0);
-            EXPECT(remaining_time(&timer).msecs, 1000);
+            EXPECT_EQUAL(elapsed_time_ratio(&timer), 0);
+            EXPECT_EQUAL(remaining_time(&timer).msecs, 1000);
         }
     }
 
@@ -61,43 +61,43 @@ int test_time(void)
 
             {
                 printf("- msecs\n");
-                EXPECT(duration.msecs, 2 * time_hour + 45 * time_min + 20 * time_sec + 500 * time_msec);
+                EXPECT_EQUAL(duration.msecs, 2 * time_hour + 45 * time_min + 20 * time_sec + 500 * time_msec);
             }
 
             {
                 printf("- moment (precision: hour)\n");
                 moment m = moment_from_duration(duration, time_hour);
-                EXPECT(m.hours, 3);
-                EXPECT(m.mins, 0);
-                EXPECT(m.secs, 0);
-                EXPECT(m.msecs, 0);
+                EXPECT_EQUAL(m.hours, 3);
+                EXPECT_EQUAL(m.mins, 0);
+                EXPECT_EQUAL(m.secs, 0);
+                EXPECT_EQUAL(m.msecs, 0);
             }
 
             {
                 printf("- moment (precision: min)\n");
                 moment m = moment_from_duration(duration, time_min);
-                EXPECT(m.hours, 2);
-                EXPECT(m.mins, 46);
-                EXPECT(m.secs, 0);
-                EXPECT(m.msecs, 0);
+                EXPECT_EQUAL(m.hours, 2);
+                EXPECT_EQUAL(m.mins, 46);
+                EXPECT_EQUAL(m.secs, 0);
+                EXPECT_EQUAL(m.msecs, 0);
             }
 
             {
                 printf("- moment (precision: sec)\n");
                 moment m = moment_from_duration(duration, time_sec);
-                EXPECT(m.hours, 2);
-                EXPECT(m.mins, 45);
-                EXPECT(m.secs, 21);
-                EXPECT(m.msecs, 0);
+                EXPECT_EQUAL(m.hours, 2);
+                EXPECT_EQUAL(m.mins, 45);
+                EXPECT_EQUAL(m.secs, 21);
+                EXPECT_EQUAL(m.msecs, 0);
             }
 
             {
                 printf("- moment (precision: msec)\n");
                 moment m = moment_from_duration(duration, time_msec);
-                EXPECT(m.hours, 2);
-                EXPECT(m.mins, 45);
-                EXPECT(m.secs, 20);
-                EXPECT(m.msecs, 500);
+                EXPECT_EQUAL(m.hours, 2);
+                EXPECT_EQUAL(m.mins, 45);
+                EXPECT_EQUAL(m.secs, 20);
+                EXPECT_EQUAL(m.msecs, 500);
             }
         }
 
@@ -111,10 +111,10 @@ int test_time(void)
             {
                 printf("- moment (precision: min)\n");
                 moment m = moment_from_duration(duration, time_min);
-                EXPECT(m.hours, 1);
-                EXPECT(m.mins, 0);
-                EXPECT(m.secs, 0);
-                EXPECT(m.msecs, 0);
+                EXPECT_EQUAL(m.hours, 1);
+                EXPECT_EQUAL(m.mins, 0);
+                EXPECT_EQUAL(m.secs, 0);
+                EXPECT_EQUAL(m.msecs, 0);
             }
         }
 
@@ -130,37 +130,37 @@ int test_time(void)
             {
                 printf("- moment (precision: hour)\n");
                 moment m = moment_from_duration(duration, time_hour);
-                EXPECT(m.hours, 1);
-                EXPECT(m.mins, 0);
-                EXPECT(m.secs, 0);
-                EXPECT(m.msecs, 0);
+                EXPECT_EQUAL(m.hours, 1);
+                EXPECT_EQUAL(m.mins, 0);
+                EXPECT_EQUAL(m.secs, 0);
+                EXPECT_EQUAL(m.msecs, 0);
             }
 
             {
                 printf("- moment (precision: min)\n");
                 moment m = moment_from_duration(duration, time_min);
-                EXPECT(m.hours, 0);
-                EXPECT(m.mins, 59);
-                EXPECT(m.secs, 0);
-                EXPECT(m.msecs, 0);
+                EXPECT_EQUAL(m.hours, 0);
+                EXPECT_EQUAL(m.mins, 59);
+                EXPECT_EQUAL(m.secs, 0);
+                EXPECT_EQUAL(m.msecs, 0);
             }
 
             {
                 printf("- moment (precision: sec)\n");
                 moment m = moment_from_duration(duration, time_sec);
-                EXPECT(m.hours, 0);
-                EXPECT(m.mins, 59);
-                EXPECT(m.secs, 59);
-                EXPECT(m.msecs, 0);
+                EXPECT_EQUAL(m.hours, 0);
+                EXPECT_EQUAL(m.mins, 59);
+                EXPECT_EQUAL(m.secs, 59);
+                EXPECT_EQUAL(m.msecs, 0);
             }
 
             {
                 printf("- moment (precision: msec)\n");
                 moment m = moment_from_duration(duration, time_msec);
-                EXPECT(m.hours, 0);
-                EXPECT(m.mins, 59);
-                EXPECT(m.secs, 59);
-                EXPECT(m.msecs, 999);
+                EXPECT_EQUAL(m.hours, 0);
+                EXPECT_EQUAL(m.mins, 59);
+                EXPECT_EQUAL(m.secs, 59);
+                EXPECT_EQUAL(m.msecs, 999);
             }
         }
     }

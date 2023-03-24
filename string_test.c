@@ -57,8 +57,8 @@ int test_str(void)
 
         {
             const char_descriptor desc = decode_char_utf8(current);
-            EXPECT(desc.code, 12354);
-            EXPECT(desc.len, 3);
+            EXPECT_EQUAL(desc.code, 12354);
+            EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "あ", desc.len));
             EXPECT_FALSE(str_equals_n(current, "い", desc.len));
             current += desc.len;
@@ -66,8 +66,8 @@ int test_str(void)
 
         {
             const char_descriptor desc = decode_char_utf8(current);
-            EXPECT(desc.code, 12365);
-            EXPECT(desc.len, 3);
+            EXPECT_EQUAL(desc.code, 12365);
+            EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "き", desc.len));
             EXPECT_FALSE(str_equals_n(current, "く", desc.len));
             current += desc.len;
@@ -75,8 +75,8 @@ int test_str(void)
 
         {
             const char_descriptor desc = decode_char_utf8(current);
-            EXPECT(desc.code, 12377);
-            EXPECT(desc.len, 3);
+            EXPECT_EQUAL(desc.code, 12377);
+            EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "す", desc.len));
             EXPECT_FALSE(str_equals_n(current, "せ", desc.len));
             current += desc.len;
@@ -84,8 +84,8 @@ int test_str(void)
 
         {
             const char_descriptor desc = decode_char_utf8(current);
-            EXPECT(desc.code, 12390);
-            EXPECT(desc.len, 3);
+            EXPECT_EQUAL(desc.code, 12390);
+            EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "て", desc.len));
             EXPECT_FALSE(str_equals_n(current, "と", desc.len));
             current += desc.len;
@@ -93,8 +93,8 @@ int test_str(void)
 
         {
             const char_descriptor desc = decode_char_utf8(current);
-            EXPECT(desc.code, 12398);
-            EXPECT(desc.len, 3);
+            EXPECT_EQUAL(desc.code, 12398);
+            EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "の", desc.len));
             EXPECT_FALSE(str_equals_n(current, "な", desc.len));
             current += desc.len;
@@ -102,8 +102,8 @@ int test_str(void)
 
         {
             const char_descriptor desc = decode_char_utf8(current);
-            EXPECT(desc.code, 127841);
-            EXPECT(desc.len, 4);
+            EXPECT_EQUAL(desc.code, 127841);
+            EXPECT_EQUAL(desc.len, 4);
             EXPECT_TRUE(str_equals_n(current, "🍡", desc.len));
             EXPECT_FALSE(str_equals_n(current, "🍵", desc.len));
             current += desc.len;

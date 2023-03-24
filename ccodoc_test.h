@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define EXPECT(actual, expected)               \
+#define EXPECT_EQUAL(actual, expected)         \
     {                                          \
         const bool x = (actual) == (expected); \
         printf("%s: ", x ? "PASS" : "FAIL");   \
@@ -12,8 +12,16 @@
         }                                      \
     }
 
-#define EXPECT_TRUE(actual) EXPECT(actual, true)
-#define EXPECT_FALSE(actual) EXPECT(actual, false)
+#define EXPECT_TRUE(actual) EXPECT_EQUAL(actual, true)
+#define EXPECT_FALSE(actual) EXPECT_EQUAL(actual, false)
+
+#define EXPECT_PASS(label, actual)      \
+    {                                   \
+        printf(label);                  \
+        if ((actual) != EXIT_SUCCESS) { \
+            return EXIT_FAILURE;        \
+        }                               \
+    }
 
 extern int test_engine(void);
 extern int test_str(void);
