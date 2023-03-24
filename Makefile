@@ -3,7 +3,7 @@ CFLAGS := -std=c17 -Wall -Wextra -pedantic
 LDLIBS := -lm -lncursesw
 
 LIB_SRCS := engine.c string.c time.c
-SRCS := main.c $(LIB_SRCS)
+SRCS := main.c $(LIB_SRCS) renderer.c canvas.c
 TEST_SRCS := test.c $(LIB_SRCS) engine_test.c string_test.c time_test.c
 
 _TARGET := $(shell ./tool/build/detect_platform.sh $(TARGET))
@@ -14,15 +14,11 @@ endif
 ifeq ($(_TARGET), linux)
 CFLAGS += -include ccodoc_macros_linux.h
 
-SRCS += renderer_curses.c
-
 COMPILE_FLAGS := compile_flags_linux.txt
 endif
 
 ifeq ($(_TARGET), macos)
 CFLAGS += -include ccodoc_macros_macos.h
-
-SRCS += renderer_curses.c
 
 VSCODE_SETTINGS := .vscode/settings_macos.json
 COMPILE_FLAGS := compile_flags_macos.txt
