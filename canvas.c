@@ -3,11 +3,10 @@
 #include "math.h"
 #include <curses.h>
 #include <locale.h>
+#include <stdarg.h>
 
 #if TESTING
-static canvas* test_canvas = NULL;
-
-void draw(int y, int x, const char* s)
+void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s)
 {
     size_t i = 0;
     const char* c = s;
@@ -15,11 +14,35 @@ void draw(int y, int x, const char* s)
     while (*c) {
         char_descriptor desc = decode_char_utf8(c);
         size_t p = y * TEST_WINDOW_WIDTH + x + i;
-        test_canvas->test_window[p] = desc.code;
+        canvas->test_window[p] = desc.code;
 
         i++;
         c += desc.len;
     }
+}
+
+void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...)
+{
+    (void)canvas;
+    (void)y;
+    (void)x;
+    (void)format;
+}
+#else
+void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s)
+{
+    mvwprintw(canvas->window, (int)y, (int)x, s);
+}
+
+void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    wmove(canvas->window, (int)y, (int)x);
+    vw_printw(canvas->window, format, args);
+
+    va_end(args);
 }
 #endif
 
@@ -31,8 +54,7 @@ void init_canvas(canvas* canvas, const context* ctx)
 {
 #if TESTING
     (void)ctx;
-
-    test_canvas = canvas;
+    (void)canvas;
 #else
     (void)setlocale(LC_ALL, "");
 
@@ -66,8 +88,6 @@ void deinit_canvas(canvas* canvas)
 {
 #if TESTING
     (void)canvas;
-
-    test_canvas = NULL;
 #else
     endwin();
     canvas->window = NULL;

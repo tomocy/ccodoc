@@ -67,12 +67,12 @@ typedef struct {
     }
 
 #if TESTING
-extern void draw(int y, int x, const char* s);
+extern void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s);
+extern void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...);
 #else
-#define draw(y, x, s) mvprintw((int)(y), (int)(x), (s))
+extern void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s);
+extern void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...);
 #endif
-
-#define drawf(y, x, format, ...) mvprintw((int)(y), (int)(x), (format), __VA_ARGS__)
 
 extern void init_canvas(canvas* canvas, const context* ctx);
 extern void deinit_canvas(canvas* canvas);

@@ -23,12 +23,12 @@ void deinit_renderer(renderer* renderer, ccodoc* ccodoc)
     ccodoc->tsutsu.on_released_water = NULL;
 }
 
-static void render_kakehi(drawing_context* ctx, const kakehi* kakehi);
-static void render_tsutsu(drawing_context* ctx, const tsutsu* tsutsu);
-static void render_hachi(drawing_context* ctx, const hachi* hachi);
-static void render_roji(drawing_context* ctx);
-static void render_timer(drawing_context* ctx, const timer* timer);
-static void render_debug_info(const context* ctx, const timer* timer, const ccodoc* ccodoc);
+static void render_kakehi(renderer* renderer, drawing_context* ctx, const kakehi* kakehi);
+static void render_tsutsu(renderer* renderer, drawing_context* ctx, const tsutsu* tsutsu);
+static void render_hachi(renderer* renderer, drawing_context* ctx, const hachi* hachi);
+static void render_roji(renderer* renderer, drawing_context* ctx);
+static void render_timer(renderer* renderer, drawing_context* ctx, const timer* timer);
+static void render_debug_info(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc);
 
 void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc)
 {
@@ -49,14 +49,15 @@ void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, c
 
     clear_canvas(&renderer->canvas);
 
-    render_kakehi(&dctx, &ccodoc->kakehi);
-    render_tsutsu(&dctx, &ccodoc->tsutsu);
-    render_hachi(&dctx, &ccodoc->hachi);
-    render_roji(&dctx);
-    render_timer(&dctx, timer);
+    render_kakehi(renderer, &dctx, &ccodoc->kakehi);
+    render_tsutsu(renderer, &dctx, &ccodoc->tsutsu);
+    render_hachi(renderer, &dctx, &ccodoc->hachi);
+    render_roji(renderer, &dctx);
+
+    render_timer(renderer, &dctx, timer);
 
     if (ctx->debug) {
-        render_debug_info(ctx, timer, ccodoc);
+        render_debug_info(renderer, ctx, timer, ccodoc);
     }
 
     flush_canvas(&renderer->canvas);
@@ -66,7 +67,7 @@ static void on_tsutsu_poured(void) { }
 
 static void on_tsutsu_released_water(void) { }
 
-static void render_kakehi(drawing_context* ctx, const kakehi* kakehi)
+static void render_kakehi(renderer* renderer, drawing_context* ctx, const kakehi* kakehi)
 {
     const char* art = NULL;
     switch (kakehi->state) {
@@ -104,7 +105,7 @@ static void render_kakehi(drawing_context* ctx, const kakehi* kakehi)
                     .color = has_water ? color_blue : color_yellow,
                 }),
                 {
-                    drawf(ctx->current.y, ctx->current.x + i, "%.*s", desc.len, c);
+                    drawf(&renderer->canvas, ctx->current.y, ctx->current.x + i, "%.*s", desc.len, c);
                 }
             );
 
@@ -112,13 +113,13 @@ static void render_kakehi(drawing_context* ctx, const kakehi* kakehi)
             c += desc.len;
         }
     } else {
-        draw(ctx->current.y, ctx->current.x, art);
+        draw(&renderer->canvas, ctx->current.y, ctx->current.x, art);
     }
 
     wrap_drawing_lines(ctx, 1);
 }
 
-static void render_tsutsu(drawing_context* ctx, const tsutsu* tsutsu)
+static void render_tsutsu(renderer* renderer, drawing_context* ctx, const tsutsu* tsutsu)
 {
     static const size_t art_height = 4;
 
@@ -182,7 +183,7 @@ static void render_tsutsu(drawing_context* ctx, const tsutsu* tsutsu)
 
     for (size_t h = 0; h < art_height; h++) {
         if (!ctx->app->decorative) {
-            draw(origin.y + h, origin.x, art[h]);
+            draw(&renderer->canvas, origin.y + h, origin.x, art[h]);
             continue;
         }
 
@@ -207,7 +208,7 @@ static void render_tsutsu(drawing_context* ctx, const tsutsu* tsutsu)
             }
 
             WITH_DRAWING_ATTR(attr, {
-                drawf(origin.y + h, origin.x + i, "%.*s", desc.len, c);
+                drawf(&renderer->canvas, origin.y + h, origin.x + i, "%.*s", desc.len, c);
             });
 
             i++;
@@ -218,9 +219,9 @@ static void render_tsutsu(drawing_context* ctx, const tsutsu* tsutsu)
     wrap_drawing_lines(ctx, art_height);
 }
 
-static void render_hachi(drawing_context* ctx, const hachi* hachi)
+static void render_hachi(renderer* renderer, drawing_context* ctx, const hachi* hachi)
 {
-    static const unsigned int width = 4;
+    static const unsigned int art_width = 4;
 
     const char* art = NULL;
 
@@ -255,7 +256,7 @@ static void render_hachi(drawing_context* ctx, const hachi* hachi)
                     .color = has_water ? color_blue : color_grey,
                 }),
                 {
-                    drawf(ctx->current.y, ctx->current.x + i, "%.*s", desc.len, c);
+                    drawf(&renderer->canvas, ctx->current.y, ctx->current.x + i, "%.*s", desc.len, c);
                 }
             );
 
@@ -263,19 +264,20 @@ static void render_hachi(drawing_context* ctx, const hachi* hachi)
             c += desc.len;
         }
     } else {
-        draw(ctx->current.y, ctx->current.x, art);
+        draw(&renderer->canvas, ctx->current.y, ctx->current.x, art);
     }
 
-    ctx->current.x += width;
+    ctx->current.x += art_width;
 }
 
-static void render_roji(drawing_context* ctx)
+static void render_roji(renderer* renderer, drawing_context* ctx)
 {
     PREFER_DRAWING_WITH_ATTR(
         ctx->app->decorative,
         ((drawing_attr) { .color = color_green, .dim = true }),
         {
-            draw(ctx->current.y, ctx->current.x, "━━━━━━");
+            draw(&renderer->canvas, ctx->current.y, ctx->current.x, "━━━━━━");
+            ctx->current.x += 6;
         }
     );
 
@@ -283,14 +285,14 @@ static void render_roji(drawing_context* ctx)
         ctx->app->decorative,
         ((drawing_attr) { .color = color_grey }),
         {
-            draw(ctx->current.y, ctx->current.x + 6, "▨▨▨▨");
+            draw(&renderer->canvas, ctx->current.y, ctx->current.x, "▨▨▨▨");
         }
     );
 
     wrap_drawing_lines(ctx, 1);
 }
 
-static void render_timer(drawing_context* ctx, const timer* timer)
+static void render_timer(renderer* renderer, drawing_context* ctx, const timer* timer)
 {
     ctx->current.y += 4;
 
@@ -307,7 +309,7 @@ static void render_timer(drawing_context* ctx, const timer* timer)
             ctx->app->decorative,
             ((drawing_attr) { .color = color_white }),
             {
-                drawf(ctx->current.y, ctx->current.x + 4, format, moment.hours, moment.mins);
+                drawf(&renderer->canvas, ctx->current.y, ctx->current.x + 4, format, moment.hours, moment.mins);
             }
         );
 
@@ -337,14 +339,14 @@ static void render_timer(drawing_context* ctx, const timer* timer)
             const bool remaining = ratio < remaining_ratio;
 
             if (!ctx->app->decorative) {
-                draw(ctx->current.y, ctx->current.x + i, remaining ? "─" : " ");
+                draw(&renderer->canvas, ctx->current.y, ctx->current.x + i, remaining ? "─" : " ");
                 continue;
             }
 
             attr.dim = !remaining;
 
             WITH_DRAWING_ATTR(attr, {
-                draw(ctx->current.y, ctx->current.x + i, "─");
+                draw(&renderer->canvas, ctx->current.y, ctx->current.x + i, "─");
             });
         }
 
@@ -354,7 +356,7 @@ static void render_timer(drawing_context* ctx, const timer* timer)
 
 static const char* water_flow_state_to_str(water_flow_state state);
 
-static void render_debug_info(const context* ctx, const timer* timer, const ccodoc* ccodoc)
+static void render_debug_info(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc)
 {
     PREFER_DRAWING_WITH_ATTR(
         ctx->decorative,
@@ -369,45 +371,45 @@ static void render_debug_info(const context* ctx, const timer* timer, const ccod
                 ctx->decorative,
                 ((drawing_attr) { .bold = true }),
                 {
-                    draw(p.y++, p.x, "DEBUG -------");
+                    draw(&renderer->canvas, p.y++, p.x, "DEBUG -------");
                 }
             );
 
             {
-                draw(p.y++, p.x, "# engine");
+                draw(&renderer->canvas, p.y++, p.x, "# engine");
 
-                drawf(p.y++, p.x, "decorative: %s", ctx->decorative ? "yes" : "no");
+                drawf(&renderer->canvas, p.y++, p.x, "decorative: %s", ctx->decorative ? "yes" : "no");
             }
 
             {
-                draw(p.y++, p.x, "# timer");
+                draw(&renderer->canvas, p.y++, p.x, "# timer");
 
                 const moment m = moment_from_duration(remaining_time(timer), time_msec);
-                drawf(p.y++, p.x, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
+                drawf(&renderer->canvas, p.y++, p.x, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
 
-                drawf(p.y++, p.x, "elapsed time ratio: %f", elapsed_time_ratio(timer));
+                drawf(&renderer->canvas, p.y++, p.x, "elapsed time ratio: %f", elapsed_time_ratio(timer));
             }
 
             {
-                draw(p.y++, p.x, "# ccodoc");
+                draw(&renderer->canvas, p.y++, p.x, "# ccodoc");
 
                 {
-                    draw(p.y++, p.x, "## kakehi");
+                    draw(&renderer->canvas, p.y++, p.x, "## kakehi");
 
-                    drawf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->kakehi.state));
+                    drawf(&renderer->canvas, p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->kakehi.state));
                 }
 
                 {
-                    draw(p.y++, p.x, "## tsutsu");
+                    draw(&renderer->canvas, p.y++, p.x, "## tsutsu");
 
-                    drawf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->tsutsu.state));
-                    drawf(p.y++, p.x, "water_amount_ratio: %f", tsutsu_water_amount_ratio(&ccodoc->tsutsu));
+                    drawf(&renderer->canvas, p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->tsutsu.state));
+                    drawf(&renderer->canvas, p.y++, p.x, "water_amount_ratio: %f", tsutsu_water_amount_ratio(&ccodoc->tsutsu));
                 }
 
                 {
-                    draw(p.y++, p.x, "## hachi");
+                    draw(&renderer->canvas, p.y++, p.x, "## hachi");
 
-                    drawf(p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->hachi.state));
+                    drawf(&renderer->canvas, p.y++, p.x, "state: %s", water_flow_state_to_str(ccodoc->hachi.state));
                 }
             }
         }
