@@ -181,11 +181,10 @@ static void draw_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x, c
 
 static void drawfv_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x, const char* format, va_list args)
 {
-    (void)canvas;
-    (void)y;
-    (void)x;
-    (void)format;
-    (void)args;
+    char s[1 << 8] = { 0 };
+
+    (void)vsprintf(s, format, args);
+    draw_buffer(canvas, y, x, s);
 }
 
 // curses

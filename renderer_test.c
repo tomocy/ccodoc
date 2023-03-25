@@ -1,17 +1,22 @@
 #include "renderer.h"
 
 #include "ccodoc_test.h"
-
+#include "math.h"
+#include "time.h"
 #include <assert.h>
+#include <stdio.h>
 
+static void tick(timer* timer, ccodoc* ccodoc, const duration deltas);
+static void print_elapsed_time(const timer* timer);
 static int test_ccodoc(const canvas_buffer* actual, const char* expected);
+static void draw_ccodoc(const canvas_buffer* actual);
 
 int test_renderer(void)
 {
     renderer renderer = { 0 };
 
     canvas canvas = { 0 };
-    init_canvas_buffer(&canvas, (point) { .x = 20, .y = 10 });
+    init_canvas_buffer(&canvas, (point) { .x = 20, .y = 20 });
 
     ccodoc ccodoc = {
         .kakehi = {
@@ -43,15 +48,20 @@ int test_renderer(void)
 
         context ctx = { 0 };
 
-        timer timer = { .duration = duration_from_moment((moment) { .mins = 30 }) };
+        timer timer = { .duration = duration_from_moment((moment) { .mins = 5 }) };
 
         {
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- initial\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ━══              "
@@ -62,19 +72,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 700 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 700 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (700ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ═━═              "
@@ -85,19 +108,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 700 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 700 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (700ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ══━              "
@@ -108,19 +144,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 700 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 700 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (700ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ═══              "
@@ -131,19 +180,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 900 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 900 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (900ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ━══              "
@@ -154,19 +216,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 700 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 700 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (700ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ═━═              "
@@ -177,19 +252,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 700 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 700 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (700ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ══━              "
@@ -200,19 +288,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 700 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 700 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (700ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ═══              "
@@ -223,23 +324,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 900 });
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 2100 });
-
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 900 });
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 2100 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .secs = 6 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (6s)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ═══              "
@@ -250,21 +360,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 900 });
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 2000 });
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 100 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .secs = 3 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (3.1s)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ═══              "
@@ -275,19 +396,32 @@ int test_renderer(void)
                     "   ▭▬▬▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 300 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 300 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (300ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ═══              "
@@ -298,19 +432,32 @@ int test_renderer(void)
                     "   ▬▭▭▬━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 300 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 300 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (300ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ═══              "
@@ -321,19 +468,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 300 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 300 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (300ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ━══              "
@@ -344,19 +504,32 @@ int test_renderer(void)
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
                     "                    "
                     "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
                 )
             );
         }
 
         {
-            tick_ccodoc(&ccodoc, (duration) { .msecs = 300 });
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .msecs = 300 })
+            );
 
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
 
-            EXPECT_PASS(
-                "- tick (300ms)\n",
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
                 test_ccodoc(
                     &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
                     "                    "
                     "                    "
                     "   ━══              "
@@ -365,6 +538,155 @@ int test_renderer(void)
                     "        ▕ ◥◣        "
                     "        ▕   ◥◣      "
                     "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ──────────────   "
+                    "                    "
+                )
+            );
+        }
+
+        {
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .secs = 14, .msecs = 700 })
+            );
+
+            render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
+
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
+                test_ccodoc(
+                    &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "   ━══              "
+                    "                    "
+                    "      ◢◤◢◤◢◤◢◤      "
+                    "        ▕           "
+                    "        ▕           "
+                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ05ᴹ       "
+                    "   ─────────────    "
+                    "                    "
+                )
+            );
+        }
+
+        {
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .secs = 30 })
+            );
+
+            render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
+
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
+                test_ccodoc(
+                    &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "   ━══              "
+                    "                    "
+                    "      ◢◤◢◤◢◤◢◤      "
+                    "        ▕           "
+                    "        ▕           "
+                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ04ᴹ       "
+                    "   ────────────     "
+                    "                    "
+                )
+            );
+        }
+
+        {
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .mins = 3, .secs = 30 })
+            );
+
+            render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
+
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
+                test_ccodoc(
+                    &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "   ━══              "
+                    "                    "
+                    "      ◢◤◢◤◢◤◢◤      "
+                    "        ▕           "
+                    "        ▕           "
+                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ01ᴹ       "
+                    "   ──               "
+                    "                    "
+                )
+            );
+        }
+
+        {
+            tick(
+                &timer, &ccodoc,
+                duration_from_moment((moment) { .secs = 30 })
+            );
+
+            render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
+
+            print_elapsed_time(&timer);
+            EXPECT_PASS_X(
+                test_ccodoc(
+                    &renderer.canvas->delegate.buffer,
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "   ━══              "
+                    "                    "
+                    "      ◢◤◢◤◢◤◢◤      "
+                    "        ▕           "
+                    "        ▕           "
+                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "                    "
+                    "       00ᴴ00ᴹ       "
                     "                    "
                     "                    "
                 )
@@ -377,25 +699,36 @@ int test_renderer(void)
     return EXIT_SUCCESS;
 }
 
+static void tick(timer* timer, ccodoc* ccodoc, const duration deltas)
+{
+    static const duration delta = { .msecs = 100 };
+
+    for (duration elapsed = { 0 }; elapsed.msecs < deltas.msecs;) {
+        const duration d = {
+            .msecs = MIN(deltas.msecs - elapsed.msecs, delta.msecs),
+        };
+
+        tick_timer(timer, d);
+        tick_ccodoc(ccodoc, d);
+
+        elapsed.msecs += d.msecs;
+    }
+}
+
+static void print_elapsed_time(const timer* timer)
+{
+    const moment m = moment_from_duration(timer->ticker.elapsed, time_msec);
+    printf("- elapsed: %um%us%ums\n", m.mins, m.secs, m.msecs);
+}
+
 static int test_ccodoc(const canvas_buffer* actual, const char* expected)
 {
+    draw_ccodoc(actual);
+
     char_descriptor* expected_chars = calloc((unsigned long)actual->size.x * actual->size.y, sizeof(char_descriptor));
     assert(expected_chars != NULL);
 
     decode_str_utf8(expected_chars, expected);
-
-    for (unsigned int h = 0; h < actual->size.y; h++) {
-        for (unsigned int w = 0; w < actual->size.x; w++) {
-            const unsigned int i = h * actual->size.x + w;
-
-            char s[5] = { 0 };
-            uint32_t code = actual->data[i];
-            encode_char_utf8(s, code);
-            printf("%s", s);
-        }
-
-        printf("\n");
-    }
 
     for (unsigned int h = 0; h < actual->size.y; h++) {
         for (unsigned int w = 0; w < actual->size.x; w++) {
@@ -425,4 +758,20 @@ static int test_ccodoc(const canvas_buffer* actual, const char* expected)
     free(expected_chars);
 
     return EXIT_SUCCESS;
+}
+
+static void draw_ccodoc(const canvas_buffer* canvas)
+{
+    for (unsigned int h = 0; h < canvas->size.y; h++) {
+        for (unsigned int w = 0; w < canvas->size.x; w++) {
+            const unsigned int i = h * canvas->size.x + w;
+
+            char s[5] = { 0 };
+            uint32_t code = canvas->data[i];
+            encode_char_utf8(s, code);
+            printf("%s", s);
+        }
+
+        printf("\n");
+    }
 }

@@ -25,6 +25,13 @@
         }                               \
     }
 
+#define EXPECT_PASS_X(actual)           \
+    {                                   \
+        if ((actual) != EXIT_SUCCESS) { \
+            return EXIT_FAILURE;        \
+        }                               \
+    }
+
 extern int test_engine(void);
 extern int test_str(void);
 extern int test_time(void);
