@@ -119,6 +119,18 @@ duration duration_from_moment(const moment moment)
     };
 }
 
+duration unix_time(void)
+{
+    struct timespec time = { 0 };
+    clock_gettime(CLOCK_REALTIME, &time);
+
+    unsigned long msecs = 0;
+    msecs += time.tv_sec * time_sec;
+    msecs += (long)round((double)time.tv_nsec / 1.0e6);
+
+    return (duration) { .msecs = msecs };
+}
+
 static void ticker_tick(ticker* ticker, const duration delta)
 {
     ticker->elapsed.msecs += delta.msecs;

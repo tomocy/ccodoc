@@ -1,6 +1,9 @@
 #pragma once
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdbool.h>
+#include <time.h>
 
 typedef enum {
     time_msec = 1,
@@ -41,3 +44,4 @@ extern void sleep_for(const duration duration);
 extern moment moment_from_duration(const duration duration, time_precision precision);
 // - duration
 extern duration duration_from_moment(const moment moment);
+extern duration unix_time(void);
