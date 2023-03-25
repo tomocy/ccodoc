@@ -177,21 +177,8 @@ static void drawfv_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x,
 
 // curses
 
-static void set_color(color color, short r, short g, short b, short supplement)
-{
-    static const float factor = 1000.0f / 255;
-
-    if (can_change_color()) {
-        init_color(
-            color,
-            CLAMP(0, 1000, (r + 1 * supplement) * factor),
-            CLAMP(0, 1000, (g + 1 * supplement) * factor),
-            CLAMP(0, 1000, (b + 1 * supplement) * factor)
-        );
-    }
-
-    init_pair(color, color, color_black);
-}
+static void register_color(color color, short r, short g, short b, short supplement);
+static short as_color_curses(color color);
 
 static void init_canvas_curses(canvas_curses* canvas, const context* ctx)
 {
@@ -210,13 +197,13 @@ static void init_canvas_curses(canvas_curses* canvas, const context* ctx)
 
         static const short color_supplement = 10;
 
-        set_color(color_black, 0, 0, 0, 0);
-        set_color(color_red, 255, 123, 84, color_supplement);
-        set_color(color_green, 90, 190, 50, color_supplement);
-        set_color(color_yellow, 205, 180, 90, color_supplement);
-        set_color(color_blue, 0, 200, 220, color_supplement);
-        set_color(color_grey, 170, 160, 180, color_supplement);
-        set_color(color_white, 225, 230, 255, 0);
+        register_color(color_black, 0, 0, 0, 0);
+        register_color(color_red, 255, 123, 84, color_supplement);
+        register_color(color_green, 90, 190, 50, color_supplement);
+        register_color(color_yellow, 205, 180, 90, color_supplement);
+        register_color(color_blue, 0, 200, 220, color_supplement);
+        register_color(color_grey, 170, 160, 180, color_supplement);
+        register_color(color_white, 225, 230, 255, 0);
 
         bkgd(COLOR_PAIR(color_black));
     }
@@ -257,4 +244,42 @@ static point get_canvas_size_curses(const canvas_curses* canvas)
         .x = getmaxx(canvas->window),
         .y = getmaxy(canvas->window),
     };
+}
+
+static void register_color(color color, short r, short g, short b, short supplement)
+{
+    static const float factor = 1000.0f / 255;
+
+    const short curses_color = as_color_curses(color);
+
+    if (can_change_color()) {
+        init_color(
+            curses_color,
+            CLAMP(0, 1000, (r + 1 * supplement) * factor),
+            CLAMP(0, 1000, (g + 1 * supplement) * factor),
+            CLAMP(0, 1000, (b + 1 * supplement) * factor)
+        );
+    }
+
+    init_pair(color, curses_color, as_color_curses(color_black));
+}
+
+static short as_color_curses(color color)
+{
+    switch (color) {
+    case color_black:
+        return COLOR_BLACK;
+    case color_red:
+        return COLOR_RED;
+    case color_green:
+        return COLOR_GREEN;
+    case color_yellow:
+        return COLOR_YELLOW;
+    case color_blue:
+        return COLOR_BLUE;
+    case color_grey:
+        return COLOR_MAGENTA;
+    case color_white:
+        return COLOR_WHITE;
+    }
 }

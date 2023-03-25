@@ -17,13 +17,13 @@ typedef struct {
 } drawing_context;
 
 typedef enum {
-    color_black = COLOR_BLACK,
-    color_red = COLOR_RED,
-    color_green = COLOR_GREEN,
-    color_yellow = COLOR_YELLOW,
-    color_blue = COLOR_BLUE,
-    color_grey = COLOR_MAGENTA,
-    color_white = COLOR_WHITE,
+    color_black,
+    color_red,
+    color_green,
+    color_yellow,
+    color_blue,
+    color_grey,
+    color_white,
 } color;
 
 typedef struct {
