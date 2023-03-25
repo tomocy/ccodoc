@@ -77,14 +77,14 @@ typedef struct {
     canvas_buffer buffer;
 
     WINDOW* window;
-} canvas;
+} canvas_curses;
 
-extern void init_canvas(canvas* canvas, const context* ctx);
-extern void deinit_canvas(canvas* canvas);
-extern void clear_canvas(canvas* canvas);
-extern void flush_canvas(canvas* canvas);
+extern void init_canvas_curses(canvas_curses* canvas, const context* ctx);
+extern void deinit_canvas_curses(canvas_curses* canvas);
+extern void clear_canvas_curses(canvas_curses* canvas);
+extern void flush_canvas_curses(canvas_curses* canvas);
 
-extern void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s);
-extern void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...);
+extern void draw_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* s);
+extern void drawf_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* format, ...);
 
-extern point drawing_window_size(const canvas* canvas);
+extern point drawing_window_size_curses(const canvas_curses* canvas);

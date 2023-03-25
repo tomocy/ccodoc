@@ -5,7 +5,7 @@
 #include "engine.h"
 
 typedef struct {
-    canvas canvas;
+    canvas_curses canvas;
 } renderer;
 
 extern void init_renderer(renderer* renderer, const context* ctx, ccodoc* ccodoc);

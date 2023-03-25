@@ -95,7 +95,7 @@ static void set_color(color color, short r, short g, short b, short supplement)
 }
 #endif
 
-void init_canvas(canvas* canvas, const context* ctx)
+void init_canvas_curses(canvas_curses* canvas, const context* ctx)
 {
 #if TESTING
     (void)ctx;
@@ -129,7 +129,7 @@ void init_canvas(canvas* canvas, const context* ctx)
 #endif
 }
 
-void deinit_canvas(canvas* canvas)
+void deinit_canvas_curses(canvas_curses* canvas)
 {
 #if TESTING
     deinit_canvas_buffer(&canvas->buffer);
@@ -139,7 +139,7 @@ void deinit_canvas(canvas* canvas)
 #endif
 }
 
-void clear_canvas(canvas* canvas)
+void clear_canvas_curses(canvas_curses* canvas)
 {
 #if TESTING
     clear_canvas_buffer(&canvas->buffer);
@@ -149,7 +149,7 @@ void clear_canvas(canvas* canvas)
 #endif
 }
 
-void flush_canvas(canvas* canvas)
+void flush_canvas_curses(canvas_curses* canvas)
 {
 #if TESTING
     (void)canvas;
@@ -159,7 +159,7 @@ void flush_canvas(canvas* canvas)
 #endif
 }
 
-void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s)
+void draw_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* s)
 {
 #if TESTING
     draw_buffer(&canvas->buffer, y, x, s);
@@ -168,7 +168,7 @@ void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s)
 #endif
 }
 
-void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...)
+void drawf_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* format, ...)
 {
 #if TESTING
     va_list args;
@@ -188,7 +188,7 @@ void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, .
 #endif
 }
 
-point drawing_window_size(const canvas* canvas)
+point drawing_window_size_curses(const canvas_curses* canvas)
 {
 #if TESTING
     return canvas->buffer.size;
