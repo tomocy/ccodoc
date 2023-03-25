@@ -52,7 +52,8 @@ typedef struct {
     } delegate;
 } canvas;
 
-extern void init_canvas(canvas* canvas, const context* ctx);
+extern void init_canvas_buffer(canvas* canvas, point size);
+extern void init_canvas_curses(canvas* canvas, bool decorative);
 extern void deinit_canvas(canvas* canvas);
 extern void clear_canvas(canvas* canvas);
 extern void flush_canvas(canvas* canvas);

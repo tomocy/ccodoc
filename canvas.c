@@ -21,22 +21,6 @@ void wrap_drawing_lines(drawing_context* ctx, unsigned int n)
     ctx->current.x = ctx->origin.x;
 }
 
-static void init_canvas_buffer(canvas_buffer* canvas, point size);
-static void init_canvas_curses(canvas_curses* canvas, const context* ctx);
-
-void init_canvas(canvas* canvas, const context* ctx)
-{
-    switch (canvas->type) {
-    case canvas_type_buffer:
-        // TODO(tomocy): enable you to init canvas with given size.
-        init_canvas_buffer(&canvas->delegate.buffer, (point) { .x = 20, .y = 10 });
-        break;
-    case canvas_type_curses:
-        init_canvas_curses(&canvas->delegate.curses, ctx);
-        break;
-    }
-}
-
 static void deinit_canvas_buffer(canvas_buffer* canvas);
 static void deinit_canvas_curses(canvas_curses* canvas);
 
@@ -155,11 +139,14 @@ point get_canvas_size(const canvas* canvas)
 
 // buffer
 
-static void init_canvas_buffer(canvas_buffer* canvas, point size)
+void init_canvas_buffer(canvas* canvas, point size)
 {
-    canvas->size = size;
+    canvas->type = canvas_type_buffer;
 
-    canvas->data = calloc((unsigned long)size.x * size.y, sizeof(uint32_t));
+    canvas_buffer* delegate = &canvas->delegate.buffer;
+
+    delegate->size = size;
+    delegate->data = calloc((unsigned long)size.x * size.y, sizeof(uint32_t));
 }
 
 static void deinit_canvas_buffer(canvas_buffer* canvas)
@@ -206,15 +193,19 @@ static void drawfv_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x,
 static void register_color(color color, short r, short g, short b, short supplement);
 static short as_color_curses(color color);
 
-static void init_canvas_curses(canvas_curses* canvas, const context* ctx)
+void init_canvas_curses(canvas* canvas, bool decorative)
 {
+    canvas->type = canvas_type_curses;
+
+    canvas_curses* delegate = &canvas->delegate.curses;
+
     (void)setlocale(LC_ALL, "");
 
-    canvas->window = initscr();
+    delegate->window = initscr();
     noecho();
     curs_set(0);
 
-    if (!ctx->decorative) {
+    if (!decorative) {
         return;
     }
 

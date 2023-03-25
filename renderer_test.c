@@ -8,13 +8,10 @@ static int test_ccodoc(const canvas_buffer* actual, const char* expected);
 
 int test_renderer(void)
 {
-    renderer renderer = {
-        .canvas = { .type = canvas_type_buffer },
-    };
+    renderer renderer = { 0 };
 
-    context ctx = { 0 };
-
-    timer timer = { .duration = duration_from_moment((moment) { .mins = 30 }) };
+    canvas canvas = { 0 };
+    init_canvas_buffer(&canvas, (point) { .x = 20, .y = 10 });
 
     ccodoc ccodoc = {
         .kakehi = {
@@ -39,10 +36,14 @@ int test_renderer(void)
         },
     };
 
-    init_renderer(&renderer, &ctx, &ccodoc);
+    init_renderer(&renderer, &canvas, &ccodoc);
 
     {
         printf("## canvas\n");
+
+        context ctx = { 0 };
+
+        timer timer = { .duration = duration_from_moment((moment) { .mins = 30 }) };
 
         {
             render_ccodoc(&renderer, &ctx, &timer, &ccodoc);
@@ -50,7 +51,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- initial\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ━══              "
@@ -73,7 +74,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ═━═              "
@@ -96,7 +97,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ══━              "
@@ -119,7 +120,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -142,7 +143,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (900ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ━══              "
@@ -165,7 +166,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ═━═              "
@@ -188,7 +189,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ══━              "
@@ -211,7 +212,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -238,7 +239,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (6s)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -263,7 +264,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (3.1s)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -286,7 +287,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (300ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -309,7 +310,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (300ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -332,7 +333,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (300ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ━══              "
@@ -355,7 +356,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (300ms)\n",
                 test_ccodoc(
-                    &renderer.canvas.delegate.buffer,
+                    &renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "   ━══              "
