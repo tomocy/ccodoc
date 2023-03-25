@@ -101,6 +101,7 @@ static void render_kakehi(renderer* renderer, drawing_context* ctx, const kakehi
             const bool has_water = str_equals_n(c, "━", desc.len);
 
             WITH_DRAWING_ATTR(
+                &renderer->canvas,
                 ((drawing_attr) {
                     .color = has_water ? color_blue : color_yellow,
                 }),
@@ -207,7 +208,7 @@ static void render_tsutsu(renderer* renderer, drawing_context* ctx, const tsutsu
                 attr.color = color_yellow;
             }
 
-            WITH_DRAWING_ATTR(attr, {
+            WITH_DRAWING_ATTR(&renderer->canvas, attr, {
                 drawf(&renderer->canvas, origin.y + h, origin.x + i, "%.*s", desc.len, c);
             });
 
@@ -252,6 +253,7 @@ static void render_hachi(renderer* renderer, drawing_context* ctx, const hachi* 
             const bool has_water = str_equals_n(c, "▬", desc.len);
 
             WITH_DRAWING_ATTR(
+                &renderer->canvas,
                 ((drawing_attr) {
                     .color = has_water ? color_blue : color_grey,
                 }),
@@ -274,6 +276,7 @@ static void render_roji(renderer* renderer, drawing_context* ctx)
 {
     PREFER_DRAWING_WITH_ATTR(
         ctx->app->decorative,
+        &renderer->canvas,
         ((drawing_attr) { .color = color_green, .dim = true }),
         {
             draw(&renderer->canvas, ctx->current.y, ctx->current.x, "━━━━━━");
@@ -283,6 +286,7 @@ static void render_roji(renderer* renderer, drawing_context* ctx)
 
     PREFER_DRAWING_WITH_ATTR(
         ctx->app->decorative,
+        &renderer->canvas,
         ((drawing_attr) { .color = color_grey }),
         {
             draw(&renderer->canvas, ctx->current.y, ctx->current.x, "▨▨▨▨");
@@ -307,6 +311,7 @@ static void render_timer(renderer* renderer, drawing_context* ctx, const timer* 
 
         PREFER_DRAWING_WITH_ATTR(
             ctx->app->decorative,
+            &renderer->canvas,
             ((drawing_attr) { .color = color_white }),
             {
                 drawf(&renderer->canvas, ctx->current.y, ctx->current.x + 4, format, moment.hours, moment.mins);
@@ -345,7 +350,7 @@ static void render_timer(renderer* renderer, drawing_context* ctx, const timer* 
 
             attr.dim = !remaining;
 
-            WITH_DRAWING_ATTR(attr, {
+            WITH_DRAWING_ATTR(&renderer->canvas, attr, {
                 draw(&renderer->canvas, ctx->current.y, ctx->current.x + i, "─");
             });
         }
@@ -360,6 +365,7 @@ static void render_debug_info(renderer* renderer, const context* ctx, const time
 {
     PREFER_DRAWING_WITH_ATTR(
         ctx->decorative,
+        &renderer->canvas,
         ((drawing_attr) { .color = color_white }),
         {
             point p = {
@@ -369,6 +375,7 @@ static void render_debug_info(renderer* renderer, const context* ctx, const time
 
             PREFER_DRAWING_WITH_ATTR(
                 ctx->decorative,
+                &renderer->canvas,
                 ((drawing_attr) { .bold = true }),
                 {
                     draw(&renderer->canvas, p.y++, p.x, "DEBUG -------");

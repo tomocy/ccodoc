@@ -80,6 +80,32 @@ void flush_canvas(canvas* canvas)
     }
 }
 
+static void use_drawing_attr_curses(canvas_curses* canvas, drawing_attr attr);
+
+void use_drawing_attr(canvas* canvas, drawing_attr attr)
+{
+    switch (canvas->type) {
+    case canvas_type_buffer:
+        break;
+    case canvas_type_curses:
+        use_drawing_attr_curses(&canvas->delegate.curses, attr);
+        break;
+    }
+}
+
+static void clear_drawing_attr_curses(canvas_curses* canvas, drawing_attr attr);
+
+void clear_drawing_attr(canvas* canvas, drawing_attr attr)
+{
+    switch (canvas->type) {
+    case canvas_type_buffer:
+        break;
+    case canvas_type_curses:
+        clear_drawing_attr_curses(&canvas->delegate.curses, attr);
+        break;
+    }
+}
+
 static void draw_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* s);
 static void draw_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x, const char* s);
 
@@ -225,6 +251,33 @@ static void flush_canvas_curses(canvas_curses* canvas)
 {
     (void)canvas;
     refresh();
+}
+
+static unsigned int drawing_attr_flags(drawing_attr attr)
+{
+    unsigned int flags = 0;
+    flags |= COLOR_PAIR(attr.color);
+    flags |= attr.dim ? A_DIM : 0;
+    flags |= attr.bold ? A_BOLD : 0;
+    flags |= attr.underline ? A_UNDERLINE : 0;
+
+    return flags;
+}
+
+static void use_drawing_attr_curses(canvas_curses* canvas, drawing_attr attr)
+{
+    (void)canvas;
+
+    const unsigned int flags = drawing_attr_flags(attr);
+    attron(flags);
+}
+
+static void clear_drawing_attr_curses(canvas_curses* canvas, drawing_attr attr)
+{
+    (void)canvas;
+
+    const unsigned int flags = drawing_attr_flags(attr);
+    attroff(flags);
 }
 
 static void draw_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* s)

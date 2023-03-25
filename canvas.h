@@ -9,13 +9,6 @@ typedef struct {
     unsigned int y;
 } point;
 
-typedef struct {
-    const context* app;
-
-    point origin;
-    point current;
-} drawing_context;
-
 typedef enum {
     color_black,
     color_red,
@@ -27,34 +20,11 @@ typedef enum {
 } color;
 
 typedef struct {
-    color color;
-    bool dim;
-    bool bold;
-    bool underline;
-} drawing_attr;
+    const context* app;
 
-#define WITH_DRAWING_ATTR(attr, ...)            \
-    {                                           \
-        const drawing_attr x = (attr);          \
-        int attrs = 0;                          \
-        attrs |= COLOR_PAIR(x.color);           \
-        attrs |= x.dim ? A_DIM : 0;             \
-        attrs |= x.bold ? A_BOLD : 0;           \
-        attrs |= x.underline ? A_UNDERLINE : 0; \
-                                                \
-        attron(attrs);                          \
-        __VA_ARGS__;                            \
-        attroff(attrs);                         \
-    }
-
-#define PREFER_DRAWING_WITH_ATTR(with_attr, attr, ...) \
-    {                                                  \
-        if (with_attr) {                               \
-            WITH_DRAWING_ATTR((attr), __VA_ARGS__);    \
-        } else {                                       \
-            __VA_ARGS__                                \
-        }                                              \
-    }
+    point origin;
+    point current;
+} drawing_context;
 
 extern drawing_context init_drawing_context(const context* ctx, point origin);
 extern void wrap_drawing_lines(drawing_context* ctx, unsigned int n);
@@ -86,6 +56,34 @@ extern void init_canvas(canvas* canvas, const context* ctx);
 extern void deinit_canvas(canvas* canvas);
 extern void clear_canvas(canvas* canvas);
 extern void flush_canvas(canvas* canvas);
+
+typedef struct {
+    color color;
+    bool dim;
+    bool bold;
+    bool underline;
+} drawing_attr;
+
+extern void use_drawing_attr(canvas* canvas, drawing_attr attr);
+extern void clear_drawing_attr(canvas* canvas, drawing_attr attr);
+
+#define WITH_DRAWING_ATTR(in_canvas, attr, ...) \
+    {                                           \
+        canvas* canvas_ = (in_canvas);          \
+        const drawing_attr attr_ = (attr);      \
+        use_drawing_attr(canvas_, attr_);       \
+        __VA_ARGS__;                            \
+        clear_drawing_attr(canvas_, attr_);     \
+    }
+
+#define PREFER_DRAWING_WITH_ATTR(with_attr, canvas, attr, ...) \
+    {                                                          \
+        if (with_attr) {                                       \
+            WITH_DRAWING_ATTR((canvas), (attr), __VA_ARGS__);  \
+        } else {                                               \
+            __VA_ARGS__                                        \
+        }                                                      \
+    }
 
 extern void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s);
 extern void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...);
