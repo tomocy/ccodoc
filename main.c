@@ -133,7 +133,9 @@ static int run(const context* ctx, timer* timer, ccodoc* ccodoc)
         .msecs = 1000 / 24,
     };
 
-    renderer renderer = { 0 };
+    renderer renderer = {
+        .canvas = { .type = canvas_type_curses },
+    };
 
     init_renderer(&renderer, ctx, ccodoc);
 

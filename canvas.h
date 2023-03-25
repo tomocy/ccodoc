@@ -65,13 +65,6 @@ typedef struct {
     uint32_t* data;
 } canvas_buffer;
 
-extern void init_canvas_buffer(canvas_buffer* canvas, point size);
-extern void deinit_canvas_buffer(canvas_buffer* canvas);
-extern void clear_canvas_buffer(canvas_buffer* canvas);
-
-extern void draw_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x, const char* s);
-extern void drawf_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x, const char* format, ...);
-
 typedef struct {
     // only for test purpose for now
     canvas_buffer buffer;
@@ -79,12 +72,26 @@ typedef struct {
     WINDOW* window;
 } canvas_curses;
 
-extern void init_canvas_curses(canvas_curses* canvas, const context* ctx);
-extern void deinit_canvas_curses(canvas_curses* canvas);
-extern void clear_canvas_curses(canvas_curses* canvas);
-extern void flush_canvas_curses(canvas_curses* canvas);
+typedef enum {
+    canvas_type_buffer,
+    canvas_type_curses,
+} canvas_type;
 
-extern void draw_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* s);
-extern void drawf_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* format, ...);
+typedef struct {
+    canvas_type type;
 
-extern point drawing_window_size_curses(const canvas_curses* canvas);
+    union {
+        canvas_buffer buffer;
+        canvas_curses curses;
+    } delegate;
+} canvas;
+
+extern void init_canvas(canvas* canvas, const context* ctx);
+extern void deinit_canvas(canvas* canvas);
+extern void clear_canvas(canvas* canvas);
+extern void flush_canvas(canvas* canvas);
+
+extern void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s);
+extern void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...);
+
+extern point get_canvas_size(const canvas* canvas);
