@@ -2,9 +2,9 @@
 
 #include "ccodoc_test.h"
 
-#include "string.h"
+#include <assert.h>
 
-static int test_ccodoc(const canvas* actual, const char* expected);
+static int test_ccodoc(const canvas_buffer* actual, const char* expected);
 
 int test_renderer(void)
 {
@@ -48,7 +48,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- initial\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ━══              "
@@ -71,7 +71,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ═━═              "
@@ -94,7 +94,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ══━              "
@@ -117,7 +117,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -140,7 +140,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (900ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ━══              "
@@ -163,7 +163,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ═━═              "
@@ -186,7 +186,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ══━              "
@@ -209,7 +209,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (700ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -236,7 +236,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (6s)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -261,7 +261,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (3.1s)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -284,7 +284,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (300ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -307,7 +307,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (300ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ═══              "
@@ -330,7 +330,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (300ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ━══              "
@@ -353,7 +353,7 @@ int test_renderer(void)
             EXPECT_PASS(
                 "- tick (300ms)\n",
                 test_ccodoc(
-                    &renderer.canvas,
+                    &renderer.canvas.buffer,
                     "                    "
                     "                    "
                     "   ━══              "
@@ -374,17 +374,19 @@ int test_renderer(void)
     return EXIT_SUCCESS;
 }
 
-static int test_ccodoc(const canvas* actual, const char* expected)
+static int test_ccodoc(const canvas_buffer* actual, const char* expected)
 {
-    char_descriptor expected_chars[TEST_WINDOW_HEIGHT * TEST_WINDOW_WIDTH] = { 0 };
+    char_descriptor* expected_chars = calloc((unsigned long)actual->size.x * actual->size.y, sizeof(char_descriptor));
+    assert(expected_chars != NULL);
+
     decode_str_utf8(expected_chars, expected);
 
-    for (int h = 0; h < TEST_WINDOW_HEIGHT; h++) {
-        for (int w = 0; w < TEST_WINDOW_WIDTH; w++) {
-            int i = h * TEST_WINDOW_WIDTH + w;
+    for (unsigned int h = 0; h < actual->size.y; h++) {
+        for (unsigned int w = 0; w < actual->size.x; w++) {
+            const unsigned int i = h * actual->size.x + w;
 
             char s[5] = { 0 };
-            uint32_t code = actual->test_window[i];
+            uint32_t code = actual->data[i];
             encode_char_utf8(s, code);
             printf("%s", s);
         }
@@ -392,13 +394,13 @@ static int test_ccodoc(const canvas* actual, const char* expected)
         printf("\n");
     }
 
-    for (int h = 0; h < TEST_WINDOW_HEIGHT; h++) {
-        for (int w = 0; w < TEST_WINDOW_WIDTH; w++) {
-            int i = h * TEST_WINDOW_WIDTH + w;
+    for (unsigned int h = 0; h < actual->size.y; h++) {
+        for (unsigned int w = 0; w < actual->size.x; w++) {
+            const unsigned int i = h * actual->size.x + w;
 
-            char_descriptor expected_char = expected_chars[i];
+            const char_descriptor expected_char = expected_chars[i];
 
-            uint32_t code = actual->test_window[i];
+            const uint32_t code = actual->data[i];
             if (code != expected_char.code) {
                 char actual_str[5] = { 0 };
                 encode_char_utf8(actual_str, code);
@@ -416,6 +418,8 @@ static int test_ccodoc(const canvas* actual, const char* expected)
             }
         }
     }
+
+    free(expected_chars);
 
     return EXIT_SUCCESS;
 }

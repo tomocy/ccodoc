@@ -4,57 +4,102 @@
 #include <curses.h>
 #include <locale.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
-#if TESTING
-void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s)
+drawing_context init_drawing_context(const context* ctx, point origin)
 {
-    size_t i = 0;
+    return (drawing_context) {
+        .app = ctx,
+        .origin = origin,
+        .current = origin,
+    };
+}
+
+void wrap_drawing_lines(drawing_context* ctx, unsigned int n)
+{
+    ctx->current.y += n;
+    ctx->current.x = ctx->origin.x;
+}
+
+void init_canvas_buffer(canvas_buffer* canvas, point size)
+{
+    canvas->size = size;
+
+    canvas->data = calloc((unsigned long)size.x * size.y, sizeof(uint32_t));
+}
+
+void deinit_canvas_buffer(canvas_buffer* canvas)
+{
+    free(canvas->data);
+    canvas->size.x = 0;
+    canvas->size.y = 0;
+}
+
+void clear_canvas_buffer(canvas_buffer* canvas)
+{
+    for (unsigned int h = 0; h < canvas->size.y; h++) {
+        for (unsigned int w = 0; w < canvas->size.x; w++) {
+            canvas->data[h * canvas->size.x + w] = ' ';
+        }
+    }
+}
+
+void draw_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x, const char* s)
+{
+    unsigned int n = 0;
     const char* c = s;
 
     while (*c) {
         char_descriptor desc = decode_char_utf8(c);
-        size_t p = y * TEST_WINDOW_WIDTH + x + i;
-        canvas->test_window[p] = desc.code;
+        canvas->data[y * canvas->size.x + x + n] = desc.code;
 
-        i++;
+        n++;
         c += desc.len;
     }
 }
 
-void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...)
+void drawfv_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x, const char* format, va_list args)
 {
     (void)canvas;
     (void)y;
     (void)x;
     (void)format;
-}
-#else
-void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s)
-{
-    mvwprintw(canvas->window, (int)y, (int)x, s);
+    (void)args;
 }
 
-void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...)
+void drawf_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    wmove(canvas->window, (int)y, (int)x);
-    vw_printw(canvas->window, format, args);
+    drawfv_buffer(canvas, y, x, format, args);
 
     va_end(args);
 }
-#endif
 
 #if !TESTING
-static void set_color(color color, short r, short g, short b, short supplement);
+static void set_color(color color, short r, short g, short b, short supplement)
+{
+    static const float factor = 1000.0f / 255;
+
+    if (can_change_color()) {
+        init_color(
+            color,
+            CLAMP(0, 1000, (r + 1 * supplement) * factor),
+            CLAMP(0, 1000, (g + 1 * supplement) * factor),
+            CLAMP(0, 1000, (b + 1 * supplement) * factor)
+        );
+    }
+
+    init_pair(color, color, color_black);
+}
 #endif
 
 void init_canvas(canvas* canvas, const context* ctx)
 {
 #if TESTING
     (void)ctx;
-    (void)canvas;
+    init_canvas_buffer(&canvas->buffer, (point) { .x = 20, .y = 10 });
 #else
     (void)setlocale(LC_ALL, "");
 
@@ -87,7 +132,7 @@ void init_canvas(canvas* canvas, const context* ctx)
 void deinit_canvas(canvas* canvas)
 {
 #if TESTING
-    (void)canvas;
+    deinit_canvas_buffer(&canvas->buffer);
 #else
     endwin();
     canvas->window = NULL;
@@ -97,11 +142,7 @@ void deinit_canvas(canvas* canvas)
 void clear_canvas(canvas* canvas)
 {
 #if TESTING
-    for (int h = 0; h < TEST_WINDOW_HEIGHT; h++) {
-        for (int w = 0; w < TEST_WINDOW_WIDTH; w++) {
-            canvas->test_window[h * TEST_WINDOW_WIDTH + w] = ' ';
-        }
-    }
+    clear_canvas_buffer(&canvas->buffer);
 #else
     (void)canvas;
     clear();
@@ -118,14 +159,39 @@ void flush_canvas(canvas* canvas)
 #endif
 }
 
+void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s)
+{
+#if TESTING
+    draw_buffer(&canvas->buffer, y, x, s);
+#else
+    mvwprintw(canvas->window, (int)y, (int)x, s);
+#endif
+}
+
+void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, ...)
+{
+#if TESTING
+    va_list args;
+    va_start(args, format);
+
+    drawfv_buffer(&canvas->buffer, y, x, format, args);
+
+    va_end(args);
+#else
+    va_list args;
+    va_start(args, format);
+
+    wmove(canvas->window, (int)y, (int)x);
+    vw_printw(canvas->window, format, args);
+
+    va_end(args);
+#endif
+}
+
 point drawing_window_size(const canvas* canvas)
 {
 #if TESTING
-    (void)canvas;
-    return (point) {
-        .x = TEST_WINDOW_WIDTH,
-        .y = TEST_WINDOW_HEIGHT,
-    };
+    return canvas->buffer.size;
 #else
     return (point) {
         .x = getmaxx(canvas->window),
@@ -133,36 +199,3 @@ point drawing_window_size(const canvas* canvas)
     };
 #endif
 }
-
-drawing_context init_drawing_context(const context* ctx, point origin)
-{
-    return (drawing_context) {
-        .app = ctx,
-        .origin = origin,
-        .current = origin,
-    };
-}
-
-void wrap_drawing_lines(drawing_context* ctx, unsigned int n)
-{
-    ctx->current.y += n;
-    ctx->current.x = ctx->origin.x;
-}
-
-#if !TESTING
-static void set_color(color color, short r, short g, short b, short supplement)
-{
-    static const float factor = 1000.0f / 255;
-
-    if (can_change_color()) {
-        init_color(
-            color,
-            CLAMP(0, 1000, (r + 1 * supplement) * factor),
-            CLAMP(0, 1000, (g + 1 * supplement) * factor),
-            CLAMP(0, 1000, (b + 1 * supplement) * factor)
-        );
-    }
-
-    init_pair(color, color, color_black);
-}
-#endif
