@@ -177,7 +177,6 @@ static void drawfv_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x,
 
 // curses
 
-#if !TESTING
 static void set_color(color color, short r, short g, short b, short supplement)
 {
     static const float factor = 1000.0f / 255;
@@ -193,14 +192,9 @@ static void set_color(color color, short r, short g, short b, short supplement)
 
     init_pair(color, color, color_black);
 }
-#endif
 
 static void init_canvas_curses(canvas_curses* canvas, const context* ctx)
 {
-#if TESTING
-    (void)ctx;
-    init_canvas_buffer(&canvas->buffer, (point) { .x = 20, .y = 10 });
-#else
     (void)setlocale(LC_ALL, "");
 
     canvas->window = initscr();
@@ -226,66 +220,41 @@ static void init_canvas_curses(canvas_curses* canvas, const context* ctx)
 
         bkgd(COLOR_PAIR(color_black));
     }
-#endif
 }
 
 static void deinit_canvas_curses(canvas_curses* canvas)
 {
-#if TESTING
-    deinit_canvas_buffer(&canvas->buffer);
-#else
     endwin();
     canvas->window = NULL;
-#endif
 }
 
 static void clear_canvas_curses(canvas_curses* canvas)
 {
-#if TESTING
-    clear_canvas_buffer(&canvas->buffer);
-#else
     (void)canvas;
     clear();
-#endif
 }
 
 static void flush_canvas_curses(canvas_curses* canvas)
 {
-#if TESTING
-    (void)canvas;
-#else
     (void)canvas;
     refresh();
-#endif
 }
 
 static void draw_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* s)
 {
-#if TESTING
-    draw_buffer(&canvas->buffer, y, x, s);
-#else
     mvwprintw(canvas->window, (int)y, (int)x, s);
-#endif
 }
 
 static void drawfv_curses(canvas_curses* canvas, unsigned int y, unsigned int x, const char* format, va_list args)
 {
-#if TESTING
-    drawfv_buffer(&canvas->buffer, y, x, format, args);
-#else
     wmove(canvas->window, (int)y, (int)x);
     vw_printw(canvas->window, format, args);
-#endif
 }
 
 static point get_canvas_size_curses(const canvas_curses* canvas)
 {
-#if TESTING
-    return canvas->buffer.size;
-#else
     return (point) {
         .x = getmaxx(canvas->window),
         .y = getmaxy(canvas->window),
     };
-#endif
 }

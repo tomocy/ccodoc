@@ -61,14 +61,10 @@ extern void wrap_drawing_lines(drawing_context* ctx, unsigned int n);
 
 typedef struct {
     point size;
-
     uint32_t* data;
 } canvas_buffer;
 
 typedef struct {
-    // only for test purpose for now
-    canvas_buffer buffer;
-
     WINDOW* window;
 } canvas_curses;
 

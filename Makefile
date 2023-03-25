@@ -27,10 +27,6 @@ endif
 OBJS := $(patsubst %.c, %.o, $(SRCS))
 TEST_OBJS := $(patsubst %.c, %.o, $(TEST_SRCS))
 
-ifeq ($(TESTING), 1)
-CFLAGS += -DTESTING=1
-endif
-
 # ccodoc
 ccodoc: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
