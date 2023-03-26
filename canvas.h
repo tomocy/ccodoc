@@ -45,6 +45,7 @@ typedef struct {
 
 typedef struct {
     WINDOW* window;
+    bool decorative;
 } canvas_curses_t;
 
 enum { CANVAS_PROXY_BUFFER_BUCKET_SIZE = 2 };

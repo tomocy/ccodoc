@@ -277,6 +277,8 @@ void init_canvas_curses(canvas_curses_t* canvas, bool decorative)
     (void)setlocale(LC_ALL, "");
 
     canvas->window = initscr();
+    canvas->decorative = decorative;
+
     noecho();
     curs_set(0);
 
@@ -329,25 +331,31 @@ static unsigned int drawing_attr_flags(drawing_attr_t attr)
     return flags;
 }
 
+#define PREFER_DRAWING_WITH_ATTR_CURSES(canvas, attr, ...)         \
+    {                                                              \
+        if ((canvas)->decorative) {                                \
+            const unsigned int flags = drawing_attr_flags((attr)); \
+            attron(flags);                                         \
+            __VA_ARGS__;                                           \
+            attroff(flags);                                        \
+        } else {                                                   \
+            __VA_ARGS__;                                           \
+        }                                                          \
+    }
+
 static void draw_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s)
 {
-    const unsigned int flags = drawing_attr_flags(attr);
-    attron(flags);
-
-    mvwprintw(canvas->window, (int)point.y, (int)point.x, s);
-
-    attroff(flags);
+    PREFER_DRAWING_WITH_ATTR_CURSES(canvas, attr, {
+        mvwprintw(canvas->window, (int)point.y, (int)point.x, s);
+    });
 }
 
 static void drawfv_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args)
 {
-    const unsigned int flags = drawing_attr_flags(attr);
-    attron(flags);
-
-    wmove(canvas->window, (int)point.y, (int)point.x);
-    vw_printw(canvas->window, format, args);
-
-    attroff(flags);
+    PREFER_DRAWING_WITH_ATTR_CURSES(canvas, attr, {
+        wmove(canvas->window, (int)point.y, (int)point.x);
+        vw_printw(canvas->window, format, args);
+    });
 }
 
 static vector2d_t get_canvas_size_curses(const canvas_curses_t* canvas)
