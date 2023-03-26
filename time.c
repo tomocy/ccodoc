@@ -5,8 +5,6 @@
 #include <math.h>
 #include <time.h>
 
-extern int nanosleep(const struct timespec* requested_time, struct timespec* remaining);
-
 static void ticker_tick(ticker_t* ticker, const duration_t delta);
 static void ticker_reset(ticker_t* ticker);
 

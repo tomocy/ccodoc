@@ -76,10 +76,6 @@ void render_ccodoc(
     flush_canvas(renderer->canvas);
 }
 
-static void on_tsutsu_poured(void) { }
-
-static void on_tsutsu_released_water(void) { }
-
 static void render_kakehi(renderer_t* renderer, drawing_context_t* ctx, const kakehi_t* kakehi)
 {
     const char* art = NULL;
@@ -503,3 +499,7 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
         return "releasing";
     }
 }
+
+static void on_tsutsu_poured(void) { }
+
+static void on_tsutsu_released_water(void) { }

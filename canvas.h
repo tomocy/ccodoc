@@ -30,8 +30,6 @@ typedef struct {
     vector2d_t current;
 } drawing_context_t;
 
-extern void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n);
-
 typedef struct {
     uint32_t code;
     drawing_attr_t attr;
@@ -90,3 +88,5 @@ extern void draw(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const 
 extern void drawf(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, ...);
 
 extern vector2d_t get_canvas_size(const canvas_t* canvas);
+
+extern void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n);

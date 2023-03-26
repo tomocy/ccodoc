@@ -15,6 +15,7 @@ typedef struct {
 
 extern void init_renderer(renderer_t* renderer, canvas_t* canvas, ccodoc_t* ccodoc);
 extern void deinit_renderer(renderer_t* renderer, ccodoc_t* ccodoc);
+
 extern void render_ccodoc(
     renderer_t* renderer,
     const rendering_context_t* ctx,

@@ -38,10 +38,13 @@ extern void reset_timer(tick_timer_t* timer);
 extern bool is_timeout(const tick_timer_t* timer);
 extern float elapsed_time_ratio(const tick_timer_t* timer);
 extern duration_t remaining_time(const tick_timer_t* timer);
+
 // - sleep
 extern void sleep_for(const duration_t duration);
+
 // - moment
 extern moment_t moment_from_duration(const duration_t duration, time_precision_t precision);
+
 // - duration
 extern duration_t duration_from_moment(const moment_t moment);
 extern duration_t duration_diff(const duration_t duration, const duration_t other);

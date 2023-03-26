@@ -7,12 +7,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n)
-{
-    ctx->current.y += n;
-    ctx->current.x = ctx->origin.x;
-}
-
 canvas_t wrap_canvas_buffer(canvas_buffer_t* canvas)
 {
     return (canvas_t) {
@@ -39,10 +33,24 @@ canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas)
 
 // canvas
 
-static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
-
 static void deinit_canvas_buffer(canvas_buffer_t* canvas);
 static void deinit_canvas_curses(canvas_curses_t* canvas);
+
+static void clear_canvas_buffer(canvas_buffer_t* canvas);
+static void clear_canvas_curses(canvas_curses_t* canvas);
+
+static void flush_canvas_curses(canvas_curses_t* canvas);
+static void flush_canvas_proxy(canvas_proxy_t* canvas);
+
+static void draw_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
+static void draw_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
+
+static void drawfv_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
+static void drawfv_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
+
+static vector2d_t get_canvas_size_curses(const canvas_curses_t* canvas);
+
+static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void deinit_canvas(canvas_t* canvas)
@@ -72,9 +80,6 @@ void deinit_canvas(canvas_t* canvas)
     }
 }
 
-static void clear_canvas_buffer(canvas_buffer_t* canvas);
-static void clear_canvas_curses(canvas_curses_t* canvas);
-
 // NOLINTNEXTLINE(misc-no-recursion)
 void clear_canvas(canvas_t* canvas)
 {
@@ -97,9 +102,6 @@ void clear_canvas(canvas_t* canvas)
     }
 }
 
-static void flush_canvas_curses(canvas_curses_t* canvas);
-static void flush_canvas_proxy(canvas_proxy_t* canvas);
-
 // NOLINTNEXTLINE(misc-no-recursion)
 void flush_canvas(canvas_t* canvas)
 {
@@ -117,9 +119,6 @@ void flush_canvas(canvas_t* canvas)
     }
     }
 }
-
-static void draw_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
-static void draw_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void draw(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s)
@@ -142,9 +141,6 @@ void draw(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s
     }
     }
 }
-
-static void drawfv_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
-static void drawfv_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
 
 // NOLINTNEXTLINE(misc-no-recursion)
 static void drawfv(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args)
@@ -177,8 +173,6 @@ void drawf(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const char* 
 
     va_end(args);
 }
-
-static vector2d_t get_canvas_size_curses(const canvas_curses_t* canvas);
 
 // NOLINTNEXTLINE(misc-no-recursion)
 vector2d_t get_canvas_size(const canvas_t* canvas)
@@ -266,7 +260,7 @@ static bool canvas_equals_buffer(const canvas_buffer_t* canvas, const canvas_buf
 
 // curses
 
-static void register_color(color_t color, short r, short g, short b, short supplement);
+static void register_color_curses(color_t color, short r, short g, short b, short supplement);
 static short as_color_curses(color_t color);
 
 void init_canvas_curses(canvas_curses_t* canvas, bool decorative)
@@ -288,13 +282,13 @@ void init_canvas_curses(canvas_curses_t* canvas, bool decorative)
 
         static const short color_supplement = 10;
 
-        register_color(color_black, 0, 0, 0, 0);
-        register_color(color_red, 255, 123, 84, color_supplement);
-        register_color(color_green, 90, 190, 50, color_supplement);
-        register_color(color_yellow, 205, 180, 90, color_supplement);
-        register_color(color_blue, 0, 200, 220, color_supplement);
-        register_color(color_grey, 170, 160, 180, color_supplement);
-        register_color(color_white, 225, 230, 255, 0);
+        register_color_curses(color_black, 0, 0, 0, 0);
+        register_color_curses(color_red, 255, 123, 84, color_supplement);
+        register_color_curses(color_green, 90, 190, 50, color_supplement);
+        register_color_curses(color_yellow, 205, 180, 90, color_supplement);
+        register_color_curses(color_blue, 0, 200, 220, color_supplement);
+        register_color_curses(color_grey, 170, 160, 180, color_supplement);
+        register_color_curses(color_white, 225, 230, 255, 0);
 
         bkgd(COLOR_PAIR(color_black));
     }
@@ -363,7 +357,7 @@ static vector2d_t get_canvas_size_curses(const canvas_curses_t* canvas)
     };
 }
 
-static void register_color(color_t color, short r, short g, short b, short supplement)
+static void register_color_curses(color_t color, short r, short g, short b, short supplement)
 {
     static const float factor = 1000.0f / 255;
 
@@ -463,4 +457,10 @@ static canvas_buffer_t* serve_prev_canvas_buffer(canvas_proxy_t* canvas)
 static void switch_canvas_buffer(canvas_proxy_t* canvas)
 {
     canvas->active_buffer_index = (canvas->active_buffer_index + 1) % CANVAS_PROXY_BUFFER_BUCKET_SIZE;
+}
+
+void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n)
+{
+    ctx->current.y += n;
+    ctx->current.x = ctx->origin.x;
 }
