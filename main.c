@@ -1,6 +1,7 @@
 #include "engine.h"
 #include "renderer.h"
 #include "string.h"
+#include "time.h"
 #include <stdlib.h>
 
 static const char* configure_with_args(context* ctx, int argc, const char** argv);
@@ -129,10 +130,6 @@ static int help(void)
 
 static int run(const context* ctx, timer* timer, ccodoc* ccodoc)
 {
-    static const duration delta = {
-        .msecs = 1000 / 24,
-    };
-
     renderer renderer = { 0 };
 
     canvas canvas = { 0 };
@@ -140,13 +137,29 @@ static int run(const context* ctx, timer* timer, ccodoc* ccodoc)
 
     init_renderer(&renderer, &canvas, ccodoc);
 
-    while (1) {
-        tick_timer(timer, delta);
-        tick_ccodoc(ccodoc, delta);
+    {
+        static const duration min_delta = { .msecs = 1000 / 24 };
 
-        render_ccodoc(&renderer, ctx, timer, ccodoc);
+        duration last_time = monotonic_time();
 
-        sleep_for(delta);
+        while (1) {
+            const duration time = monotonic_time();
+
+            const duration delta = duration_diff(time, last_time);
+            last_time = time;
+
+            {
+                tick_timer(timer, delta);
+                tick_ccodoc(ccodoc, delta);
+
+                render_ccodoc(&renderer, delta, ctx, timer, ccodoc);
+            }
+
+            const duration process_time = duration_diff(monotonic_time(), time);
+
+            const duration sleep_time = duration_diff(min_delta, process_time);
+            sleep_for(sleep_time);
+        }
     }
 
     deinit_renderer(&renderer, ccodoc);

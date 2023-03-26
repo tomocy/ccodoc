@@ -119,10 +119,17 @@ duration duration_from_moment(const moment moment)
     };
 }
 
-duration unix_time(void)
+duration duration_diff(const duration d, const duration other)
+{
+    return (duration) {
+        .msecs = d.msecs >= other.msecs ? d.msecs - other.msecs : 0,
+    };
+}
+
+duration monotonic_time(void)
 {
     struct timespec time = { 0 };
-    clock_gettime(CLOCK_REALTIME, &time);
+    clock_gettime(CLOCK_MONOTONIC, &time);
 
     unsigned long msecs = 0;
     msecs += time.tv_sec * time_sec;

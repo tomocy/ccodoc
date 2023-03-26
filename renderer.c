@@ -3,6 +3,7 @@
 #include "canvas.h"
 #include "string.h"
 #include <assert.h>
+#include <math.h>
 
 static void on_tsutsu_poured(void);
 static void on_tsutsu_released_water(void);
@@ -28,9 +29,9 @@ static void render_tsutsu(renderer* renderer, drawing_context* ctx, const tsutsu
 static void render_hachi(renderer* renderer, drawing_context* ctx, const hachi* hachi);
 static void render_roji(renderer* renderer, drawing_context* ctx);
 static void render_timer(renderer* renderer, drawing_context* ctx, const timer* timer);
-static void render_debug_info(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc);
+static void render_debug_info(renderer* renderer, const duration delta, const context* ctx, const timer* timer, const ccodoc* ccodoc);
 
-void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc)
+void render_ccodoc(renderer* renderer, const duration delta, const context* ctx, const timer* timer, const ccodoc* ccodoc)
 {
     static const point ccodoc_size = {
         .x = 14,
@@ -57,7 +58,7 @@ void render_ccodoc(renderer* renderer, const context* ctx, const timer* timer, c
     render_timer(renderer, &dctx, timer);
 
     if (ctx->debug) {
-        render_debug_info(renderer, ctx, timer, ccodoc);
+        render_debug_info(renderer, delta, ctx, timer, ccodoc);
     }
 
     flush_canvas(renderer->canvas);
@@ -361,7 +362,7 @@ static void render_timer(renderer* renderer, drawing_context* ctx, const timer* 
 
 static const char* water_flow_state_to_str(water_flow_state state);
 
-static void render_debug_info(renderer* renderer, const context* ctx, const timer* timer, const ccodoc* ccodoc)
+static void render_debug_info(renderer* renderer, const duration delta, const context* ctx, const timer* timer, const ccodoc* ccodoc)
 {
     PREFER_DRAWING_WITH_ATTR(
         ctx->decorative,
@@ -385,6 +386,11 @@ static void render_debug_info(renderer* renderer, const context* ctx, const time
             {
                 draw(renderer->canvas, p.y++, p.x, "# engine");
 
+                drawf(
+                    renderer->canvas,
+                    p.y++, p.x,
+                    "fps: %d", delta.msecs != 0 ? (int)round(1000.0 / delta.msecs) : 0
+                );
                 drawf(renderer->canvas, p.y++, p.x, "decorative: %s", ctx->decorative ? "yes" : "no");
             }
 

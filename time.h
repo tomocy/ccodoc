@@ -44,4 +44,5 @@ extern void sleep_for(const duration duration);
 extern moment moment_from_duration(const duration duration, time_precision precision);
 // - duration
 extern duration duration_from_moment(const moment moment);
-extern duration unix_time(void);
+extern duration duration_diff(const duration d, const duration other);
+extern duration monotonic_time(void);
