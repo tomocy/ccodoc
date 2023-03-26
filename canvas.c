@@ -26,12 +26,14 @@ static void deinit_canvas_curses(canvas_curses* canvas);
 
 void deinit_canvas(canvas* canvas)
 {
+    canvas_delegate* delegate = &canvas->delegate;
+
     switch (canvas->type) {
     case canvas_type_buffer:
-        deinit_canvas_buffer(&canvas->delegate.buffer);
+        deinit_canvas_buffer(&delegate->buffer);
         break;
     case canvas_type_curses:
-        deinit_canvas_curses(&canvas->delegate.curses);
+        deinit_canvas_curses(&delegate->curses);
         break;
     }
 }
@@ -41,12 +43,14 @@ static void clear_canvas_curses(canvas_curses* canvas);
 
 void clear_canvas(canvas* canvas)
 {
+    canvas_delegate* delegate = &canvas->delegate;
+
     switch (canvas->type) {
     case canvas_type_buffer:
-        clear_canvas_buffer(&canvas->delegate.buffer);
+        clear_canvas_buffer(&delegate->buffer);
         break;
     case canvas_type_curses:
-        clear_canvas_curses(&canvas->delegate.curses);
+        clear_canvas_curses(&delegate->curses);
         break;
     }
 }
@@ -55,11 +59,13 @@ static void flush_canvas_curses(canvas_curses* canvas);
 
 void flush_canvas(canvas* canvas)
 {
+    canvas_delegate* delegate = &canvas->delegate;
+
     switch (canvas->type) {
     case canvas_type_buffer:
         break;
     case canvas_type_curses:
-        flush_canvas_curses(&canvas->delegate.curses);
+        flush_canvas_curses(&delegate->curses);
         break;
     }
 }
@@ -68,11 +74,13 @@ static void use_drawing_attr_curses(canvas_curses* canvas, drawing_attr attr);
 
 void use_drawing_attr(canvas* canvas, drawing_attr attr)
 {
+    canvas_delegate* delegate = &canvas->delegate;
+
     switch (canvas->type) {
     case canvas_type_buffer:
         break;
     case canvas_type_curses:
-        use_drawing_attr_curses(&canvas->delegate.curses, attr);
+        use_drawing_attr_curses(&delegate->curses, attr);
         break;
     }
 }
@@ -81,11 +89,13 @@ static void clear_drawing_attr_curses(canvas_curses* canvas, drawing_attr attr);
 
 void clear_drawing_attr(canvas* canvas, drawing_attr attr)
 {
+    canvas_delegate* delegate = &canvas->delegate;
+
     switch (canvas->type) {
     case canvas_type_buffer:
         break;
     case canvas_type_curses:
-        clear_drawing_attr_curses(&canvas->delegate.curses, attr);
+        clear_drawing_attr_curses(&delegate->curses, attr);
         break;
     }
 }
@@ -95,12 +105,14 @@ static void draw_buffer(canvas_buffer* canvas, unsigned int y, unsigned int x, c
 
 void draw(canvas* canvas, unsigned int y, unsigned int x, const char* s)
 {
+    canvas_delegate* delegate = &canvas->delegate;
+
     switch (canvas->type) {
     case canvas_type_buffer:
-        draw_buffer(&canvas->delegate.buffer, y, x, s);
+        draw_buffer(&delegate->buffer, y, x, s);
         break;
     case canvas_type_curses:
-        draw_curses(&canvas->delegate.curses, y, x, s);
+        draw_curses(&delegate->curses, y, x, s);
         break;
     }
 }
@@ -113,12 +125,14 @@ void drawf(canvas* canvas, unsigned int y, unsigned int x, const char* format, .
     va_list args;
     va_start(args, format);
 
+    canvas_delegate* delegate = &canvas->delegate;
+
     switch (canvas->type) {
     case canvas_type_buffer:
-        drawfv_buffer(&canvas->delegate.buffer, y, x, format, args);
+        drawfv_buffer(&delegate->buffer, y, x, format, args);
         break;
     case canvas_type_curses:
-        drawfv_curses(&canvas->delegate.curses, y, x, format, args);
+        drawfv_curses(&delegate->curses, y, x, format, args);
         break;
     }
 
@@ -129,11 +143,13 @@ static point get_canvas_size_curses(const canvas_curses* canvas);
 
 point get_canvas_size(const canvas* canvas)
 {
+    const canvas_delegate* delegate = &canvas->delegate;
+
     switch (canvas->type) {
     case canvas_type_buffer:
-        return canvas->delegate.buffer.size;
+        return delegate->buffer.size;
     case canvas_type_curses:
-        return get_canvas_size_curses(&canvas->delegate.curses);
+        return get_canvas_size_curses(&delegate->curses);
     }
 }
 

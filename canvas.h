@@ -43,13 +43,14 @@ typedef enum {
     canvas_type_curses,
 } canvas_type;
 
+typedef union {
+    canvas_buffer buffer;
+    canvas_curses curses;
+} canvas_delegate;
+
 typedef struct {
     canvas_type type;
-
-    union {
-        canvas_buffer buffer;
-        canvas_curses curses;
-    } delegate;
+    canvas_delegate delegate;
 } canvas;
 
 extern void init_canvas_buffer(canvas* canvas, point size);
