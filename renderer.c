@@ -6,23 +6,29 @@
 #include <assert.h>
 #include <math.h>
 
-static void on_tsutsu_poured(void);
-static void on_tsutsu_released_water(void);
+static void on_tsutsu_poured(void* renderer);
+static void on_tsutsu_released_water(void* renderer);
 
 void init_renderer(renderer_t* renderer, canvas_t* canvas, ccodoc_t* ccodoc)
 {
     renderer->canvas = canvas;
 
-    ccodoc->tsutsu.on_poured = on_tsutsu_poured;
-    ccodoc->tsutsu.on_released_water = on_tsutsu_released_water;
+    ccodoc->tsutsu.on_poured = (event_t) {
+        .listener = renderer,
+        .notify = on_tsutsu_poured,
+    };
+    ccodoc->tsutsu.on_released_water = (event_t) {
+        .listener = renderer,
+        .notify = on_tsutsu_released_water,
+    };
 }
 
 void deinit_renderer(renderer_t* renderer, ccodoc_t* ccodoc)
 {
     deinit_canvas(renderer->canvas);
 
-    ccodoc->tsutsu.on_poured = NULL;
-    ccodoc->tsutsu.on_released_water = NULL;
+    ccodoc->tsutsu.on_poured = (event_t) { 0 };
+    ccodoc->tsutsu.on_released_water = (event_t) { 0 };
 }
 
 static void render_kakehi(renderer_t* renderer, drawing_context_t* ctx, const kakehi_t* kakehi);
@@ -500,6 +506,12 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
     }
 }
 
-static void on_tsutsu_poured(void) { }
+static void on_tsutsu_poured(void* renderer)
+{
+    (void)renderer;
+}
 
-static void on_tsutsu_released_water(void) { }
+static void on_tsutsu_released_water(void* renderer)
+{
+    (void)renderer;
+}

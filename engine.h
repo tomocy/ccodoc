@@ -3,7 +3,12 @@
 #include "time.h"
 #include <stdbool.h>
 
-typedef void (*void_callback_t)(void);
+typedef void (*void_callback_t)(void*);
+
+typedef struct {
+    void* listener;
+    void_callback_t notify;
+} event_t;
 
 typedef enum {
     holding_water,
@@ -25,8 +30,8 @@ typedef struct {
     unsigned int water_capacity;
     tick_timer_t releasing_water_timer;
 
-    void_callback_t on_poured;
-    void_callback_t on_released_water;
+    event_t on_poured;
+    event_t on_released_water;
 } tsutsu_t;
 
 // hachi（手水鉢）
@@ -45,3 +50,5 @@ typedef struct {
 extern void tick_ccodoc(ccodoc_t* ccodoc, const duration_t delta);
 // - debug
 extern float tsutsu_water_amount_ratio(const tsutsu_t* tsutsu);
+
+extern void notify_listener(event_t* event);

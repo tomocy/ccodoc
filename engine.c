@@ -80,11 +80,9 @@ static void tick_tsutsu(ccodoc_t* ccodoc, const duration_t delta)
             break;
         }
 
-        hold_tsutsu_water(ccodoc);
+        notify_listener(&tsutsu->on_released_water);
 
-        if (tsutsu->on_released_water != NULL) {
-            tsutsu->on_released_water();
-        }
+        hold_tsutsu_water(ccodoc);
 
         break;
     }
@@ -199,9 +197,7 @@ static void pour_tsutsu_by(tsutsu_t* tsutsu, float ratio)
         ? tsutsu->water_amount + delta
         : tsutsu->water_capacity;
 
-    if (tsutsu->on_poured != NULL) {
-        tsutsu->on_poured();
-    }
+    notify_listener(&tsutsu->on_poured);
 }
 
 static void fill_tsutsu_by(tsutsu_t* tsutsu, float ratio)
@@ -221,4 +217,13 @@ float tsutsu_water_amount_ratio(const tsutsu_t* tsutsu)
 {
     assert(tsutsu->water_capacity != 0);
     return (float)tsutsu->water_amount / (float)tsutsu->water_capacity;
+}
+
+void notify_listener(event_t* event)
+{
+    if (event->notify == NULL) {
+        return;
+    }
+
+    event->notify(event->listener);
 }
