@@ -56,7 +56,7 @@ int test_str(void)
         const char* current = data;
 
         {
-            const char_descriptor desc = decode_char_utf8(current);
+            const char_descriptor_t desc = decode_char_utf8(current);
             EXPECT_EQUAL(desc.code, 12354);
             EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "あ", desc.len));
@@ -65,7 +65,7 @@ int test_str(void)
         }
 
         {
-            const char_descriptor desc = decode_char_utf8(current);
+            const char_descriptor_t desc = decode_char_utf8(current);
             EXPECT_EQUAL(desc.code, 12365);
             EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "き", desc.len));
@@ -74,7 +74,7 @@ int test_str(void)
         }
 
         {
-            const char_descriptor desc = decode_char_utf8(current);
+            const char_descriptor_t desc = decode_char_utf8(current);
             EXPECT_EQUAL(desc.code, 12377);
             EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "す", desc.len));
@@ -83,7 +83,7 @@ int test_str(void)
         }
 
         {
-            const char_descriptor desc = decode_char_utf8(current);
+            const char_descriptor_t desc = decode_char_utf8(current);
             EXPECT_EQUAL(desc.code, 12390);
             EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "て", desc.len));
@@ -92,7 +92,7 @@ int test_str(void)
         }
 
         {
-            const char_descriptor desc = decode_char_utf8(current);
+            const char_descriptor_t desc = decode_char_utf8(current);
             EXPECT_EQUAL(desc.code, 12398);
             EXPECT_EQUAL(desc.len, 3);
             EXPECT_TRUE(str_equals_n(current, "の", desc.len));
@@ -101,7 +101,7 @@ int test_str(void)
         }
 
         {
-            const char_descriptor desc = decode_char_utf8(current);
+            const char_descriptor_t desc = decode_char_utf8(current);
             EXPECT_EQUAL(desc.code, 127841);
             EXPECT_EQUAL(desc.len, 4);
             EXPECT_TRUE(str_equals_n(current, "🍡", desc.len));

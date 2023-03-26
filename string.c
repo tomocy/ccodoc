@@ -12,9 +12,9 @@ bool str_equals_n(const char* str, const char* other, unsigned int n)
     return strncmp(str, other, n) == 0;
 }
 
-char_descriptor encode_char_utf8(char* dst, uint32_t code)
+char_descriptor_t encode_char_utf8(char* dst, uint32_t code)
 {
-    char_descriptor desc = { .code = code };
+    char_descriptor_t desc = { .code = code };
 
     // 0xxxxxxx
     if (code <= 0x7f) {
@@ -57,9 +57,9 @@ char_descriptor encode_char_utf8(char* dst, uint32_t code)
     return desc;
 }
 
-char_descriptor decode_char_utf8(const char* src)
+char_descriptor_t decode_char_utf8(const char* src)
 {
-    char_descriptor desc = { 0 };
+    char_descriptor_t desc = { 0 };
 
     const unsigned char* c = (unsigned char*)src;
 
@@ -87,13 +87,13 @@ char_descriptor decode_char_utf8(const char* src)
     return desc;
 }
 
-void decode_str_utf8(char_descriptor* descs, const char* src)
+void decode_str_utf8(char_descriptor_t* descs, const char* src)
 {
     int i = 0;
     const char* c = src;
 
     while (*c) {
-        const char_descriptor desc = decode_char_utf8(c);
+        const char_descriptor_t desc = decode_char_utf8(c);
         descs[i] = desc;
 
         i++;

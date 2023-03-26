@@ -4,7 +4,7 @@
 
 int test_engine(void)
 {
-    ccodoc ccodoc = {
+    ccodoc_t ccodoc = {
         .kakehi = {
             .release_water_ratio = 0.5f,
             .holding_water_timer = {
@@ -44,7 +44,7 @@ int test_engine(void)
 
     {
         printf("- tick (250ms)\n");
-        tick_ccodoc(&ccodoc, (duration) { .msecs = 250 });
+        tick_ccodoc(&ccodoc, (duration_t) { .msecs = 250 });
 
         EXPECT_EQUAL(ccodoc.kakehi.state, holding_water);
         EXPECT_EQUAL(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 0.1f);
@@ -60,7 +60,7 @@ int test_engine(void)
 
     {
         printf("- tick (1750ms)\n");
-        tick_ccodoc(&ccodoc, (duration) { .msecs = 1750 });
+        tick_ccodoc(&ccodoc, (duration_t) { .msecs = 1750 });
 
         EXPECT_EQUAL(ccodoc.kakehi.state, holding_water);
         EXPECT_EQUAL(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 0.8f);
@@ -76,7 +76,7 @@ int test_engine(void)
 
     {
         printf("- tick (1000ms)\n");
-        tick_ccodoc(&ccodoc, (duration) { .msecs = 1000 });
+        tick_ccodoc(&ccodoc, (duration_t) { .msecs = 1000 });
 
         EXPECT_EQUAL(ccodoc.kakehi.state, releasing_water);
         EXPECT_EQUAL(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 1);
@@ -92,7 +92,7 @@ int test_engine(void)
 
     {
         printf("- tick (250ms)\n");
-        tick_ccodoc(&ccodoc, (duration) { .msecs = 250 });
+        tick_ccodoc(&ccodoc, (duration_t) { .msecs = 250 });
 
         EXPECT_EQUAL(ccodoc.kakehi.state, releasing_water);
         EXPECT_EQUAL(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 1);
@@ -108,7 +108,7 @@ int test_engine(void)
 
     {
         printf("- tick (250ms)\n");
-        tick_ccodoc(&ccodoc, (duration) { .msecs = 250 });
+        tick_ccodoc(&ccodoc, (duration_t) { .msecs = 250 });
 
         EXPECT_EQUAL(ccodoc.kakehi.state, holding_water);
         EXPECT_EQUAL(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 0);
@@ -124,7 +124,7 @@ int test_engine(void)
 
     {
         printf("- tick (2500ms)\n");
-        tick_ccodoc(&ccodoc, (duration) { .msecs = 2500 });
+        tick_ccodoc(&ccodoc, (duration_t) { .msecs = 2500 });
 
         EXPECT_EQUAL(ccodoc.kakehi.state, releasing_water);
         EXPECT_EQUAL(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 1);
@@ -140,7 +140,7 @@ int test_engine(void)
 
     {
         printf("- tick (500ms)\n");
-        tick_ccodoc(&ccodoc, (duration) { .msecs = 500 });
+        tick_ccodoc(&ccodoc, (duration_t) { .msecs = 500 });
 
         EXPECT_EQUAL(ccodoc.kakehi.state, holding_water);
         EXPECT_EQUAL(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 0);
@@ -156,7 +156,7 @@ int test_engine(void)
 
     {
         printf("- tick (1000ms)\n");
-        tick_ccodoc(&ccodoc, (duration) { .msecs = 1000 });
+        tick_ccodoc(&ccodoc, (duration_t) { .msecs = 1000 });
 
         EXPECT_EQUAL(ccodoc.kakehi.state, holding_water);
         EXPECT_EQUAL(elapsed_time_ratio(&ccodoc.kakehi.holding_water_timer), 0.4f);
