@@ -24,6 +24,8 @@ typedef struct {
 typedef struct {
     const context_t* app;
 
+    drawing_attr_t attr;
+
     vector2d_t origin;
     vector2d_t current;
 } drawing_context_t;
@@ -39,8 +41,6 @@ typedef struct {
 typedef struct {
     vector2d_t size;
     canvas_datum* data;
-
-    drawing_attr_t active_attr;
 } canvas_buffer_t;
 
 typedef struct {
@@ -86,28 +86,7 @@ extern void deinit_canvas(canvas_t* canvas);
 extern void clear_canvas(canvas_t* canvas);
 extern void flush_canvas(canvas_t* canvas);
 
-extern void use_drawing_attr(canvas_t* canvas, drawing_attr_t attr);
-extern void clear_drawing_attr(canvas_t* canvas, drawing_attr_t attr);
-
-#define WITH_DRAWING_ATTR(in_canvas, attr, ...) \
-    {                                           \
-        canvas_t* canvas_ = (in_canvas);        \
-        const drawing_attr_t attr_ = (attr);    \
-        use_drawing_attr(canvas_, attr_);       \
-        __VA_ARGS__;                            \
-        clear_drawing_attr(canvas_, attr_);     \
-    }
-
-#define PREFER_DRAWING_WITH_ATTR(with_attr, canvas, attr, ...) \
-    {                                                          \
-        if (with_attr) {                                       \
-            WITH_DRAWING_ATTR((canvas), (attr), __VA_ARGS__);  \
-        } else {                                               \
-            __VA_ARGS__                                        \
-        }                                                      \
-    }
-
-extern void draw(canvas_t* canvas, vector2d_t point, const char* s);
-extern void drawf(canvas_t* canvas, vector2d_t point, const char* format, ...);
+extern void draw(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
+extern void drawf(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, ...);
 
 extern vector2d_t get_canvas_size(const canvas_t* canvas);

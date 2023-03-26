@@ -102,25 +102,20 @@ static void render_kakehi(renderer_t* renderer, drawing_context_t* ctx, const ka
             const char_descriptor_t desc = decode_char_utf8(c);
             const bool has_water = str_equals_n(c, "━", desc.len);
 
-            WITH_DRAWING_ATTR(
+            drawf(
                 renderer->canvas,
-                ((drawing_attr_t) {
+                vector2d_add(ctx->current, (vector2d_t) { .x = i }),
+                (drawing_attr_t) {
                     .color = has_water ? color_blue : color_yellow,
-                }),
-                {
-                    drawf(
-                        renderer->canvas,
-                        vector2d_add(ctx->current, (vector2d_t) { .x = i }),
-                        "%.*s", desc.len, c
-                    );
-                }
+                },
+                "%.*s", desc.len, c
             );
 
             i++;
             c += desc.len;
         }
     } else {
-        draw(renderer->canvas, ctx->current, art);
+        draw(renderer->canvas, ctx->current, ctx->attr, art);
     }
 
     wrap_drawing_lines(ctx, 1);
@@ -193,6 +188,7 @@ static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const ts
             draw(
                 renderer->canvas,
                 vector2d_add(origin, (vector2d_t) { .y = h }),
+                ctx->attr,
                 art[h]
             );
             continue;
@@ -218,13 +214,12 @@ static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const ts
                 attr.color = color_yellow;
             }
 
-            WITH_DRAWING_ATTR(renderer->canvas, attr, {
-                drawf(
-                    renderer->canvas,
-                    vector2d_add(origin, (vector2d_t) { .y = h, .x = i }),
-                    "%.*s", desc.len, c
-                );
-            });
+            drawf(
+                renderer->canvas,
+                vector2d_add(origin, (vector2d_t) { .y = h, .x = i }),
+                attr,
+                "%.*s", desc.len, c
+            );
 
             i++;
             c += desc.len;
@@ -266,25 +261,20 @@ static void render_hachi(renderer_t* renderer, drawing_context_t* ctx, const hac
             const char_descriptor_t desc = decode_char_utf8(c);
             const bool has_water = str_equals_n(c, "▬", desc.len);
 
-            WITH_DRAWING_ATTR(
+            drawf(
                 renderer->canvas,
-                ((drawing_attr_t) {
+                vector2d_add(ctx->current, (vector2d_t) { .x = i }),
+                (drawing_attr_t) {
                     .color = has_water ? color_blue : color_grey,
-                }),
-                {
-                    drawf(
-                        renderer->canvas,
-                        vector2d_add(ctx->current, (vector2d_t) { .x = i }),
-                        "%.*s", desc.len, c
-                    );
-                }
+                },
+                "%.*s", desc.len, c
             );
 
             i++;
             c += desc.len;
         }
     } else {
-        draw(renderer->canvas, ctx->current, art);
+        draw(renderer->canvas, ctx->current, ctx->attr, art);
     }
 
     ctx->current.x += art_width;
@@ -292,23 +282,19 @@ static void render_hachi(renderer_t* renderer, drawing_context_t* ctx, const hac
 
 static void render_roji(renderer_t* renderer, drawing_context_t* ctx)
 {
-    PREFER_DRAWING_WITH_ATTR(
-        ctx->app->decorative,
+    draw(
         renderer->canvas,
-        ((drawing_attr_t) { .color = color_green, .dim = true }),
-        {
-            draw(renderer->canvas, ctx->current, "━━━━━━");
-            ctx->current.x += 6;
-        }
+        ctx->current,
+        (drawing_attr_t) { .color = color_green, .dim = true },
+        "━━━━━━"
     );
+    ctx->current.x += 6;
 
-    PREFER_DRAWING_WITH_ATTR(
-        ctx->app->decorative,
+    draw(
         renderer->canvas,
-        ((drawing_attr_t) { .color = color_grey }),
-        {
-            draw(renderer->canvas, ctx->current, "▨▨▨▨");
-        }
+        ctx->current,
+        (drawing_attr_t) { .color = color_grey },
+        "▨▨▨▨"
     );
 
     wrap_drawing_lines(ctx, 1);
@@ -327,17 +313,11 @@ static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tic
         const char* format = "%02dh%02dm";
 #endif
 
-        PREFER_DRAWING_WITH_ATTR(
-            ctx->app->decorative,
+        drawf(
             renderer->canvas,
-            ((drawing_attr_t) { .color = color_white }),
-            {
-                drawf(
-                    renderer->canvas,
-                    vector2d_add(ctx->current, (vector2d_t) { .x = 4 }),
-                    format, moment.hours, moment.mins
-                );
-            }
+            vector2d_add(ctx->current, (vector2d_t) { .x = 4 }),
+            (drawing_attr_t) { .color = color_white },
+            format, moment.hours, moment.mins
         );
 
         wrap_drawing_lines(ctx, 1);
@@ -369,6 +349,7 @@ static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tic
                 draw(
                     renderer->canvas,
                     vector2d_add(ctx->current, (vector2d_t) { .x = i }),
+                    ctx->attr,
                     remaining ? "─" : " "
                 );
                 continue;
@@ -376,13 +357,12 @@ static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tic
 
             attr.dim = !remaining;
 
-            WITH_DRAWING_ATTR(renderer->canvas, attr, {
-                draw(
-                    renderer->canvas,
-                    vector2d_add(ctx->current, (vector2d_t) { .x = i }),
-                    "─"
-                );
-            });
+            draw(
+                renderer->canvas,
+                vector2d_add(ctx->current, (vector2d_t) { .x = i }),
+                attr,
+                "─"
+            );
         }
 
         wrap_drawing_lines(ctx, 1);
@@ -393,86 +373,114 @@ static const char* water_flow_state_to_str(water_flow_state_t state);
 
 static void render_debug_info(renderer_t* renderer, const duration_t delta, const context_t* ctx, const tick_timer_t* timer, const ccodoc_t* ccodoc)
 {
-    PREFER_DRAWING_WITH_ATTR(
-        ctx->decorative,
-        renderer->canvas,
-        ((drawing_attr_t) { .color = color_white }),
+    const drawing_attr_t default_attr = (drawing_attr_t) { .color = color_white };
+
+    vector2d_t p = {
+        .x = 0,
+        .y = 0,
+    };
+
+    {
+        drawing_attr_t attr = default_attr;
+        attr.bold = true;
+        draw(renderer->canvas, p, attr, "DEBUG -------");
+        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+    }
+
+    {
+        draw(renderer->canvas, p, default_attr, "# engine");
+        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+
+        drawf(
+            renderer->canvas,
+            p,
+            default_attr,
+            "fps: %d", delta.msecs != 0 ? (int)round(1000.0 / (double)delta.msecs) : 0
+        );
+        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+
+        drawf(
+            renderer->canvas,
+            p,
+            default_attr,
+            "decorative: %s", ctx->decorative ? "yes" : "no"
+        );
+        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+    }
+
+    {
+        draw(renderer->canvas, p, default_attr, "# timer");
+        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+
+        const moment_t m = moment_from_duration(remaining_time(timer), time_msec);
+        drawf(
+            renderer->canvas,
+            p,
+            default_attr,
+            "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs
+        );
+        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+
+        drawf(
+            renderer->canvas,
+            p,
+            default_attr,
+            "elapsed time ratio: %f", elapsed_time_ratio(timer)
+        );
+        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+    }
+
+    {
+        draw(renderer->canvas, p, default_attr, "# ccodoc");
+        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+
         {
-            vector2d_t p = {
-                .x = 0,
-                .y = 0,
-            };
+            draw(renderer->canvas, p, default_attr, "## kakehi");
+            p = vector2d_add(p, (vector2d_t) { .y = 1 });
 
-            PREFER_DRAWING_WITH_ATTR(
-                ctx->decorative,
+            drawf(
                 renderer->canvas,
-                ((drawing_attr_t) { .bold = true }),
-                {
-                    draw(renderer->canvas, p, "DEBUG -------");
-                    p = vector2d_add(p, (vector2d_t) { .y = 1 });
-                }
+                p,
+                default_attr,
+                "state: %s", water_flow_state_to_str(ccodoc->kakehi.state)
             );
-
-            {
-                draw(renderer->canvas, p, "# engine");
-                p = vector2d_add(p, (vector2d_t) { .y = 1 });
-
-                drawf(
-                    renderer->canvas,
-                    p,
-                    "fps: %d", delta.msecs != 0 ? (int)round(1000.0 / delta.msecs) : 0
-                );
-                p = vector2d_add(p, (vector2d_t) { .y = 1 });
-
-                drawf(renderer->canvas, p, "decorative: %s", ctx->decorative ? "yes" : "no");
-                p = vector2d_add(p, (vector2d_t) { .y = 1 });
-            }
-
-            {
-                draw(renderer->canvas, p, "# timer");
-                p = vector2d_add(p, (vector2d_t) { .y = 1 });
-
-                const moment_t m = moment_from_duration(remaining_time(timer), time_msec);
-                drawf(renderer->canvas, p, "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs);
-                p = vector2d_add(p, (vector2d_t) { .y = 1 });
-
-                drawf(renderer->canvas, p, "elapsed time ratio: %f", elapsed_time_ratio(timer));
-                p = vector2d_add(p, (vector2d_t) { .y = 1 });
-            }
-
-            {
-                draw(renderer->canvas, p, "# ccodoc");
-                p = vector2d_add(p, (vector2d_t) { .y = 1 });
-
-                {
-                    draw(renderer->canvas, p, "## kakehi");
-                    p = vector2d_add(p, (vector2d_t) { .y = 1 });
-
-                    drawf(renderer->canvas, p, "state: %s", water_flow_state_to_str(ccodoc->kakehi.state));
-                    p = vector2d_add(p, (vector2d_t) { .y = 1 });
-                }
-
-                {
-                    draw(renderer->canvas, p, "## tsutsu");
-                    p = vector2d_add(p, (vector2d_t) { .y = 1 });
-
-                    drawf(renderer->canvas, p, "state: %s", water_flow_state_to_str(ccodoc->tsutsu.state));
-                    p = vector2d_add(p, (vector2d_t) { .y = 1 });
-
-                    drawf(renderer->canvas, p, "water_amount_ratio: %f", tsutsu_water_amount_ratio(&ccodoc->tsutsu));
-                    p = vector2d_add(p, (vector2d_t) { .y = 1 });
-                }
-
-                {
-                    draw(renderer->canvas, p, "## hachi");
-                    p = vector2d_add(p, (vector2d_t) { .y = 1 });
-
-                    drawf(renderer->canvas, p, "state: %s", water_flow_state_to_str(ccodoc->hachi.state));
-                    p = vector2d_add(p, (vector2d_t) { .y = 1 });
-                }
-            }
+            p = vector2d_add(p, (vector2d_t) { .y = 1 });
         }
-    );
+
+        {
+            draw(renderer->canvas, p, default_attr, "## tsutsu");
+            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+
+            drawf(
+                renderer->canvas,
+                p,
+                default_attr,
+                "state: %s", water_flow_state_to_str(ccodoc->tsutsu.state)
+            );
+            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+
+            drawf(
+                renderer->canvas,
+                p,
+                default_attr,
+                "water_amount_ratio: %f", tsutsu_water_amount_ratio(&ccodoc->tsutsu)
+            );
+            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        }
+
+        {
+            draw(renderer->canvas, p, default_attr, "## hachi");
+            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+
+            drawf(
+                renderer->canvas,
+                p,
+                default_attr,
+                "state: %s", water_flow_state_to_str(ccodoc->hachi.state)
+            );
+            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        }
+    }
 }
 
 static const char* water_flow_state_to_str(water_flow_state_t state)
