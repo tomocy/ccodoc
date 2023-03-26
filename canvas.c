@@ -5,8 +5,9 @@
 #include <locale.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>
 
-static canvas_buffer_t* serve_active_canvas_buffer(canvas_proxy_t* canvas);
+static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
 
 drawing_context_t init_drawing_context(const context_t* ctx, point_t origin)
 {
@@ -65,7 +66,7 @@ void deinit_canvas(canvas_t* canvas)
     case canvas_type_proxy: {
         {
             canvas_t canvas = wrap_canvas_buffer(
-                serve_active_canvas_buffer(delegate->proxy)
+                serve_current_canvas_buffer(delegate->proxy)
             );
             deinit_canvas(&canvas);
         }
@@ -94,22 +95,17 @@ void clear_canvas(canvas_t* canvas)
         clear_canvas_curses(delegate->curses);
         break;
     case canvas_type_proxy: {
-        {
-            canvas_t canvas = wrap_canvas_buffer(
-                serve_active_canvas_buffer(delegate->proxy)
-            );
-            clear_canvas(&canvas);
-        }
-        {
-            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
-            clear_canvas(&canvas);
-        }
+        canvas_t canvas = wrap_canvas_buffer(
+            serve_current_canvas_buffer(delegate->proxy)
+        );
+        clear_canvas(&canvas);
         break;
     }
     }
 }
 
 static void flush_canvas_curses(canvas_curses_t* canvas);
+static void flush_canvas_proxy(canvas_proxy_t* canvas);
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void flush_canvas(canvas_t* canvas)
@@ -123,16 +119,7 @@ void flush_canvas(canvas_t* canvas)
         flush_canvas_curses(delegate->curses);
         break;
     case canvas_type_proxy: {
-        {
-            canvas_t canvas = wrap_canvas_buffer(
-                serve_active_canvas_buffer(delegate->proxy)
-            );
-            flush_canvas(&canvas);
-        }
-        {
-            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
-            flush_canvas(&canvas);
-        }
+        flush_canvas_proxy(delegate->proxy);
         break;
     }
     }
@@ -154,7 +141,7 @@ void use_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
     case canvas_type_proxy: {
         {
             canvas_t canvas = wrap_canvas_buffer(
-                serve_active_canvas_buffer(delegate->proxy)
+                serve_current_canvas_buffer(delegate->proxy)
             );
             use_drawing_attr(&canvas, attr);
         }
@@ -183,7 +170,7 @@ void clear_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
     case canvas_type_proxy: {
         {
             canvas_t canvas = wrap_canvas_buffer(
-                serve_active_canvas_buffer(delegate->proxy)
+                serve_current_canvas_buffer(delegate->proxy)
             );
             clear_drawing_attr(&canvas, attr);
         }
@@ -212,16 +199,10 @@ void draw(canvas_t* canvas, unsigned int y, unsigned int x, const char* s)
         draw_curses(delegate->curses, y, x, s);
         break;
     case canvas_type_proxy: {
-        {
-            canvas_t canvas = wrap_canvas_buffer(
-                serve_active_canvas_buffer(delegate->proxy)
-            );
-            draw(&canvas, y, x, s);
-        }
-        {
-            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
-            draw(&canvas, y, x, s);
-        }
+        canvas_t canvas = wrap_canvas_buffer(
+            serve_current_canvas_buffer(delegate->proxy)
+        );
+        draw(&canvas, y, x, s);
         break;
     }
     }
@@ -243,21 +224,10 @@ static void drawfv(canvas_t* canvas, unsigned int y, unsigned int x, const char*
         drawfv_curses(delegate->curses, y, x, format, args);
         break;
     case canvas_type_proxy: {
-        {
-            va_list args_ = { 0 };
-            va_copy(args_, args);
-
-            canvas_t canvas = wrap_canvas_buffer(
-                serve_active_canvas_buffer(delegate->proxy)
-            );
-            drawfv(&canvas, y, x, format, args_);
-
-            va_end(args_);
-        }
-        {
-            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
-            drawfv(&canvas, y, x, format, args);
-        }
+        canvas_t canvas = wrap_canvas_buffer(
+            serve_current_canvas_buffer(delegate->proxy)
+        );
+        drawfv(&canvas, y, x, format, args);
         break;
     }
     }
@@ -336,6 +306,15 @@ static void drawfv_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int 
 
     (void)vsprintf(s, format, args);
     draw_buffer(canvas, y, x, s);
+}
+
+static bool canvas_equals_buffer(const canvas_buffer_t* canvas, const canvas_buffer_t* other)
+{
+    return memcmp(
+               canvas->data, other->data,
+               (unsigned long)canvas->size.x * canvas->size.y * sizeof(uint32_t)
+           )
+        == 0;
 }
 
 // curses
@@ -476,6 +455,9 @@ static short as_color_curses(color_t color)
 
 // proxy
 
+static canvas_buffer_t* serve_prev_canvas_buffer(canvas_proxy_t* canvas);
+static void switch_canvas_buffer(canvas_proxy_t* canvas);
+
 void init_canvas_proxy(canvas_proxy_t* canvas, canvas_curses_t* underlying)
 {
     canvas->underlying = underlying;
@@ -487,7 +469,47 @@ void init_canvas_proxy(canvas_proxy_t* canvas, canvas_curses_t* underlying)
     }
 }
 
-static canvas_buffer_t* serve_active_canvas_buffer(canvas_proxy_t* canvas)
+// NOLINTNEXTLINE(misc-no-recursion)
+static void flush_canvas_proxy(canvas_proxy_t* canvas)
+{
+    const canvas_buffer_t* current = serve_current_canvas_buffer(canvas);
+    const canvas_buffer_t* prev = serve_prev_canvas_buffer(canvas);
+
+    if (canvas_equals_buffer(current, prev)) {
+        return;
+    }
+
+    canvas_t underlying = wrap_canvas_curses(canvas->underlying);
+
+    clear_canvas(&underlying);
+
+    for (unsigned int y = 0; y < current->size.y; y++) {
+        for (unsigned int x = 0; x < current->size.x; x++) {
+            char c[5] = { 0 };
+            unsigned int i = y * current->size.x + x;
+            encode_char_utf8(c, current->data[i]);
+
+            draw(&underlying, y, x, c);
+        }
+    }
+
+    flush_canvas(&underlying);
+
+    switch_canvas_buffer(canvas);
+}
+
+static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas)
 {
     return &canvas->buffers[canvas->active_buffer_index];
+}
+
+static canvas_buffer_t* serve_prev_canvas_buffer(canvas_proxy_t* canvas)
+{
+    unsigned int i = (canvas->active_buffer_index + CANVAS_PROXY_BUFFER_BUCKET_SIZE - 1) % CANVAS_PROXY_BUFFER_BUCKET_SIZE;
+    return &canvas->buffers[i];
+}
+
+static void switch_canvas_buffer(canvas_proxy_t* canvas)
+{
+    canvas->active_buffer_index = (canvas->active_buffer_index + 1) % CANVAS_PROXY_BUFFER_BUCKET_SIZE;
 }
