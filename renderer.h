@@ -6,6 +6,11 @@
 
 typedef struct {
     canvas_t* canvas;
+
+    struct {
+        const char* tsutsu_poured;
+        const char* tsutsu_bumped;
+    } sound;
 } renderer_t;
 
 typedef struct {

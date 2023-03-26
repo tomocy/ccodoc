@@ -506,12 +506,35 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
     }
 }
 
-static void on_tsutsu_poured(void* renderer)
+static void play_sound(const char* name);
+
+static void on_tsutsu_poured(void* raw_renderer)
 {
-    (void)renderer;
+    const renderer_t* renderer = raw_renderer;
+    if (renderer->sound.tsutsu_poured == NULL) {
+        return;
+    }
+
+    play_sound(renderer->sound.tsutsu_poured);
 }
 
-static void on_tsutsu_released_water(void* renderer)
+static void on_tsutsu_released_water(void* raw_renderer)
 {
-    (void)renderer;
+    const renderer_t* renderer = raw_renderer;
+    if (renderer->sound.tsutsu_bumped == NULL) {
+        return;
+    }
+
+    play_sound(renderer->sound.tsutsu_bumped);
+}
+
+static void play_sound(const char* name)
+{
+#if PLATFORM == PLATFORM_LINUX
+    (void)name;
+#endif
+#if PLATFORM == PLATFORM_MACOS
+    const char* args[] = { "afplay", (char* const)name, NULL };
+    run_cmd("/usr/bin/afplay", args);
+#endif
 }
