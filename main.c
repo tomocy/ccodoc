@@ -136,15 +136,10 @@ static int run(const context_t* ctx, tick_timer_t* timer, ccodoc_t* ccodoc)
     canvas_curses_t canvas_delegate = { 0 };
     init_canvas_curses(&canvas_delegate, ctx->decorative);
 
-    canvas_t canvas = { 0 };
+    canvas_proxy_t canvas_proxy = { 0 };
+    init_canvas_proxy(&canvas_proxy, &canvas_delegate);
 
-    if (ctx->decorative) {
-        canvas = wrap_canvas_curses(&canvas_delegate);
-    } else {
-        canvas_proxy_t canvas_proxy = { 0 };
-        init_canvas_proxy(&canvas_proxy, &canvas_delegate);
-        canvas = wrap_canvas_proxy(&canvas_proxy);
-    }
+    canvas_t canvas = wrap_canvas_proxy(&canvas_proxy);
 
     init_renderer(&renderer, &canvas, ccodoc);
 

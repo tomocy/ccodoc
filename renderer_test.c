@@ -709,7 +709,7 @@ static int test_ccodoc(const canvas_buffer_t* actual, const char* expected)
 
             const char_descriptor_t expected_char = expected_chars[i];
 
-            const uint32_t code = actual->data[i];
+            const uint32_t code = actual->data[i].code;
             if (code != expected_char.code) {
                 char actual_str[5] = { 0 };
                 encode_char_utf8(actual_str, code);
@@ -740,7 +740,7 @@ static void draw_ccodoc(const canvas_buffer_t* canvas)
             const unsigned int i = h * canvas->size.x + w;
 
             char s[5] = { 0 };
-            uint32_t code = canvas->data[i];
+            uint32_t code = canvas->data[i].code;
             encode_char_utf8(s, code);
             printf("%s", s);
         }

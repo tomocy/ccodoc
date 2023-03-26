@@ -125,6 +125,7 @@ void flush_canvas(canvas_t* canvas)
     }
 }
 
+static void use_drawing_attr_buffer(canvas_buffer_t* canvas, drawing_attr_t attr);
 static void use_drawing_attr_curses(canvas_curses_t* canvas, drawing_attr_t attr);
 
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -134,6 +135,7 @@ void use_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
 
     switch (canvas->type) {
     case canvas_type_buffer:
+        use_drawing_attr_buffer(delegate->buffer, attr);
         break;
     case canvas_type_curses:
         use_drawing_attr_curses(delegate->curses, attr);
@@ -154,6 +156,7 @@ void use_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
     }
 }
 
+static void clear_drawing_attr_buffer(canvas_buffer_t* canvas, drawing_attr_t attr);
 static void clear_drawing_attr_curses(canvas_curses_t* canvas, drawing_attr_t attr);
 
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -163,6 +166,7 @@ void clear_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
 
     switch (canvas->type) {
     case canvas_type_buffer:
+        clear_drawing_attr_buffer(delegate->buffer, attr);
         break;
     case canvas_type_curses:
         clear_drawing_attr_curses(delegate->curses, attr);
@@ -267,7 +271,10 @@ point_t get_canvas_size(const canvas_t* canvas)
 void init_canvas_buffer(canvas_buffer_t* canvas, point_t size)
 {
     canvas->size = size;
-    canvas->data = calloc((unsigned long)size.x * size.y, sizeof(uint32_t));
+    canvas->data = calloc(
+        (unsigned long)size.x * size.y,
+        sizeof(canvas_datum)
+    );
 }
 
 static void deinit_canvas_buffer(canvas_buffer_t* canvas)
@@ -281,9 +288,22 @@ static void clear_canvas_buffer(canvas_buffer_t* canvas)
 {
     for (unsigned int h = 0; h < canvas->size.y; h++) {
         for (unsigned int w = 0; w < canvas->size.x; w++) {
-            canvas->data[h * canvas->size.x + w] = ' ';
+            canvas->data[h * canvas->size.x + w].code = ' ';
+            canvas->data[h * canvas->size.x + w].attr = (drawing_attr_t) { 0 };
         }
     }
+}
+
+static void use_drawing_attr_buffer(canvas_buffer_t* canvas, drawing_attr_t attr)
+{
+    canvas->active_attr = attr;
+}
+
+static void clear_drawing_attr_buffer(canvas_buffer_t* canvas, drawing_attr_t attr)
+{
+    (void)attr;
+
+    canvas->active_attr = (drawing_attr_t) { 0 };
 }
 
 static void draw_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x, const char* s)
@@ -293,7 +313,10 @@ static void draw_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x,
 
     while (*c) {
         char_descriptor_t desc = decode_char_utf8(c);
-        canvas->data[y * canvas->size.x + x + n] = desc.code;
+
+        canvas_datum* datum = &canvas->data[y * canvas->size.x + x + n];
+        datum->code = desc.code;
+        datum->attr = canvas->active_attr;
 
         n++;
         c += desc.len;
@@ -312,7 +335,7 @@ static bool canvas_equals_buffer(const canvas_buffer_t* canvas, const canvas_buf
 {
     return memcmp(
                canvas->data, other->data,
-               (unsigned long)canvas->size.x * canvas->size.y * sizeof(uint32_t)
+               (unsigned long)canvas->size.x * canvas->size.y * sizeof(canvas_datum)
            )
         == 0;
 }
@@ -485,11 +508,16 @@ static void flush_canvas_proxy(canvas_proxy_t* canvas)
 
     for (unsigned int y = 0; y < current->size.y; y++) {
         for (unsigned int x = 0; x < current->size.x; x++) {
-            char c[5] = { 0 };
             unsigned int i = y * current->size.x + x;
-            encode_char_utf8(c, current->data[i]);
 
+            const canvas_datum* datum = &current->data[i];
+
+            char c[5] = { 0 };
+            encode_char_utf8(c, datum->code);
+
+            use_drawing_attr(&underlying, datum->attr);
             draw(&underlying, y, x, c);
+            clear_drawing_attr(&underlying, datum->attr);
         }
     }
 

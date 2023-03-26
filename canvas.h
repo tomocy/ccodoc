@@ -20,6 +20,13 @@ typedef enum {
 } color_t;
 
 typedef struct {
+    color_t color;
+    bool dim;
+    bool bold;
+    bool underline;
+} drawing_attr_t;
+
+typedef struct {
     const context_t* app;
 
     point_t origin;
@@ -30,8 +37,15 @@ extern drawing_context_t init_drawing_context(const context_t* ctx, point_t orig
 extern void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n);
 
 typedef struct {
+    uint32_t code;
+    drawing_attr_t attr;
+} canvas_datum;
+
+typedef struct {
     point_t size;
-    uint32_t* data;
+    canvas_datum* data;
+
+    drawing_attr_t active_attr;
 } canvas_buffer_t;
 
 typedef struct {
@@ -76,13 +90,6 @@ extern void deinit_canvas(canvas_t* canvas);
 
 extern void clear_canvas(canvas_t* canvas);
 extern void flush_canvas(canvas_t* canvas);
-
-typedef struct {
-    color_t color;
-    bool dim;
-    bool bold;
-    bool underline;
-} drawing_attr_t;
 
 extern void use_drawing_attr(canvas_t* canvas, drawing_attr_t attr);
 extern void clear_drawing_attr(canvas_t* canvas, drawing_attr_t attr);
