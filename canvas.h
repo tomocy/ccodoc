@@ -23,7 +23,6 @@ typedef struct {
     color_t color;
     bool dim;
     bool bold;
-    bool underline;
 } drawing_attr_t;
 
 typedef struct {

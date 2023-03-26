@@ -396,9 +396,8 @@ static unsigned int drawing_attr_flags(drawing_attr_t attr)
 {
     unsigned int flags = 0;
     flags |= COLOR_PAIR(attr.color);
-    flags |= attr.dim ? A_DIM : 0;
-    flags |= attr.bold ? A_BOLD : 0;
-    flags |= attr.underline ? A_UNDERLINE : 0;
+    flags |= attr.dim ? WA_DIM : 0;
+    flags |= attr.bold ? WA_BOLD : 0;
 
     return flags;
 }
