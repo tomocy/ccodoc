@@ -2,7 +2,7 @@ CC := clang
 CFLAGS := -std=c17 -Wall -Wextra -pedantic
 LDLIBS := -lm -lncursesw
 
-LIB_SRCS := engine.c renderer.c string.c time.c math.c
+LIB_SRCS := engine.c renderer.c time.c memory.c string.c math.c
 SRCS := main.c $(LIB_SRCS) canvas.c
 TEST_SRCS := test.c $(LIB_SRCS) canvas.c engine_test.c renderer_test.c string_test.c time_test.c
 

@@ -1,11 +1,11 @@
 #include "canvas.h"
 
 #include "math.h"
+#include "memory.h"
 #include <curses.h>
 #include <locale.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <string.h>
 
 static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
 
@@ -258,13 +258,17 @@ static void drawfv_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_att
     draw_buffer(canvas, point, attr, s);
 }
 
+static unsigned int canvas_data_size_buffer(const canvas_buffer_t* canvas)
+{
+    return (unsigned long)canvas->size.x * canvas->size.y * sizeof(canvas_datum);
+}
+
 static bool canvas_equals_buffer(const canvas_buffer_t* canvas, const canvas_buffer_t* other)
 {
-    return memcmp(
-               canvas->data, other->data,
-               (unsigned long)canvas->size.x * canvas->size.y * sizeof(canvas_datum)
-           )
-        == 0;
+    return mem_equals_n(
+        canvas->data, other->data,
+        canvas_data_size_buffer(canvas)
+    );
 }
 
 // curses
