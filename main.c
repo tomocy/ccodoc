@@ -1,3 +1,4 @@
+#include "canvas.h"
 #include "engine.h"
 #include "renderer.h"
 #include "string.h"
@@ -132,8 +133,10 @@ static int run(const context_t* ctx, tick_timer_t* timer, ccodoc_t* ccodoc)
 {
     renderer_t renderer = { 0 };
 
-    canvas_t canvas = { 0 };
-    init_canvas_curses(&canvas, ctx->decorative);
+    canvas_curses_t canvas_curses = { 0 };
+    init_canvas_curses(&canvas_curses, ctx->decorative);
+
+    canvas_t canvas = wrap_canvas_curses(&canvas_curses);
 
     init_renderer(&renderer, &canvas, ccodoc);
 

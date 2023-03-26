@@ -44,8 +44,8 @@ typedef enum {
 } canvas_type_t;
 
 typedef union {
-    canvas_buffer_t buffer;
-    canvas_curses_t curses;
+    canvas_buffer_t* buffer;
+    canvas_curses_t* curses;
 } canvas_delegate_t;
 
 typedef struct {
@@ -53,9 +53,14 @@ typedef struct {
     canvas_delegate_t delegate;
 } canvas_t;
 
-extern void init_canvas_buffer(canvas_t* canvas, point_t size);
-extern void init_canvas_curses(canvas_t* canvas, bool decorative);
+extern canvas_t wrap_canvas_buffer(canvas_buffer_t* canvas);
+extern canvas_t wrap_canvas_curses(canvas_curses_t* canvas);
+
+extern void init_canvas_buffer(canvas_buffer_t* canvas, point_t size);
+extern void init_canvas_curses(canvas_curses_t* canvas, bool decorative);
+
 extern void deinit_canvas(canvas_t* canvas);
+
 extern void clear_canvas(canvas_t* canvas);
 extern void flush_canvas(canvas_t* canvas);
 

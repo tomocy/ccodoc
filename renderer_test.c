@@ -15,8 +15,10 @@ int test_renderer(void)
 {
     renderer_t renderer = { 0 };
 
-    canvas_t canvas = { 0 };
-    init_canvas_buffer(&canvas, (point_t) { .x = 20, .y = 20 });
+    canvas_buffer_t canvas_buffer = { 0 };
+    init_canvas_buffer(&canvas_buffer, (point_t) { .x = 20, .y = 20 });
+
+    canvas_t canvas = wrap_canvas_buffer(&canvas_buffer);
 
     ccodoc_t ccodoc = {
         .kakehi = {
@@ -58,7 +60,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -93,7 +95,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -128,7 +130,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -163,7 +165,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -198,7 +200,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -233,7 +235,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -268,7 +270,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -303,7 +305,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -338,7 +340,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -373,7 +375,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -408,7 +410,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -441,7 +443,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -474,7 +476,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -507,7 +509,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -540,7 +542,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -573,7 +575,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -606,7 +608,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
@@ -639,7 +641,7 @@ int test_renderer(void)
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
                 test_ccodoc(
-                    &renderer.canvas->delegate.buffer,
+                    renderer.canvas->delegate.buffer,
                     "                    "
                     "                    "
                     "                    "
