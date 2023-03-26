@@ -6,8 +6,8 @@
 typedef void (*void_callback_t)(void);
 
 typedef struct {
-    bool decorative;
     duration_t duration;
+    bool decorative;
 
     bool help;
     bool debug;

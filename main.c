@@ -12,9 +12,9 @@ static int run(const context_t* ctx, tick_timer_t* timer, ccodoc_t* ccodoc);
 int main(int argc, const char** argv)
 {
     context_t ctx = {
-        .decorative = false,
-        .debug = false,
         .duration = duration_from_moment((moment_t) { .mins = 30 }),
+        .decorative = true,
+        .debug = false,
     };
 
     {
@@ -77,10 +77,6 @@ configure_with_args(context_t* ctx, int argc, const char** argv)
     for (int i = 1; i < argc; i++) {
         const char* arg = argv[i];
 
-        if (str_equals(arg, "--decorative")) {
-            ctx->decorative = true;
-        }
-
         if (str_equals(arg, "--duration")) {
             const char* raw = read_arg(&i, argv);
             if (raw == NULL) {
@@ -96,6 +92,10 @@ configure_with_args(context_t* ctx, int argc, const char** argv)
                 return "duration: format must be HH:mm";
             }
             ctx->duration = d;
+        }
+
+        if (str_equals(arg, "--plain")) {
+            ctx->decorative = false;
         }
 
         if (str_equals(arg, "--help")) {
@@ -122,8 +122,8 @@ static int help(void)
     printf("timer with ccodoc（鹿威し）\n");
 
     printf("\n## options\n");
-    print_arg_help("--decorative", "Render ccodoc with decoration.");
     print_arg_help("--duration HH:mm", "Set the timer for this duration. (default: 00:30)");
+    print_arg_help("--plain", "Render ccodoc without decoration.");
     print_arg_help("--help", "Print help.");
 
     return EXIT_SUCCESS;
