@@ -1,13 +1,9 @@
 #pragma once
 
 #include "engine.h"
+#include "math.h"
 #include "string.h"
 #include <curses.h>
-
-typedef struct {
-    unsigned int x;
-    unsigned int y;
-} point_t;
 
 typedef enum {
     color_black,
@@ -28,11 +24,11 @@ typedef struct {
 typedef struct {
     const context_t* app;
 
-    point_t origin;
-    point_t current;
+    vector2d_t origin;
+    vector2d_t current;
 } drawing_context_t;
 
-extern drawing_context_t init_drawing_context(const context_t* ctx, point_t origin);
+extern drawing_context_t init_drawing_context(const context_t* ctx, vector2d_t origin);
 extern void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n);
 
 typedef struct {
@@ -41,7 +37,7 @@ typedef struct {
 } canvas_datum;
 
 typedef struct {
-    point_t size;
+    vector2d_t size;
     canvas_datum* data;
 
     drawing_attr_t active_attr;
@@ -81,7 +77,7 @@ extern canvas_t wrap_canvas_buffer(canvas_buffer_t* canvas);
 extern canvas_t wrap_canvas_curses(canvas_curses_t* canvas);
 extern canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas);
 
-extern void init_canvas_buffer(canvas_buffer_t* canvas, point_t size);
+extern void init_canvas_buffer(canvas_buffer_t* canvas, vector2d_t size);
 extern void init_canvas_curses(canvas_curses_t* canvas, bool decorative);
 extern void init_canvas_proxy(canvas_proxy_t* canvas, canvas_curses_t* underlying);
 
@@ -114,4 +110,4 @@ extern void clear_drawing_attr(canvas_t* canvas, drawing_attr_t attr);
 extern void draw(canvas_t* canvas, unsigned int y, unsigned int x, const char* s);
 extern void drawf(canvas_t* canvas, unsigned int y, unsigned int x, const char* format, ...);
 
-extern point_t get_canvas_size(const canvas_t* canvas);
+extern vector2d_t get_canvas_size(const canvas_t* canvas);

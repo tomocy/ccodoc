@@ -9,7 +9,7 @@
 
 static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
 
-drawing_context_t init_drawing_context(const context_t* ctx, point_t origin)
+drawing_context_t init_drawing_context(const context_t* ctx, vector2d_t origin)
 {
     return (drawing_context_t) {
         .app = ctx,
@@ -247,10 +247,10 @@ void drawf(canvas_t* canvas, unsigned int y, unsigned int x, const char* format,
     va_end(args);
 }
 
-static point_t get_canvas_size_curses(const canvas_curses_t* canvas);
+static vector2d_t get_canvas_size_curses(const canvas_curses_t* canvas);
 
 // NOLINTNEXTLINE(misc-no-recursion)
-point_t get_canvas_size(const canvas_t* canvas)
+vector2d_t get_canvas_size(const canvas_t* canvas)
 {
     const canvas_delegate_t* delegate = &canvas->delegate;
 
@@ -268,7 +268,7 @@ point_t get_canvas_size(const canvas_t* canvas)
 
 // buffer
 
-void init_canvas_buffer(canvas_buffer_t* canvas, point_t size)
+void init_canvas_buffer(canvas_buffer_t* canvas, vector2d_t size)
 {
     canvas->size = size;
     canvas->data = calloc(
@@ -429,9 +429,9 @@ static void drawfv_curses(canvas_curses_t* canvas, unsigned int y, unsigned int 
     vw_printw(canvas->window, format, args);
 }
 
-static point_t get_canvas_size_curses(const canvas_curses_t* canvas)
+static vector2d_t get_canvas_size_curses(const canvas_curses_t* canvas)
 {
-    return (point_t) {
+    return (vector2d_t) {
         .x = getmaxx(canvas->window),
         .y = getmaxy(canvas->window),
     };
@@ -484,7 +484,7 @@ void init_canvas_proxy(canvas_proxy_t* canvas, canvas_curses_t* underlying)
 {
     canvas->underlying = underlying;
 
-    const point_t size = get_canvas_size_curses(canvas->underlying);
+    const vector2d_t size = get_canvas_size_curses(canvas->underlying);
 
     for (int i = 0; i < CANVAS_PROXY_BUFFER_BUCKET_SIZE; i++) {
         init_canvas_buffer(&canvas->buffers[i], size);

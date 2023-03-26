@@ -33,16 +33,16 @@ static void render_debug_info(renderer_t* renderer, const duration_t delta, cons
 
 void render_ccodoc(renderer_t* renderer, const duration_t delta, const context_t* ctx, const tick_timer_t* timer, const ccodoc_t* ccodoc)
 {
-    static const point_t ccodoc_size = {
+    static const vector2d_t ccodoc_size = {
         .x = 14,
         .y = 6,
     };
 
-    const point_t canvas_size = get_canvas_size(renderer->canvas);
+    const vector2d_t canvas_size = get_canvas_size(renderer->canvas);
 
     drawing_context_t dctx = init_drawing_context(
         ctx,
-        (point_t) {
+        (vector2d_t) {
             .x = (canvas_size.x - ccodoc_size.x) / 2,
             .y = (canvas_size.y - ccodoc_size.y) / 2,
         }
@@ -180,7 +180,7 @@ static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const ts
 
     assert(art != NULL);
 
-    point_t origin = ctx->current;
+    vector2d_t origin = ctx->current;
     origin.x += 3;
 
     for (size_t h = 0; h < art_height; h++) {
@@ -369,7 +369,7 @@ static void render_debug_info(renderer_t* renderer, const duration_t delta, cons
         renderer->canvas,
         ((drawing_attr_t) { .color = color_white }),
         {
-            point_t p = {
+            vector2d_t p = {
                 .x = 0,
                 .y = 0,
             };
