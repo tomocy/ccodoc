@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+static canvas_buffer_t* serve_active_canvas_buffer(canvas_proxy_t* canvas);
+
 drawing_context_t init_drawing_context(const context_t* ctx, point_t origin)
 {
     return (drawing_context_t) {
@@ -37,9 +39,18 @@ canvas_t wrap_canvas_curses(canvas_curses_t* canvas)
     };
 }
 
+canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas)
+{
+    return (canvas_t) {
+        .type = canvas_type_proxy,
+        .delegate = { .proxy = canvas },
+    };
+}
+
 static void deinit_canvas_buffer(canvas_buffer_t* canvas);
 static void deinit_canvas_curses(canvas_curses_t* canvas);
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void deinit_canvas(canvas_t* canvas)
 {
     canvas_delegate_t* delegate = &canvas->delegate;
@@ -51,12 +62,26 @@ void deinit_canvas(canvas_t* canvas)
     case canvas_type_curses:
         deinit_canvas_curses(delegate->curses);
         break;
+    case canvas_type_proxy: {
+        {
+            canvas_t canvas = wrap_canvas_buffer(
+                serve_active_canvas_buffer(delegate->proxy)
+            );
+            deinit_canvas(&canvas);
+        }
+        {
+            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
+            deinit_canvas(&canvas);
+        }
+        break;
+    }
     }
 }
 
 static void clear_canvas_buffer(canvas_buffer_t* canvas);
 static void clear_canvas_curses(canvas_curses_t* canvas);
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void clear_canvas(canvas_t* canvas)
 {
     canvas_delegate_t* delegate = &canvas->delegate;
@@ -68,11 +93,25 @@ void clear_canvas(canvas_t* canvas)
     case canvas_type_curses:
         clear_canvas_curses(delegate->curses);
         break;
+    case canvas_type_proxy: {
+        {
+            canvas_t canvas = wrap_canvas_buffer(
+                serve_active_canvas_buffer(delegate->proxy)
+            );
+            clear_canvas(&canvas);
+        }
+        {
+            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
+            clear_canvas(&canvas);
+        }
+        break;
+    }
     }
 }
 
 static void flush_canvas_curses(canvas_curses_t* canvas);
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void flush_canvas(canvas_t* canvas)
 {
     canvas_delegate_t* delegate = &canvas->delegate;
@@ -83,11 +122,25 @@ void flush_canvas(canvas_t* canvas)
     case canvas_type_curses:
         flush_canvas_curses(delegate->curses);
         break;
+    case canvas_type_proxy: {
+        {
+            canvas_t canvas = wrap_canvas_buffer(
+                serve_active_canvas_buffer(delegate->proxy)
+            );
+            flush_canvas(&canvas);
+        }
+        {
+            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
+            flush_canvas(&canvas);
+        }
+        break;
+    }
     }
 }
 
 static void use_drawing_attr_curses(canvas_curses_t* canvas, drawing_attr_t attr);
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void use_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
 {
     canvas_delegate_t* delegate = &canvas->delegate;
@@ -98,11 +151,25 @@ void use_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
     case canvas_type_curses:
         use_drawing_attr_curses(delegate->curses, attr);
         break;
+    case canvas_type_proxy: {
+        {
+            canvas_t canvas = wrap_canvas_buffer(
+                serve_active_canvas_buffer(delegate->proxy)
+            );
+            use_drawing_attr(&canvas, attr);
+        }
+        {
+            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
+            use_drawing_attr(&canvas, attr);
+        }
+        break;
+    }
     }
 }
 
 static void clear_drawing_attr_curses(canvas_curses_t* canvas, drawing_attr_t attr);
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void clear_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
 {
     canvas_delegate_t* delegate = &canvas->delegate;
@@ -113,12 +180,26 @@ void clear_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
     case canvas_type_curses:
         clear_drawing_attr_curses(delegate->curses, attr);
         break;
+    case canvas_type_proxy: {
+        {
+            canvas_t canvas = wrap_canvas_buffer(
+                serve_active_canvas_buffer(delegate->proxy)
+            );
+            clear_drawing_attr(&canvas, attr);
+        }
+        {
+            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
+            clear_drawing_attr(&canvas, attr);
+        }
+        break;
+    }
     }
 }
 
 static void draw_curses(canvas_curses_t* canvas, unsigned int y, unsigned int x, const char* s);
 static void draw_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x, const char* s);
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void draw(canvas_t* canvas, unsigned int y, unsigned int x, const char* s)
 {
     canvas_delegate_t* delegate = &canvas->delegate;
@@ -130,17 +211,28 @@ void draw(canvas_t* canvas, unsigned int y, unsigned int x, const char* s)
     case canvas_type_curses:
         draw_curses(delegate->curses, y, x, s);
         break;
+    case canvas_type_proxy: {
+        {
+            canvas_t canvas = wrap_canvas_buffer(
+                serve_active_canvas_buffer(delegate->proxy)
+            );
+            draw(&canvas, y, x, s);
+        }
+        {
+            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
+            draw(&canvas, y, x, s);
+        }
+        break;
+    }
     }
 }
 
 static void drawfv_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x, const char* format, va_list args);
 static void drawfv_curses(canvas_curses_t* canvas, unsigned int y, unsigned int x, const char* format, va_list args);
 
-void drawf(canvas_t* canvas, unsigned int y, unsigned int x, const char* format, ...)
+// NOLINTNEXTLINE(misc-no-recursion)
+static void drawfv(canvas_t* canvas, unsigned int y, unsigned int x, const char* format, va_list args)
 {
-    va_list args;
-    va_start(args, format);
-
     canvas_delegate_t* delegate = &canvas->delegate;
 
     switch (canvas->type) {
@@ -150,13 +242,40 @@ void drawf(canvas_t* canvas, unsigned int y, unsigned int x, const char* format,
     case canvas_type_curses:
         drawfv_curses(delegate->curses, y, x, format, args);
         break;
+    case canvas_type_proxy: {
+        {
+            va_list args_ = { 0 };
+            va_copy(args_, args);
+
+            canvas_t canvas = wrap_canvas_buffer(
+                serve_active_canvas_buffer(delegate->proxy)
+            );
+            drawfv(&canvas, y, x, format, args_);
+
+            va_end(args_);
+        }
+        {
+            canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
+            drawfv(&canvas, y, x, format, args);
+        }
+        break;
     }
+    }
+}
+
+void drawf(canvas_t* canvas, unsigned int y, unsigned int x, const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    drawfv(canvas, y, x, format, args);
 
     va_end(args);
 }
 
 static point_t get_canvas_size_curses(const canvas_curses_t* canvas);
 
+// NOLINTNEXTLINE(misc-no-recursion)
 point_t get_canvas_size(const canvas_t* canvas)
 {
     const canvas_delegate_t* delegate = &canvas->delegate;
@@ -166,6 +285,10 @@ point_t get_canvas_size(const canvas_t* canvas)
         return delegate->buffer->size;
     case canvas_type_curses:
         return get_canvas_size_curses(delegate->curses);
+    case canvas_type_proxy: {
+        canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
+        return get_canvas_size(&canvas);
+    }
     }
 }
 
@@ -349,4 +472,22 @@ static short as_color_curses(color_t color)
     case color_white:
         return COLOR_WHITE;
     }
+}
+
+// proxy
+
+void init_canvas_proxy(canvas_proxy_t* canvas, canvas_curses_t* underlying)
+{
+    canvas->underlying = underlying;
+
+    const point_t size = get_canvas_size_curses(canvas->underlying);
+
+    for (int i = 0; i < CANVAS_PROXY_BUFFER_BUCKET_SIZE; i++) {
+        init_canvas_buffer(&canvas->buffers[i], size);
+    }
+}
+
+static canvas_buffer_t* serve_active_canvas_buffer(canvas_proxy_t* canvas)
+{
+    return &canvas->buffers[canvas->active_buffer_index];
 }

@@ -38,14 +38,25 @@ typedef struct {
     WINDOW* window;
 } canvas_curses_t;
 
+enum { CANVAS_PROXY_BUFFER_BUCKET_SIZE = 2 };
+
+typedef struct {
+    unsigned int active_buffer_index;
+    canvas_buffer_t buffers[CANVAS_PROXY_BUFFER_BUCKET_SIZE];
+
+    canvas_curses_t* underlying;
+} canvas_proxy_t;
+
 typedef enum {
     canvas_type_buffer,
     canvas_type_curses,
+    canvas_type_proxy,
 } canvas_type_t;
 
 typedef union {
     canvas_buffer_t* buffer;
     canvas_curses_t* curses;
+    canvas_proxy_t* proxy;
 } canvas_delegate_t;
 
 typedef struct {
@@ -55,9 +66,11 @@ typedef struct {
 
 extern canvas_t wrap_canvas_buffer(canvas_buffer_t* canvas);
 extern canvas_t wrap_canvas_curses(canvas_curses_t* canvas);
+extern canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas);
 
 extern void init_canvas_buffer(canvas_buffer_t* canvas, point_t size);
 extern void init_canvas_curses(canvas_curses_t* canvas, bool decorative);
+extern void init_canvas_proxy(canvas_proxy_t* canvas, canvas_curses_t* underlying);
 
 extern void deinit_canvas(canvas_t* canvas);
 
