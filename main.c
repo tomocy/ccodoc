@@ -4,16 +4,16 @@
 #include "time.h"
 #include <stdlib.h>
 
-static const char* configure_with_args(context* ctx, int argc, const char** argv);
+static const char* configure_with_args(context_t* ctx, int argc, const char** argv);
 static int help(void);
-static int run(const context* ctx, timer* timer, ccodoc* ccodoc);
+static int run(const context_t* ctx, tick_timer_t* timer, ccodoc_t* ccodoc);
 
 int main(int argc, const char** argv)
 {
-    context ctx = {
+    context_t ctx = {
         .decorative = false,
         .debug = false,
-        .duration = duration_from_moment((moment) { .mins = 30 }),
+        .duration = duration_from_moment((moment_t) { .mins = 30 }),
     };
 
     {
@@ -30,9 +30,9 @@ int main(int argc, const char** argv)
         return help();
     }
 
-    timer timer = { .duration = ctx.duration };
+    tick_timer_t timer = { .duration = ctx.duration };
 
-    ccodoc ccodoc = {
+    ccodoc_t ccodoc = {
         .kakehi = {
             .release_water_ratio = 0.1f,
             .holding_water_timer = {
@@ -71,7 +71,7 @@ static const char* read_arg(int* i, const char** argv)
 }
 
 static const char*
-configure_with_args(context* ctx, int argc, const char** argv)
+configure_with_args(context_t* ctx, int argc, const char** argv)
 {
     for (int i = 1; i < argc; i++) {
         const char* arg = argv[i];
@@ -86,11 +86,11 @@ configure_with_args(context* ctx, int argc, const char** argv)
                 return "duration: the value must be specified";
             }
 
-            moment m = { 0 };
+            moment_t m = { 0 };
             // NOLINTNEXTLINE(cert-err34-c)
             (void)sscanf(raw, "%d:%d", &m.hours, &m.mins);
 
-            const duration d = duration_from_moment(m);
+            const duration_t d = duration_from_moment(m);
             if (d.msecs == 0) {
                 return "duration: format must be HH:mm";
             }
@@ -128,24 +128,24 @@ static int help(void)
     return EXIT_SUCCESS;
 }
 
-static int run(const context* ctx, timer* timer, ccodoc* ccodoc)
+static int run(const context_t* ctx, tick_timer_t* timer, ccodoc_t* ccodoc)
 {
-    renderer renderer = { 0 };
+    renderer_t renderer = { 0 };
 
-    canvas canvas = { 0 };
+    canvas_t canvas = { 0 };
     init_canvas_curses(&canvas, ctx->decorative);
 
     init_renderer(&renderer, &canvas, ccodoc);
 
     {
-        static const duration min_delta = { .msecs = 1000 / 24 };
+        static const duration_t min_delta = { .msecs = 1000 / 24 };
 
-        duration last_time = monotonic_time();
+        duration_t last_time = monotonic_time();
 
         while (1) {
-            const duration time = monotonic_time();
+            const duration_t time = monotonic_time();
 
-            const duration delta = duration_diff(time, last_time);
+            const duration_t delta = duration_diff(time, last_time);
             last_time = time;
 
             {
@@ -155,9 +155,9 @@ static int run(const context* ctx, timer* timer, ccodoc* ccodoc)
                 render_ccodoc(&renderer, delta, ctx, timer, ccodoc);
             }
 
-            const duration process_time = duration_diff(monotonic_time(), time);
+            const duration_t process_time = duration_diff(monotonic_time(), time);
 
-            const duration sleep_time = duration_diff(min_delta, process_time);
+            const duration_t sleep_time = duration_diff(min_delta, process_time);
             sleep_for(sleep_time);
         }
     }

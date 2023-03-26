@@ -7,10 +7,10 @@
 
 extern int nanosleep(const struct timespec* requested_time, struct timespec* remaining);
 
-static void ticker_tick(ticker* ticker, const duration delta);
-static void ticker_reset(ticker* ticker);
+static void ticker_tick(ticker_t* ticker, const duration_t delta);
+static void ticker_reset(ticker_t* ticker);
 
-void tick_timer(timer* timer, const duration delta)
+void tick_timer(tick_timer_t* timer, const duration_t delta)
 {
     if (is_timeout(timer)) {
         return;
@@ -19,30 +19,30 @@ void tick_timer(timer* timer, const duration delta)
     ticker_tick(&timer->ticker, delta);
 }
 
-void reset_timer(timer* timer)
+void reset_timer(tick_timer_t* timer)
 {
     ticker_reset(&timer->ticker);
 }
 
-bool is_timeout(const timer* timer)
+bool is_timeout(const tick_timer_t* timer)
 {
     return elapsed_time_ratio(timer) >= 1;
 }
 
-float elapsed_time_ratio(const timer* timer)
+float elapsed_time_ratio(const tick_timer_t* timer)
 {
     assert(timer->duration.msecs != 0);
     return CLAMP(0, 1, (float)((double)timer->ticker.elapsed.msecs / (double)timer->duration.msecs));
 }
 
-duration remaining_time(const timer* timer)
+duration_t remaining_time(const tick_timer_t* timer)
 {
-    return (duration) {
+    return (duration_t) {
         .msecs = timer->duration.msecs - MIN(timer->ticker.elapsed.msecs, timer->duration.msecs),
     };
 }
 
-void sleep_for(const duration duration)
+void sleep_for(const duration_t duration)
 {
     if (duration.msecs < 0) {
         return;
@@ -58,10 +58,10 @@ void sleep_for(const duration duration)
     } while (slept != 0);
 }
 
-moment moment_from_duration(const duration d, time_precision precision)
+moment_t moment_from_duration(const duration_t d, time_precision_t precision)
 {
-    moment moment = { 0 };
-    duration current = d;
+    moment_t moment = { 0 };
+    duration_t current = d;
 
     if (precision <= time_hour) {
         double hours = (double)current.msecs / time_hour;
@@ -112,21 +112,21 @@ moment moment_from_duration(const duration d, time_precision precision)
     return moment;
 }
 
-duration duration_from_moment(const moment moment)
+duration_t duration_from_moment(const moment_t moment)
 {
-    return (duration) {
+    return (duration_t) {
         .msecs = moment.hours * time_hour + moment.mins * time_min + moment.secs * time_sec + moment.msecs * time_msec,
     };
 }
 
-duration duration_diff(const duration d, const duration other)
+duration_t duration_diff(const duration_t duration, const duration_t other)
 {
-    return (duration) {
-        .msecs = d.msecs >= other.msecs ? d.msecs - other.msecs : 0,
+    return (duration_t) {
+        .msecs = duration.msecs >= other.msecs ? duration.msecs - other.msecs : 0,
     };
 }
 
-duration monotonic_time(void)
+duration_t monotonic_time(void)
 {
     struct timespec time = { 0 };
     clock_gettime(CLOCK_MONOTONIC, &time);
@@ -135,15 +135,15 @@ duration monotonic_time(void)
     msecs += time.tv_sec * time_sec;
     msecs += (long)round((double)time.tv_nsec / 1.0e6);
 
-    return (duration) { .msecs = msecs };
+    return (duration_t) { .msecs = msecs };
 }
 
-static void ticker_tick(ticker* ticker, const duration delta)
+static void ticker_tick(ticker_t* ticker, const duration_t delta)
 {
     ticker->elapsed.msecs += delta.msecs;
 }
 
-static void ticker_reset(ticker* ticker)
+static void ticker_reset(ticker_t* ticker)
 {
     ticker->elapsed.msecs = 0;
 }
