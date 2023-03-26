@@ -160,8 +160,7 @@ static void print_arg_help(const char* arg, const char* description)
 
 static int help(void)
 {
-    printf("# ccodoc\n");
-    printf("timer with ccodoc（鹿威し）\n");
+    printf("# ccodoc（鹿威し）\n");
 
     printf("\n## options\n");
     print_arg_help("--duration HH:mm", "Set the timer for this duration. (default: 00:30)");
