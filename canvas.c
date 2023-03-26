@@ -187,62 +187,62 @@ void clear_drawing_attr(canvas_t* canvas, drawing_attr_t attr)
     }
 }
 
-static void draw_curses(canvas_curses_t* canvas, unsigned int y, unsigned int x, const char* s);
-static void draw_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x, const char* s);
+static void draw_curses(canvas_curses_t* canvas, vector2d_t point, const char* s);
+static void draw_buffer(canvas_buffer_t* canvas, vector2d_t point, const char* s);
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void draw(canvas_t* canvas, unsigned int y, unsigned int x, const char* s)
+void draw(canvas_t* canvas, vector2d_t point, const char* s)
 {
     canvas_delegate_t* delegate = &canvas->delegate;
 
     switch (canvas->type) {
     case canvas_type_buffer:
-        draw_buffer(delegate->buffer, y, x, s);
+        draw_buffer(delegate->buffer, point, s);
         break;
     case canvas_type_curses:
-        draw_curses(delegate->curses, y, x, s);
+        draw_curses(delegate->curses, point, s);
         break;
     case canvas_type_proxy: {
         canvas_t canvas = wrap_canvas_buffer(
             serve_current_canvas_buffer(delegate->proxy)
         );
-        draw(&canvas, y, x, s);
+        draw(&canvas, point, s);
         break;
     }
     }
 }
 
-static void drawfv_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x, const char* format, va_list args);
-static void drawfv_curses(canvas_curses_t* canvas, unsigned int y, unsigned int x, const char* format, va_list args);
+static void drawfv_buffer(canvas_buffer_t* canvas, vector2d_t point, const char* format, va_list args);
+static void drawfv_curses(canvas_curses_t* canvas, vector2d_t point, const char* format, va_list args);
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void drawfv(canvas_t* canvas, unsigned int y, unsigned int x, const char* format, va_list args)
+static void drawfv(canvas_t* canvas, vector2d_t point, const char* format, va_list args)
 {
     canvas_delegate_t* delegate = &canvas->delegate;
 
     switch (canvas->type) {
     case canvas_type_buffer:
-        drawfv_buffer(delegate->buffer, y, x, format, args);
+        drawfv_buffer(delegate->buffer, point, format, args);
         break;
     case canvas_type_curses:
-        drawfv_curses(delegate->curses, y, x, format, args);
+        drawfv_curses(delegate->curses, point, format, args);
         break;
     case canvas_type_proxy: {
         canvas_t canvas = wrap_canvas_buffer(
             serve_current_canvas_buffer(delegate->proxy)
         );
-        drawfv(&canvas, y, x, format, args);
+        drawfv(&canvas, point, format, args);
         break;
     }
     }
 }
 
-void drawf(canvas_t* canvas, unsigned int y, unsigned int x, const char* format, ...)
+void drawf(canvas_t* canvas, vector2d_t point, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    drawfv(canvas, y, x, format, args);
+    drawfv(canvas, point, format, args);
 
     va_end(args);
 }
@@ -306,7 +306,7 @@ static void clear_drawing_attr_buffer(canvas_buffer_t* canvas, drawing_attr_t at
     canvas->active_attr = (drawing_attr_t) { 0 };
 }
 
-static void draw_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x, const char* s)
+static void draw_buffer(canvas_buffer_t* canvas, vector2d_t point, const char* s)
 {
     unsigned int n = 0;
     const char* c = s;
@@ -314,7 +314,8 @@ static void draw_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x,
     while (*c) {
         char_descriptor_t desc = decode_char_utf8(c);
 
-        canvas_datum* datum = &canvas->data[y * canvas->size.x + x + n];
+        unsigned int i = point.y * canvas->size.x + point.x + n;
+        canvas_datum* datum = &canvas->data[i];
         datum->code = desc.code;
         datum->attr = canvas->active_attr;
 
@@ -323,12 +324,12 @@ static void draw_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x,
     }
 }
 
-static void drawfv_buffer(canvas_buffer_t* canvas, unsigned int y, unsigned int x, const char* format, va_list args)
+static void drawfv_buffer(canvas_buffer_t* canvas, vector2d_t point, const char* format, va_list args)
 {
     char s[1 << 8] = { 0 };
 
     (void)vsprintf(s, format, args);
-    draw_buffer(canvas, y, x, s);
+    draw_buffer(canvas, point, s);
 }
 
 static bool canvas_equals_buffer(const canvas_buffer_t* canvas, const canvas_buffer_t* other)
@@ -418,14 +419,14 @@ static void clear_drawing_attr_curses(canvas_curses_t* canvas, drawing_attr_t at
     attroff(flags);
 }
 
-static void draw_curses(canvas_curses_t* canvas, unsigned int y, unsigned int x, const char* s)
+static void draw_curses(canvas_curses_t* canvas, vector2d_t point, const char* s)
 {
-    mvwprintw(canvas->window, (int)y, (int)x, s);
+    mvwprintw(canvas->window, (int)point.y, (int)point.x, s);
 }
 
-static void drawfv_curses(canvas_curses_t* canvas, unsigned int y, unsigned int x, const char* format, va_list args)
+static void drawfv_curses(canvas_curses_t* canvas, vector2d_t point, const char* format, va_list args)
 {
-    wmove(canvas->window, (int)y, (int)x);
+    wmove(canvas->window, (int)point.y, (int)point.x);
     vw_printw(canvas->window, format, args);
 }
 
@@ -515,7 +516,7 @@ static void flush_canvas_proxy(canvas_proxy_t* canvas)
             encode_char_utf8(c, datum->code);
 
             use_drawing_attr(&underlying, datum->attr);
-            draw(&underlying, y, x, c);
+            draw(&underlying, (vector2d_t) { .y = y, .x = x }, c);
             clear_drawing_attr(&underlying, datum->attr);
         }
     }

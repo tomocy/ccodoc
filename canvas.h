@@ -107,7 +107,7 @@ extern void clear_drawing_attr(canvas_t* canvas, drawing_attr_t attr);
         }                                                      \
     }
 
-extern void draw(canvas_t* canvas, unsigned int y, unsigned int x, const char* s);
-extern void drawf(canvas_t* canvas, unsigned int y, unsigned int x, const char* format, ...);
+extern void draw(canvas_t* canvas, vector2d_t point, const char* s);
+extern void drawf(canvas_t* canvas, vector2d_t point, const char* format, ...);
 
 extern vector2d_t get_canvas_size(const canvas_t* canvas);
