@@ -22,7 +22,7 @@ typedef struct {
 } drawing_attr_t;
 
 typedef struct {
-    const context_t* app;
+    bool decorative;
 
     drawing_attr_t attr;
 
@@ -30,7 +30,6 @@ typedef struct {
     vector2d_t current;
 } drawing_context_t;
 
-extern drawing_context_t init_drawing_context(const context_t* ctx, vector2d_t origin);
 extern void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n);
 
 typedef struct {

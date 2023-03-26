@@ -5,14 +5,6 @@
 
 typedef void (*void_callback_t)(void);
 
-typedef struct {
-    duration_t duration;
-    bool decorative;
-
-    bool help;
-    bool debug;
-} context_t;
-
 typedef enum {
     holding_water,
     releasing_water,

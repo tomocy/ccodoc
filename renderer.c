@@ -30,9 +30,19 @@ static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const ts
 static void render_hachi(renderer_t* renderer, drawing_context_t* ctx, const hachi_t* hachi);
 static void render_roji(renderer_t* renderer, drawing_context_t* ctx);
 static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tick_timer_t* timer);
-static void render_debug_info(renderer_t* renderer, const duration_t delta, const context_t* ctx, const tick_timer_t* timer, const ccodoc_t* ccodoc);
+static void render_debug_info(
+    renderer_t* renderer,
+    const drawing_context_t* ctx,
+    const duration_t delta, const tick_timer_t* timer, const ccodoc_t* ccodoc
+);
 
-void render_ccodoc(renderer_t* renderer, const duration_t delta, const context_t* ctx, const tick_timer_t* timer, const ccodoc_t* ccodoc)
+void render_ccodoc(
+    renderer_t* renderer,
+    const rendering_context_t* ctx,
+    const duration_t delta,
+    const tick_timer_t* timer,
+    const ccodoc_t* ccodoc
+)
 {
     static const vector2d_t ccodoc_size = {
         .x = 14,
@@ -41,13 +51,14 @@ void render_ccodoc(renderer_t* renderer, const duration_t delta, const context_t
 
     const vector2d_t canvas_size = get_canvas_size(renderer->canvas);
 
-    drawing_context_t dctx = init_drawing_context(
-        ctx,
-        (vector2d_t) {
+    drawing_context_t dctx = {
+        .decorative = ctx->decorative,
+        .origin = {
             .x = (canvas_size.x - ccodoc_size.x) / 2,
             .y = (canvas_size.y - ccodoc_size.y) / 2,
-        }
-    );
+        },
+    };
+    dctx.current = dctx.origin;
 
     clear_canvas(renderer->canvas);
 
@@ -59,7 +70,7 @@ void render_ccodoc(renderer_t* renderer, const duration_t delta, const context_t
     render_timer(renderer, &dctx, timer);
 
     if (ctx->debug) {
-        render_debug_info(renderer, delta, ctx, timer, ccodoc);
+        render_debug_info(renderer, &dctx, delta, timer, ccodoc);
     }
 
     flush_canvas(renderer->canvas);
@@ -96,7 +107,7 @@ static void render_kakehi(renderer_t* renderer, drawing_context_t* ctx, const ka
 
     assert(art != NULL);
 
-    if (ctx->app->decorative) {
+    if (ctx->decorative) {
         int i = 0;
         for (const char* c = art; *c;) {
             const char_descriptor_t desc = decode_char_utf8(c);
@@ -184,7 +195,7 @@ static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const ts
     origin.x += 3;
 
     for (size_t h = 0; h < art_height; h++) {
-        if (!ctx->app->decorative) {
+        if (!ctx->decorative) {
             draw(
                 renderer->canvas,
                 vector2d_add(origin, (vector2d_t) { .y = h }),
@@ -254,7 +265,7 @@ static void render_hachi(renderer_t* renderer, drawing_context_t* ctx, const hac
     }
     }
 
-    if (ctx->app->decorative) {
+    if (ctx->decorative) {
         int i = 0;
         const char* c = art;
         while (*c) {
@@ -345,7 +356,7 @@ static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tic
             const float ratio = (float)i / (float)progress_bar_width;
             const bool remaining = ratio < remaining_ratio;
 
-            if (!ctx->app->decorative) {
+            if (!ctx->decorative) {
                 draw(
                     renderer->canvas,
                     vector2d_add(ctx->current, (vector2d_t) { .x = i }),
@@ -371,7 +382,7 @@ static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tic
 
 static const char* water_flow_state_to_str(water_flow_state_t state);
 
-static void render_debug_info(renderer_t* renderer, const duration_t delta, const context_t* ctx, const tick_timer_t* timer, const ccodoc_t* ccodoc)
+static void render_debug_info(renderer_t* renderer, const drawing_context_t* ctx, const duration_t delta, const tick_timer_t* timer, const ccodoc_t* ccodoc)
 {
     const drawing_attr_t default_attr = (drawing_attr_t) { .color = color_white };
 

@@ -5,20 +5,29 @@
 #include "time.h"
 #include <stdlib.h>
 
-static const char* configure_with_args(context_t* ctx, int argc, const char** argv);
+typedef struct {
+    duration_t duration;
+    bool decorative;
+
+    bool help;
+    bool debug;
+} config_t;
+
+static const char* configure_with_args(config_t* config, int argc, const char** argv);
 static int help(void);
-static int run(const context_t* ctx, tick_timer_t* timer, ccodoc_t* ccodoc);
+static int run(const config_t* config, tick_timer_t* timer, ccodoc_t* ccodoc);
 
 int main(int argc, const char** argv)
 {
-    context_t ctx = {
+    config_t config = {
         .duration = duration_from_moment((moment_t) { .mins = 30 }),
         .decorative = true,
+        .help = false,
         .debug = false,
     };
 
     {
-        const char* err = configure_with_args(&ctx, argc, argv);
+        const char* err = configure_with_args(&config, argc, argv);
         if (err != NULL) {
             help();
             printf("\n");
@@ -27,11 +36,11 @@ int main(int argc, const char** argv)
         }
     }
 
-    if (ctx.help) {
+    if (config.help) {
         return help();
     }
 
-    tick_timer_t timer = { .duration = ctx.duration };
+    tick_timer_t timer = { .duration = config.duration };
 
     ccodoc_t ccodoc = {
         .kakehi = {
@@ -56,7 +65,7 @@ int main(int argc, const char** argv)
         },
     };
 
-    return run(&ctx, &timer, &ccodoc);
+    return run(&config, &timer, &ccodoc);
 }
 
 static const char* read_arg(int* i, const char** argv)
@@ -71,8 +80,7 @@ static const char* read_arg(int* i, const char** argv)
     return next_arg;
 }
 
-static const char*
-configure_with_args(context_t* ctx, int argc, const char** argv)
+static const char* configure_with_args(config_t* config, int argc, const char** argv)
 {
     for (int i = 1; i < argc; i++) {
         const char* arg = argv[i];
@@ -91,19 +99,19 @@ configure_with_args(context_t* ctx, int argc, const char** argv)
             if (d.msecs == 0) {
                 return "duration: format must be HH:mm";
             }
-            ctx->duration = d;
+            config->duration = d;
         }
 
         if (str_equals(arg, "--plain")) {
-            ctx->decorative = false;
+            config->decorative = false;
         }
 
         if (str_equals(arg, "--help")) {
-            ctx->help = true;
+            config->help = true;
         }
 
         if (str_equals(arg, "--debug")) {
-            ctx->debug = true;
+            config->debug = true;
         }
     }
 
@@ -129,17 +137,22 @@ static int help(void)
     return EXIT_SUCCESS;
 }
 
-static int run(const context_t* ctx, tick_timer_t* timer, ccodoc_t* ccodoc)
+static int run(const config_t* config, tick_timer_t* timer, ccodoc_t* ccodoc)
 {
     renderer_t renderer = { 0 };
 
     canvas_curses_t canvas_delegate = { 0 };
-    init_canvas_curses(&canvas_delegate, ctx->decorative);
+    init_canvas_curses(&canvas_delegate, config->decorative);
 
     canvas_proxy_t canvas_proxy = { 0 };
     init_canvas_proxy(&canvas_proxy, &canvas_delegate);
 
     canvas_t canvas = wrap_canvas_proxy(&canvas_proxy);
+
+    const rendering_context_t rctx = {
+        .decorative = config->decorative,
+        .debug = config->debug,
+    };
 
     init_renderer(&renderer, &canvas, ccodoc);
 
@@ -158,7 +171,7 @@ static int run(const context_t* ctx, tick_timer_t* timer, ccodoc_t* ccodoc)
                 tick_timer(timer, delta);
                 tick_ccodoc(ccodoc, delta);
 
-                render_ccodoc(&renderer, delta, ctx, timer, ccodoc);
+                render_ccodoc(&renderer, &rctx, delta, timer, ccodoc);
             }
 
             const duration_t process_time = duration_diff(monotonic_time(), time);

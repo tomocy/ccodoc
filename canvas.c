@@ -7,17 +7,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
-
-drawing_context_t init_drawing_context(const context_t* ctx, vector2d_t origin)
-{
-    return (drawing_context_t) {
-        .app = ctx,
-        .origin = origin,
-        .current = origin,
-    };
-}
-
 void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n)
 {
     ctx->current.y += n;
@@ -47,6 +36,10 @@ canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas)
         .delegate = { .proxy = canvas },
     };
 }
+
+// canvas
+
+static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
 
 static void deinit_canvas_buffer(canvas_buffer_t* canvas);
 static void deinit_canvas_curses(canvas_curses_t* canvas);
