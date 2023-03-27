@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 typedef enum {
+    mode_type_alone,
     mode_type_timer,
 } mode_type_t;
 
@@ -20,13 +21,22 @@ typedef struct {
     union {
         struct {
             ccodoc_t* ccodoc;
+        } alone;
+
+        struct {
+            ccodoc_t* ccodoc;
             tick_timer_t* timer;
         } timer;
     } target;
 } mode_t;
 
 typedef struct {
-    duration_t duration;
+    mode_type_t mode;
+
+    struct {
+        duration_t duration;
+    } timer;
+
     bool decorative;
 
     struct {
@@ -45,6 +55,7 @@ static int help(void);
 
 static int run(mode_t* mode, mode_processor_t processor);
 
+static void process_alone(mode_t* mode, duration_t delta);
 static void process_timer(mode_t* mode, duration_t delta);
 
 static void process(mode_t* mode, mode_processor_t processor);
@@ -52,7 +63,7 @@ static void process(mode_t* mode, mode_processor_t processor);
 int main(const int argc, const char* const* const argv)
 {
     config_t config = {
-        .duration = duration_from_moment((moment_t) { .mins = 30 }),
+        .mode = mode_type_alone,
         .decorative = true,
         .help = false,
         .debug = false,
@@ -95,8 +106,6 @@ int main(const int argc, const char* const* const argv)
         },
     };
 
-    tick_timer_t timer = { .duration = config.duration };
-
     renderer_t renderer = {
         .decorative = config.decorative,
         .debug = config.debug,
@@ -121,15 +130,26 @@ int main(const int argc, const char* const* const argv)
             .renderer = &renderer,
             .canvas = &canvas,
         },
-        .target = {
-            .timer = {
-                .ccodoc = &ccodoc,
-                .timer = &timer,
-            },
-        },
     };
 
-    return run(&mode, process_timer);
+    mode_processor_t processor = NULL;
+
+    switch (config.mode) {
+    case mode_type_alone:
+        mode.target.alone.ccodoc = &ccodoc;
+        processor = process_alone;
+        break;
+    case mode_type_timer:
+        mode.target.timer.ccodoc = &ccodoc;
+
+        tick_timer_t timer = { .duration = config.timer.duration };
+        mode.target.timer.timer = &timer;
+
+        processor = process_timer;
+        break;
+    }
+
+    return run(&mode, processor);
 }
 
 static const char* read_arg(int* const i, const char* const* const argv)
@@ -165,7 +185,9 @@ static const char* configure_with_args(config_t* const config, const int argc, c
             if (d.msecs == 0) {
                 return "timer: duration format must be HH:mm";
             }
-            config->duration = d;
+
+            config->mode = mode_type_timer;
+            config->timer.duration = d;
 
             continue;
         }
@@ -222,7 +244,7 @@ static int help(void)
     printf("# ccodoc（鹿威し）\n");
 
     printf("\n## options\n");
-    print_arg_help("--timer HH:mm", "Set the timer for this duration. (default: 00:30)");
+    print_arg_help("--timer HH:mm", "Set the timer for this duration.");
 
     print_arg_help("--plain", "Render ccodoc without decoration.");
     print_arg_help("--sound-tsutsu-poured", "Play this sound on tsutsu（筒）poured");
@@ -245,6 +267,17 @@ static int run(mode_t* const mode, mode_processor_t const processor)
     deinit_renderer(mode->rendering_ctx.renderer, mode->target.timer.ccodoc);
 
     return EXIT_SUCCESS;
+}
+
+static void process_alone(mode_t* mode, duration_t delta)
+{
+    tick_ccodoc(mode->target.timer.ccodoc, delta);
+
+    render(
+        mode->rendering_ctx.renderer,
+        delta,
+        mode->target.timer.ccodoc, NULL
+    );
 }
 
 static void process_timer(mode_t* const mode, const duration_t delta)

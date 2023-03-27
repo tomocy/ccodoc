@@ -70,7 +70,9 @@ void render(
     render_hachi(renderer, &dctx, &ccodoc->hachi);
     render_roji(renderer, &dctx);
 
-    render_timer(renderer, &dctx, timer);
+    if (timer != NULL) {
+        render_timer(renderer, &dctx, timer);
+    }
 
     if (renderer->debug) {
         render_debug_info(renderer, delta, timer, ccodoc);
