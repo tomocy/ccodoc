@@ -5,6 +5,26 @@
 #include "time.h"
 #include <stdlib.h>
 
+typedef enum {
+    mode_type_timer,
+} mode_type_t;
+
+typedef struct {
+    mode_type_t type;
+
+    struct {
+        renderer_t* renderer;
+        canvas_t* canvas;
+    } rendering_ctx;
+
+    union {
+        struct {
+            ccodoc_t* ccodoc;
+            tick_timer_t* timer;
+        } timer;
+    } target;
+} mode_t;
+
 typedef struct {
     duration_t duration;
     bool decorative;
@@ -18,9 +38,15 @@ typedef struct {
     bool debug;
 } config_t;
 
+typedef void (*processor_t)(void*, duration_t);
+
 static const char* configure_with_args(config_t* config, int argc, const char* const* argv);
 static int help(void);
-static int run(ccodoc_t* ccodoc, tick_timer_t* timer, renderer_t* renderer, canvas_t* canvas);
+
+static int run_timer(mode_t* mode);
+static void process_timer(void* mode, duration_t delta);
+
+static void process(void* processor, processor_t f);
 
 int main(const int argc, const char* const* const argv)
 {
@@ -88,7 +114,21 @@ int main(const int argc, const char* const* const argv)
 
     canvas_t canvas = wrap_canvas_proxy(&canvas_proxy);
 
-    return run(&ccodoc, &timer, &renderer, &canvas);
+    mode_t mode = {
+        .type = mode_type_timer,
+        .rendering_ctx = {
+            .renderer = &renderer,
+            .canvas = &canvas,
+        },
+        .target = {
+            .timer = {
+                .ccodoc = &ccodoc,
+                .timer = &timer,
+            },
+        },
+    };
+
+    return run_timer(&mode);
 }
 
 static const char* read_arg(int* const i, const char* const* const argv)
@@ -192,35 +232,50 @@ static int help(void)
     return EXIT_SUCCESS;
 }
 
-static int run(ccodoc_t* const ccodoc, tick_timer_t* const timer, renderer_t* const renderer, canvas_t* const canvas)
+static int run_timer(mode_t* mode)
 {
-    init_renderer(renderer, canvas, ccodoc);
+    init_renderer(
+        mode->rendering_ctx.renderer, mode->rendering_ctx.canvas,
+        mode->target.timer.ccodoc
+    );
 
-    {
-        static const duration_t min_delta = { .msecs = 1000 / 24 };
+    process(mode, process_timer);
 
-        duration_t last_time = monotonic_time();
-
-        while (1) {
-            const duration_t time = monotonic_time();
-
-            const duration_t delta = duration_diff(time, last_time);
-            last_time = time;
-
-            {
-                tick_timer(timer, delta);
-                tick_ccodoc(ccodoc, delta);
-
-                render(renderer, delta, ccodoc, timer);
-            }
-
-            const duration_t process_time = duration_diff(monotonic_time(), time);
-
-            sleep_for(duration_diff(min_delta, process_time));
-        }
-    }
-
-    deinit_renderer(renderer, ccodoc);
+    deinit_renderer(mode->rendering_ctx.renderer, mode->target.timer.ccodoc);
 
     return EXIT_SUCCESS;
+}
+
+static void process_timer(void* raw_mode, duration_t delta)
+{
+    mode_t* const mode = raw_mode;
+
+    tick_ccodoc(mode->target.timer.ccodoc, delta);
+    tick_timer(mode->target.timer.timer, delta);
+
+    render(
+        mode->rendering_ctx.renderer,
+        delta,
+        mode->target.timer.ccodoc, mode->target.timer.timer
+    );
+}
+
+static void process(void* const processor, processor_t const f)
+{
+    static const duration_t min_delta = { .msecs = 1000 / 24 };
+
+    duration_t last_time = monotonic_time();
+
+    while (1) {
+        const duration_t time = monotonic_time();
+
+        const duration_t delta = duration_diff(time, last_time);
+        last_time = time;
+
+        f(processor, delta);
+
+        const duration_t process_time = duration_diff(monotonic_time(), time);
+
+        sleep_for(duration_diff(min_delta, process_time));
+    }
 }
