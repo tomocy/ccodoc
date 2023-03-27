@@ -20,7 +20,7 @@ typedef struct {
 
 static const char* configure_with_args(config_t* config, int argc, const char* const* argv);
 static int help(void);
-static int run(const config_t* config, tick_timer_t* timer, ccodoc_t* ccodoc);
+static int run(ccodoc_t* ccodoc, tick_timer_t* timer, renderer_t* renderer, canvas_t* canvas);
 
 int main(const int argc, const char* const* const argv)
 {
@@ -45,8 +45,6 @@ int main(const int argc, const char* const* const argv)
         return help();
     }
 
-    tick_timer_t timer = { .duration = config.duration };
-
     ccodoc_t ccodoc = {
         .kakehi = {
             .release_water_ratio = 0.1f,
@@ -70,7 +68,27 @@ int main(const int argc, const char* const* const argv)
         },
     };
 
-    return run(&config, &timer, &ccodoc);
+    tick_timer_t timer = { .duration = config.duration };
+
+    renderer_t renderer = {
+        .decorative = config.decorative,
+        .debug = config.debug,
+
+        .sound = {
+            .tsutsu_poured = config.sound.tsutsu_poured,
+            .tsutsu_bumped = config.sound.tsutsu_bumped,
+        },
+    };
+
+    canvas_curses_t canvas_delegate = { 0 };
+    init_canvas_curses(&canvas_delegate, config.decorative);
+
+    canvas_proxy_t canvas_proxy = { 0 };
+    init_canvas_proxy(&canvas_proxy, &canvas_delegate);
+
+    canvas_t canvas = wrap_canvas_proxy(&canvas_proxy);
+
+    return run(&ccodoc, &timer, &renderer, &canvas);
 }
 
 static const char* read_arg(int* const i, const char* const* const argv)
@@ -174,27 +192,9 @@ static int help(void)
     return EXIT_SUCCESS;
 }
 
-static int run(const config_t* const config, tick_timer_t* const timer, ccodoc_t* const ccodoc)
+static int run(ccodoc_t* const ccodoc, tick_timer_t* const timer, renderer_t* const renderer, canvas_t* const canvas)
 {
-    renderer_t renderer = {
-        .decorative = config->decorative,
-        .debug = config->debug,
-
-        .sound = {
-            .tsutsu_poured = config->sound.tsutsu_poured,
-            .tsutsu_bumped = config->sound.tsutsu_bumped,
-        },
-    };
-
-    canvas_curses_t canvas_delegate = { 0 };
-    init_canvas_curses(&canvas_delegate, config->decorative);
-
-    canvas_proxy_t canvas_proxy = { 0 };
-    init_canvas_proxy(&canvas_proxy, &canvas_delegate);
-
-    canvas_t canvas = wrap_canvas_proxy(&canvas_proxy);
-
-    init_renderer(&renderer, &canvas, ccodoc);
+    init_renderer(renderer, canvas, ccodoc);
 
     {
         static const duration_t min_delta = { .msecs = 1000 / 24 };
@@ -211,7 +211,7 @@ static int run(const config_t* const config, tick_timer_t* const timer, ccodoc_t
                 tick_timer(timer, delta);
                 tick_ccodoc(ccodoc, delta);
 
-                render_ccodoc(&renderer, delta, timer, ccodoc);
+                render_ccodoc(renderer, delta, timer, ccodoc);
             }
 
             const duration_t process_time = duration_diff(monotonic_time(), time);
@@ -220,7 +220,7 @@ static int run(const config_t* const config, tick_timer_t* const timer, ccodoc_t
         }
     }
 
-    deinit_renderer(&renderer, ccodoc);
+    deinit_renderer(renderer, ccodoc);
 
     return EXIT_SUCCESS;
 }
