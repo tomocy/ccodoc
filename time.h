@@ -35,7 +35,7 @@ typedef struct {
 // - timer
 extern void tick_timer(tick_timer_t* timer, const duration_t delta);
 extern void reset_timer(tick_timer_t* timer);
-extern bool is_timeout(const tick_timer_t* timer);
+extern bool timer_expires(const tick_timer_t* timer);
 extern float elapsed_time_ratio(const tick_timer_t* timer);
 extern duration_t remaining_time(const tick_timer_t* timer);
 

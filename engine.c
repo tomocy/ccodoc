@@ -35,7 +35,7 @@ static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
     case holding_water:
         tick_timer(&kakehi->holding_water_timer, delta);
 
-        if (!is_timeout(&kakehi->holding_water_timer)) {
+        if (!timer_expires(&kakehi->holding_water_timer)) {
             return;
         }
 
@@ -45,7 +45,7 @@ static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
     case releasing_water:
         tick_timer(&kakehi->releasing_water_timer, delta);
 
-        if (!is_timeout(&kakehi->releasing_water_timer)) {
+        if (!timer_expires(&kakehi->releasing_water_timer)) {
             return;
         }
 
@@ -98,7 +98,7 @@ static void tick_hachi(ccodoc_t* const ccodoc, const duration_t delta)
     case releasing_water:
         tick_timer(&hachi->releasing_water_timer, delta);
 
-        if (!is_timeout(&hachi->releasing_water_timer)) {
+        if (!timer_expires(&hachi->releasing_water_timer)) {
             break;
         }
 

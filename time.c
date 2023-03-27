@@ -10,7 +10,7 @@ static void ticker_reset(ticker_t* ticker);
 
 void tick_timer(tick_timer_t* const timer, const duration_t delta)
 {
-    if (is_timeout(timer)) {
+    if (timer_expires(timer)) {
         return;
     }
 
@@ -22,7 +22,7 @@ void reset_timer(tick_timer_t* const timer)
     ticker_reset(&timer->ticker);
 }
 
-bool is_timeout(const tick_timer_t* const timer)
+bool timer_expires(const tick_timer_t* const timer)
 {
     return elapsed_time_ratio(timer) >= 1;
 }
