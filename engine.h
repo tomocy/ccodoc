@@ -47,7 +47,7 @@ typedef struct {
     hachi_t hachi;
 } ccodoc_t;
 
-extern void tick_ccodoc(ccodoc_t* ccodoc, const duration_t delta);
+extern void tick_ccodoc(ccodoc_t* ccodoc, duration_t delta);
 // - debug
 extern float tsutsu_water_amount_ratio(const tsutsu_t* tsutsu);
 

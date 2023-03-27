@@ -2,17 +2,17 @@
 
 #include <string.h>
 
-bool str_equals(const char* str, const char* other)
+bool str_equals(const char* const str, const char* const other)
 {
     return strcmp(str, other) == 0;
 }
 
-bool str_equals_n(const char* str, const char* other, unsigned int n)
+bool str_equals_n(const char* const str, const char* const other, const unsigned int n)
 {
     return strncmp(str, other, n) == 0;
 }
 
-char_descriptor_t encode_char_utf8(char* dst, uint32_t code)
+char_descriptor_t encode_char_utf8(char* const dst, const uint32_t code)
 {
     char_descriptor_t desc = { .code = code };
 
@@ -57,11 +57,11 @@ char_descriptor_t encode_char_utf8(char* dst, uint32_t code)
     return desc;
 }
 
-char_descriptor_t decode_char_utf8(const char* src)
+char_descriptor_t decode_char_utf8(const char* const src)
 {
     char_descriptor_t desc = { 0 };
 
-    const unsigned char* c = (unsigned char*)src;
+    const unsigned char* const c = (unsigned char*)src;
 
     if (*c <= 0x7f) {
         desc.code = /* 0b01111111 */ 127 & *c;
@@ -87,7 +87,7 @@ char_descriptor_t decode_char_utf8(const char* src)
     return desc;
 }
 
-void decode_str_utf8(char_descriptor_t* descs, const char* src)
+void decode_str_utf8(char_descriptor_t* const descs, const char* const src)
 {
     int i = 0;
     const char* c = src;

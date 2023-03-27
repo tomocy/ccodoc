@@ -4,16 +4,16 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-void run_cmd(const char* path, const char** args)
+void run_cmd(const char* path, const char* const* args)
 {
 #if PLATFORM == PLATFORM_LINUX || PLATFORM == PLATFORM_MACOS
-    int child_pid = fork();
+    const int child_pid = fork();
     if (child_pid == -1) {
         return;
     }
 
     if (child_pid == 0) {
-        int gchild_pid = fork();
+        const int gchild_pid = fork();
         if (gchild_pid == -1) {
             exit(1);
             return;

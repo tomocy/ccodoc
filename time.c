@@ -8,7 +8,7 @@
 static void ticker_tick(ticker_t* ticker, const duration_t delta);
 static void ticker_reset(ticker_t* ticker);
 
-void tick_timer(tick_timer_t* timer, const duration_t delta)
+void tick_timer(tick_timer_t* const timer, const duration_t delta)
 {
     if (is_timeout(timer)) {
         return;
@@ -17,23 +17,23 @@ void tick_timer(tick_timer_t* timer, const duration_t delta)
     ticker_tick(&timer->ticker, delta);
 }
 
-void reset_timer(tick_timer_t* timer)
+void reset_timer(tick_timer_t* const timer)
 {
     ticker_reset(&timer->ticker);
 }
 
-bool is_timeout(const tick_timer_t* timer)
+bool is_timeout(const tick_timer_t* const timer)
 {
     return elapsed_time_ratio(timer) >= 1;
 }
 
-float elapsed_time_ratio(const tick_timer_t* timer)
+float elapsed_time_ratio(const tick_timer_t* const timer)
 {
     assert(timer->duration.msecs != 0);
     return CLAMP(0, 1, (float)((double)timer->ticker.elapsed.msecs / (double)timer->duration.msecs));
 }
 
-duration_t remaining_time(const tick_timer_t* timer)
+duration_t remaining_time(const tick_timer_t* const timer)
 {
     return (duration_t) {
         .msecs = timer->duration.msecs - MIN(timer->ticker.elapsed.msecs, timer->duration.msecs),
@@ -56,7 +56,7 @@ void sleep_for(const duration_t duration)
     } while (slept != 0);
 }
 
-moment_t moment_from_duration(const duration_t d, time_precision_t precision)
+moment_t moment_from_duration(const duration_t d, const time_precision_t precision)
 {
     moment_t moment = { 0 };
     duration_t current = d;
@@ -136,12 +136,12 @@ duration_t monotonic_time(void)
     return (duration_t) { .msecs = msecs };
 }
 
-static void ticker_tick(ticker_t* ticker, const duration_t delta)
+static void ticker_tick(ticker_t* const ticker, const duration_t delta)
 {
     ticker->elapsed.msecs += delta.msecs;
 }
 
-static void ticker_reset(ticker_t* ticker)
+static void ticker_reset(ticker_t* const ticker)
 {
     ticker->elapsed.msecs = 0;
 }

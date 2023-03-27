@@ -9,7 +9,7 @@
 static void on_tsutsu_poured(void* renderer);
 static void on_tsutsu_released_water(void* renderer);
 
-void init_renderer(renderer_t* renderer, canvas_t* canvas, ccodoc_t* ccodoc)
+void init_renderer(renderer_t* const renderer, canvas_t* const canvas, ccodoc_t* const ccodoc)
 {
     renderer->canvas = canvas;
 
@@ -23,7 +23,7 @@ void init_renderer(renderer_t* renderer, canvas_t* canvas, ccodoc_t* ccodoc)
     };
 }
 
-void deinit_renderer(renderer_t* renderer, ccodoc_t* ccodoc)
+void deinit_renderer(renderer_t* const renderer, ccodoc_t* const ccodoc)
 {
     deinit_canvas(renderer->canvas);
 
@@ -39,15 +39,15 @@ static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tic
 static void render_debug_info(
     renderer_t* renderer,
     const drawing_context_t* ctx,
-    const duration_t delta, const tick_timer_t* timer, const ccodoc_t* ccodoc
+    duration_t delta, const tick_timer_t* timer, const ccodoc_t* ccodoc
 );
 
 void render_ccodoc(
-    renderer_t* renderer,
-    const rendering_context_t* ctx,
+    renderer_t* const renderer,
+    const rendering_context_t* const ctx,
     const duration_t delta,
-    const tick_timer_t* timer,
-    const ccodoc_t* ccodoc
+    const tick_timer_t* const timer,
+    const ccodoc_t* const ccodoc
 )
 {
     static const vector2d_t ccodoc_size = {
@@ -82,7 +82,7 @@ void render_ccodoc(
     flush_canvas(renderer->canvas);
 }
 
-static void render_kakehi(renderer_t* renderer, drawing_context_t* ctx, const kakehi_t* kakehi)
+static void render_kakehi(renderer_t* const renderer, drawing_context_t* const ctx, const kakehi_t* const kakehi)
 {
     const char* art = NULL;
     switch (kakehi->state) {
@@ -134,12 +134,12 @@ static void render_kakehi(renderer_t* renderer, drawing_context_t* ctx, const ka
     wrap_drawing_lines(ctx, 1);
 }
 
-static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const tsutsu_t* tsutsu)
+static void render_tsutsu(renderer_t* const renderer, drawing_context_t* const ctx, const tsutsu_t* const tsutsu)
 {
     static const size_t art_height = 4;
 
     // jo (序)
-    static const char* art_jo[] = {
+    static const char* const art_jo[] = {
         "◥◣",
         "  ◥◣",
         "  ▕ ◥◣",
@@ -147,7 +147,7 @@ static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const ts
     };
 
     // ha (破)
-    static const char* art_ha[] = {
+    static const char* const art_ha[] = {
         "",
         "◢◤◢◤◢◤◢◤",
         "  ▕ ",
@@ -155,7 +155,7 @@ static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const ts
     };
 
     // kyu (急)
-    static const char* art_kyu[] = {
+    static const char* const art_kyu[] = {
         "      ◢◤",
         "    ◢◤",
         "  ◢◤",
@@ -163,7 +163,7 @@ static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const ts
     };
 
     const float water_amount_ratio = tsutsu_water_amount_ratio(tsutsu);
-    const char** art = NULL;
+    const char* const* art = NULL;
 
     switch (tsutsu->state) {
     case holding_water:
@@ -242,7 +242,7 @@ static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const ts
     wrap_drawing_lines(ctx, art_height);
 }
 
-static void render_hachi(renderer_t* renderer, drawing_context_t* ctx, const hachi_t* hachi)
+static void render_hachi(renderer_t* const renderer, drawing_context_t* const ctx, const hachi_t* const hachi)
 {
     static const unsigned int art_width = 4;
 
@@ -293,7 +293,7 @@ static void render_hachi(renderer_t* renderer, drawing_context_t* ctx, const hac
     ctx->current.x += art_width;
 }
 
-static void render_roji(renderer_t* renderer, drawing_context_t* ctx)
+static void render_roji(renderer_t* const renderer, drawing_context_t* const ctx)
 {
     draw(
         renderer->canvas,
@@ -313,7 +313,7 @@ static void render_roji(renderer_t* renderer, drawing_context_t* ctx)
     wrap_drawing_lines(ctx, 1);
 }
 
-static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tick_timer_t* timer)
+static void render_timer(renderer_t* const renderer, drawing_context_t* const ctx, const tick_timer_t* const timer)
 {
     ctx->current.y += 4;
 
@@ -384,7 +384,12 @@ static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tic
 
 static const char* water_flow_state_to_str(water_flow_state_t state);
 
-static void render_debug_info(renderer_t* renderer, const drawing_context_t* ctx, const duration_t delta, const tick_timer_t* timer, const ccodoc_t* ccodoc)
+static void render_debug_info(
+    renderer_t* const renderer,
+    const drawing_context_t* const ctx,
+    const duration_t delta,
+    const tick_timer_t* const timer, const ccodoc_t* const ccodoc
+)
 {
     const drawing_attr_t default_attr = (drawing_attr_t) { .color = color_white };
 
@@ -508,9 +513,9 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
 
 static void play_sound(const char* name);
 
-static void on_tsutsu_poured(void* raw_renderer)
+static void on_tsutsu_poured(void* const raw_renderer)
 {
-    const renderer_t* renderer = raw_renderer;
+    const renderer_t* const renderer = raw_renderer;
     if (renderer->sound.tsutsu_poured == NULL) {
         return;
     }
@@ -518,9 +523,9 @@ static void on_tsutsu_poured(void* raw_renderer)
     play_sound(renderer->sound.tsutsu_poured);
 }
 
-static void on_tsutsu_released_water(void* raw_renderer)
+static void on_tsutsu_released_water(void* const raw_renderer)
 {
-    const renderer_t* renderer = raw_renderer;
+    const renderer_t* const renderer = raw_renderer;
     if (renderer->sound.tsutsu_bumped == NULL) {
         return;
     }
@@ -528,13 +533,13 @@ static void on_tsutsu_released_water(void* raw_renderer)
     play_sound(renderer->sound.tsutsu_bumped);
 }
 
-static void play_sound(const char* name)
+static void play_sound(const char* const name)
 {
 #if PLATFORM == PLATFORM_LINUX
     (void)name;
 #endif
 #if PLATFORM == PLATFORM_MACOS
-    const char* args[] = { "afplay", (char* const)name, NULL };
+    const char* const args[] = { "afplay", (char* const)name, NULL };
     run_cmd("/usr/bin/afplay", args);
 #endif
 }

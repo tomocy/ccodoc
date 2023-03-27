@@ -18,11 +18,11 @@ typedef struct {
     bool debug;
 } config_t;
 
-static const char* configure_with_args(config_t* config, int argc, const char** argv);
+static const char* configure_with_args(config_t* config, int argc, const char* const* argv);
 static int help(void);
 static int run(const config_t* config, tick_timer_t* timer, ccodoc_t* ccodoc);
 
-int main(int argc, const char** argv)
+int main(const int argc, const char* const* const argv)
 {
     config_t config = {
         .duration = duration_from_moment((moment_t) { .mins = 30 }),
@@ -32,7 +32,7 @@ int main(int argc, const char** argv)
     };
 
     {
-        const char* err = configure_with_args(&config, argc, argv);
+        const char* const err = configure_with_args(&config, argc, argv);
         if (err != NULL) {
             help();
             printf("\n");
@@ -73,7 +73,7 @@ int main(int argc, const char** argv)
     return run(&config, &timer, &ccodoc);
 }
 
-static const char* read_arg(int* i, const char** argv)
+static const char* read_arg(int* const i, const char* const* const argv)
 {
     const int next_i = *i + 1;
     const char* next_arg = argv[next_i];
@@ -87,13 +87,13 @@ static const char* read_arg(int* i, const char** argv)
 
 #define CONFIG_ERR_NO_VALUE_SPECIFIED(label) label ": value must be specified"
 
-static const char* configure_with_args(config_t* config, int argc, const char** argv)
+static const char* configure_with_args(config_t* const config, const int argc, const char* const* const argv)
 {
     for (int i = 1; i < argc; i++) {
-        const char* arg = argv[i];
+        const char* const arg = argv[i];
 
         if (str_equals(arg, "--duration")) {
-            const char* raw = read_arg(&i, argv);
+            const char* const raw = read_arg(&i, argv);
             if (raw == NULL) {
                 return CONFIG_ERR_NO_VALUE_SPECIFIED("duration");
             }
@@ -117,7 +117,7 @@ static const char* configure_with_args(config_t* config, int argc, const char** 
         }
 
         if (str_equals(arg, "--sound-tsutsu-poured")) {
-            const char* name = read_arg(&i, argv);
+            const char* const name = read_arg(&i, argv);
             if (name == NULL) {
                 return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-poured");
             }
@@ -128,7 +128,7 @@ static const char* configure_with_args(config_t* config, int argc, const char** 
         }
 
         if (str_equals(arg, "--sound-tsutsu-bumped")) {
-            const char* name = read_arg(&i, argv);
+            const char* const name = read_arg(&i, argv);
             if (name == NULL) {
                 return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-bumped");
             }
@@ -152,7 +152,7 @@ static const char* configure_with_args(config_t* config, int argc, const char** 
     return NULL;
 }
 
-static void print_arg_help(const char* arg, const char* description)
+static void print_arg_help(const char* const arg, const char* const description)
 {
     printf("%s\n", arg);
     printf("  %s\n\n", description);
@@ -174,7 +174,7 @@ static int help(void)
     return EXIT_SUCCESS;
 }
 
-static int run(const config_t* config, tick_timer_t* timer, ccodoc_t* ccodoc)
+static int run(const config_t* const config, tick_timer_t* const timer, ccodoc_t* const ccodoc)
 {
     renderer_t renderer = {
         .sound = {
@@ -218,8 +218,7 @@ static int run(const config_t* config, tick_timer_t* timer, ccodoc_t* ccodoc)
 
             const duration_t process_time = duration_diff(monotonic_time(), time);
 
-            const duration_t sleep_time = duration_diff(min_delta, process_time);
-            sleep_for(sleep_time);
+            sleep_for(duration_diff(min_delta, process_time));
         }
     }
 
