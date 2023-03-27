@@ -247,8 +247,8 @@ static int help(void)
     print_arg_help("--timer HH:mm", "Set the timer for this duration.");
 
     print_arg_help("--plain", "Render ccodoc without decoration.");
-    print_arg_help("--sound-tsutsu-poured", "Play this sound on tsutsu（筒）poured");
-    print_arg_help("--sound-tsutsu-bumped", "Play this sound on tsutsu（筒）bumped");
+    print_arg_help("--sound-tsutsu-poured", "Play this sound on tsutsu（筒）poured.");
+    print_arg_help("--sound-tsutsu-bumped", "Play this sound on tsutsu（筒）bumped.");
 
     print_arg_help("--help", "Print help.");
 
