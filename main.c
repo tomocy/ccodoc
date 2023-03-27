@@ -110,10 +110,10 @@ static const char* configure_with_args(config_t* const config, const int argc, c
     for (int i = 1; i < argc; i++) {
         const char* const arg = argv[i];
 
-        if (str_equals(arg, "--duration")) {
+        if (str_equals(arg, "--timer")) {
             const char* const raw = read_arg(&i, argv);
             if (raw == NULL) {
-                return CONFIG_ERR_NO_VALUE_SPECIFIED("duration");
+                return CONFIG_ERR_NO_VALUE_SPECIFIED("timer");
             }
 
             moment_t m = { 0 };
@@ -122,7 +122,7 @@ static const char* configure_with_args(config_t* const config, const int argc, c
 
             const duration_t d = duration_from_moment(m);
             if (d.msecs == 0) {
-                return "duration: format must be HH:mm";
+                return "timer: duration format must be HH:mm";
             }
             config->duration = d;
 
@@ -181,7 +181,7 @@ static int help(void)
     printf("# ccodoc（鹿威し）\n");
 
     printf("\n## options\n");
-    print_arg_help("--duration HH:mm", "Set the timer for this duration. (default: 00:30)");
+    print_arg_help("--timer HH:mm", "Set the timer for this duration. (default: 00:30)");
 
     print_arg_help("--plain", "Render ccodoc without decoration.");
     print_arg_help("--sound-tsutsu-poured", "Play this sound on tsutsu（筒）poured");
