@@ -177,6 +177,9 @@ static int help(void)
 static int run(const config_t* const config, tick_timer_t* const timer, ccodoc_t* const ccodoc)
 {
     renderer_t renderer = {
+        .decorative = config->decorative,
+        .debug = config->debug,
+
         .sound = {
             .tsutsu_poured = config->sound.tsutsu_poured,
             .tsutsu_bumped = config->sound.tsutsu_bumped,
@@ -190,11 +193,6 @@ static int run(const config_t* const config, tick_timer_t* const timer, ccodoc_t
     init_canvas_proxy(&canvas_proxy, &canvas_delegate);
 
     canvas_t canvas = wrap_canvas_proxy(&canvas_proxy);
-
-    const rendering_context_t rctx = {
-        .decorative = config->decorative,
-        .debug = config->debug,
-    };
 
     init_renderer(&renderer, &canvas, ccodoc);
 
@@ -213,7 +211,7 @@ static int run(const config_t* const config, tick_timer_t* const timer, ccodoc_t
                 tick_timer(timer, delta);
                 tick_ccodoc(ccodoc, delta);
 
-                render_ccodoc(&renderer, &rctx, delta, timer, ccodoc);
+                render_ccodoc(&renderer, delta, timer, ccodoc);
             }
 
             const duration_t process_time = duration_diff(monotonic_time(), time);

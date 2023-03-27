@@ -22,8 +22,6 @@ typedef struct {
 } drawing_attr_t;
 
 typedef struct {
-    bool decorative;
-
     drawing_attr_t attr;
 
     vector2d_t origin;
