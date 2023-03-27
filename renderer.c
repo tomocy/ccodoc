@@ -563,7 +563,7 @@ static void play_sound(const char* name);
 static void on_tsutsu_poured(void* const raw_renderer)
 {
     const renderer_t* const renderer = raw_renderer;
-    if (renderer->sound.tsutsu_poured == NULL) {
+    if (!renderer->decorative || renderer->sound.tsutsu_poured == NULL) {
         return;
     }
 
@@ -573,7 +573,7 @@ static void on_tsutsu_poured(void* const raw_renderer)
 static void on_tsutsu_released_water(void* const raw_renderer)
 {
     const renderer_t* const renderer = raw_renderer;
-    if (renderer->sound.tsutsu_bumped == NULL) {
+    if (!renderer->decorative || renderer->sound.tsutsu_bumped == NULL) {
         return;
     }
 
