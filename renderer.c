@@ -420,7 +420,7 @@ static void render_debug_info(
         p = vec2d_add(p, (vector2d_t) { .y = 1 });
     }
 
-    {
+    if (timer != NULL) {
         draw(renderer->canvas, p, default_attr, "# timer");
         p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
