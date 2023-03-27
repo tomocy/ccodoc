@@ -117,7 +117,7 @@ static void render_kakehi(renderer_t* const renderer, drawing_context_t* const c
 
             drawf(
                 renderer->canvas,
-                vector2d_add(ctx->current, (vector2d_t) { .x = i }),
+                vec2d_add(ctx->current, (vector2d_t) { .x = i }),
                 (drawing_attr_t) {
                     .color = has_water ? color_blue : color_yellow,
                 },
@@ -193,14 +193,13 @@ static void render_tsutsu(renderer_t* const renderer, drawing_context_t* const c
 
     assert(art != NULL);
 
-    vector2d_t origin = ctx->current;
-    origin.x += 3;
+    const vector2d_t origin = vec2d_add(ctx->current, (vector2d_t) { .x = 3 });
 
     for (size_t h = 0; h < art_height; h++) {
         if (!ctx->decorative) {
             draw(
                 renderer->canvas,
-                vector2d_add(origin, (vector2d_t) { .y = h }),
+                vec2d_add(origin, (vector2d_t) { .y = h }),
                 ctx->attr,
                 art[h]
             );
@@ -229,7 +228,7 @@ static void render_tsutsu(renderer_t* const renderer, drawing_context_t* const c
 
             drawf(
                 renderer->canvas,
-                vector2d_add(origin, (vector2d_t) { .y = h, .x = i }),
+                vec2d_add(origin, (vector2d_t) { .y = h, .x = i }),
                 attr,
                 "%.*s", desc.len, c
             );
@@ -276,7 +275,7 @@ static void render_hachi(renderer_t* const renderer, drawing_context_t* const ct
 
             drawf(
                 renderer->canvas,
-                vector2d_add(ctx->current, (vector2d_t) { .x = i }),
+                vec2d_add(ctx->current, (vector2d_t) { .x = i }),
                 (drawing_attr_t) {
                     .color = has_water ? color_blue : color_grey,
                 },
@@ -290,7 +289,7 @@ static void render_hachi(renderer_t* const renderer, drawing_context_t* const ct
         draw(renderer->canvas, ctx->current, ctx->attr, art);
     }
 
-    ctx->current.x += art_width;
+    ctx->current = vec2d_add(ctx->current, (vector2d_t) { .x = art_width });
 }
 
 static void render_roji(renderer_t* const renderer, drawing_context_t* const ctx)
@@ -301,7 +300,7 @@ static void render_roji(renderer_t* const renderer, drawing_context_t* const ctx
         (drawing_attr_t) { .color = color_green, .dim = true },
         "━━━━━━"
     );
-    ctx->current.x += 6;
+    ctx->current = vec2d_add(ctx->current, (vector2d_t) { .x = 6 });
 
     draw(
         renderer->canvas,
@@ -315,7 +314,7 @@ static void render_roji(renderer_t* const renderer, drawing_context_t* const ctx
 
 static void render_timer(renderer_t* const renderer, drawing_context_t* const ctx, const tick_timer_t* const timer)
 {
-    ctx->current.y += 4;
+    ctx->current = vec2d_add(ctx->current, (vector2d_t) { .y = 4 });
 
     {
         const moment_t moment = moment_from_duration(remaining_time(timer), time_min);
@@ -328,7 +327,7 @@ static void render_timer(renderer_t* const renderer, drawing_context_t* const ct
 
         drawf(
             renderer->canvas,
-            vector2d_add(ctx->current, (vector2d_t) { .x = 4 }),
+            vec2d_add(ctx->current, (vector2d_t) { .x = 4 }),
             (drawing_attr_t) { .color = color_white },
             format, moment.hours, moment.mins
         );
@@ -361,7 +360,7 @@ static void render_timer(renderer_t* const renderer, drawing_context_t* const ct
             if (!ctx->decorative) {
                 draw(
                     renderer->canvas,
-                    vector2d_add(ctx->current, (vector2d_t) { .x = i }),
+                    vec2d_add(ctx->current, (vector2d_t) { .x = i }),
                     ctx->attr,
                     remaining ? "─" : " "
                 );
@@ -372,7 +371,7 @@ static void render_timer(renderer_t* const renderer, drawing_context_t* const ct
 
             draw(
                 renderer->canvas,
-                vector2d_add(ctx->current, (vector2d_t) { .x = i }),
+                vec2d_add(ctx->current, (vector2d_t) { .x = i }),
                 attr,
                 "─"
             );
@@ -393,21 +392,18 @@ static void render_debug_info(
 {
     const drawing_attr_t default_attr = (drawing_attr_t) { .color = color_white };
 
-    vector2d_t p = {
-        .x = 0,
-        .y = 0,
-    };
+    vector2d_t p = { .x = 0, .y = 0 };
 
     {
         drawing_attr_t attr = default_attr;
         attr.bold = true;
         draw(renderer->canvas, p, attr, "DEBUG -------");
-        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        p = vec2d_add(p, (vector2d_t) { .y = 1 });
     }
 
     {
         draw(renderer->canvas, p, default_attr, "# engine");
-        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
         drawf(
             renderer->canvas,
@@ -415,7 +411,7 @@ static void render_debug_info(
             default_attr,
             "fps: %d", delta.msecs != 0 ? (int)round(1000.0 / (double)delta.msecs) : 0
         );
-        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
         drawf(
             renderer->canvas,
@@ -423,12 +419,12 @@ static void render_debug_info(
             default_attr,
             "decorative: %s", ctx->decorative ? "yes" : "no"
         );
-        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        p = vec2d_add(p, (vector2d_t) { .y = 1 });
     }
 
     {
         draw(renderer->canvas, p, default_attr, "# timer");
-        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
         const moment_t m = moment_from_duration(remaining_time(timer), time_msec);
         drawf(
@@ -437,7 +433,7 @@ static void render_debug_info(
             default_attr,
             "remaining: %02d:%02d:%02d:%02d", m.hours, m.mins, m.secs, m.msecs
         );
-        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
         drawf(
             renderer->canvas,
@@ -445,16 +441,16 @@ static void render_debug_info(
             default_attr,
             "elapsed time ratio: %f", elapsed_time_ratio(timer)
         );
-        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        p = vec2d_add(p, (vector2d_t) { .y = 1 });
     }
 
     {
         draw(renderer->canvas, p, default_attr, "# ccodoc");
-        p = vector2d_add(p, (vector2d_t) { .y = 1 });
+        p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
         {
             draw(renderer->canvas, p, default_attr, "## kakehi");
-            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+            p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
             drawf(
                 renderer->canvas,
@@ -462,12 +458,12 @@ static void render_debug_info(
                 default_attr,
                 "state: %s", water_flow_state_to_str(ccodoc->kakehi.state)
             );
-            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+            p = vec2d_add(p, (vector2d_t) { .y = 1 });
         }
 
         {
             draw(renderer->canvas, p, default_attr, "## tsutsu");
-            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+            p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
             drawf(
                 renderer->canvas,
@@ -475,7 +471,7 @@ static void render_debug_info(
                 default_attr,
                 "state: %s", water_flow_state_to_str(ccodoc->tsutsu.state)
             );
-            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+            p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
             drawf(
                 renderer->canvas,
@@ -483,12 +479,12 @@ static void render_debug_info(
                 default_attr,
                 "water_amount_ratio: %f", tsutsu_water_amount_ratio(&ccodoc->tsutsu)
             );
-            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+            p = vec2d_add(p, (vector2d_t) { .y = 1 });
         }
 
         {
             draw(renderer->canvas, p, default_attr, "## hachi");
-            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+            p = vec2d_add(p, (vector2d_t) { .y = 1 });
 
             drawf(
                 renderer->canvas,
@@ -496,7 +492,7 @@ static void render_debug_info(
                 default_attr,
                 "state: %s", water_flow_state_to_str(ccodoc->hachi.state)
             );
-            p = vector2d_add(p, (vector2d_t) { .y = 1 });
+            p = vec2d_add(p, (vector2d_t) { .y = 1 });
         }
     }
 }

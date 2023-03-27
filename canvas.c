@@ -7,6 +7,25 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+static void deinit_canvas_buffer(canvas_buffer_t* canvas);
+static void deinit_canvas_curses(canvas_curses_t* canvas);
+
+static void clear_canvas_buffer(canvas_buffer_t* canvas);
+static void clear_canvas_curses(canvas_curses_t* canvas);
+
+static void flush_canvas_curses(canvas_curses_t* canvas);
+static void flush_canvas_proxy(canvas_proxy_t* canvas);
+
+static void draw_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
+static void draw_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
+
+static void drawfv_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
+static void drawfv_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
+
+static vector2d_t get_canvas_size_curses(const canvas_curses_t* canvas);
+
+static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
+
 canvas_t wrap_canvas_buffer(canvas_buffer_t* const canvas)
 {
     return (canvas_t) {
@@ -30,27 +49,6 @@ canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas)
         .delegate = { .proxy = canvas },
     };
 }
-
-// canvas
-
-static void deinit_canvas_buffer(canvas_buffer_t* canvas);
-static void deinit_canvas_curses(canvas_curses_t* canvas);
-
-static void clear_canvas_buffer(canvas_buffer_t* canvas);
-static void clear_canvas_curses(canvas_curses_t* canvas);
-
-static void flush_canvas_curses(canvas_curses_t* canvas);
-static void flush_canvas_proxy(canvas_proxy_t* canvas);
-
-static void draw_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
-static void draw_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
-
-static void drawfv_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
-static void drawfv_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
-
-static vector2d_t get_canvas_size_curses(const canvas_curses_t* canvas);
-
-static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void deinit_canvas(canvas_t* const canvas)
@@ -198,7 +196,7 @@ void init_canvas_buffer(canvas_buffer_t* const canvas, const vector2d_t size)
     canvas->size = size;
     canvas->data = calloc(
         (unsigned long)size.x * size.y,
-        sizeof(canvas_datum)
+        sizeof(canvas_datum_t)
     );
 }
 
@@ -229,7 +227,7 @@ static void draw_buffer(canvas_buffer_t* const canvas, const vector2d_t point, c
         const char_descriptor_t desc = decode_char_utf8(c);
 
         const unsigned int i = point.y * canvas->size.x + point.x + n;
-        canvas_datum* const datum = &canvas->data[i];
+        canvas_datum_t* const datum = &canvas->data[i];
         datum->code = desc.code;
         datum->attr = attr;
 
@@ -253,7 +251,7 @@ static void drawfv_buffer(
 
 static unsigned int canvas_data_size_buffer(const canvas_buffer_t* const canvas)
 {
-    return (unsigned long)canvas->size.x * canvas->size.y * sizeof(canvas_datum);
+    return (unsigned long)canvas->size.x * canvas->size.y * sizeof(canvas_datum_t);
 }
 
 static bool canvas_equals_buffer(const canvas_buffer_t* const canvas, const canvas_buffer_t* const other)
@@ -435,7 +433,7 @@ static void flush_canvas_proxy(canvas_proxy_t* const canvas)
         for (unsigned int x = 0; x < current->size.x; x++) {
             unsigned int i = y * current->size.x + x;
 
-            const canvas_datum* const datum = &current->data[i];
+            const canvas_datum_t* const datum = &current->data[i];
 
             char c[5] = { 0 };
             encode_char_utf8(c, datum->code);

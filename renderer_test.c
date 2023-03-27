@@ -698,7 +698,7 @@ static int test_ccodoc(const canvas_buffer_t* actual, const char* expected)
 {
     draw_ccodoc(actual);
 
-    char_descriptor_t* expected_chars = calloc((unsigned long)actual->size.x * actual->size.y, sizeof(char_descriptor_t));
+    char_descriptor_t* const expected_chars = calloc((unsigned long)actual->size.x * actual->size.y, sizeof(char_descriptor_t));
     assert(expected_chars != NULL);
 
     decode_str_utf8(expected_chars, expected);

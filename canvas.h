@@ -33,11 +33,11 @@ typedef struct {
 typedef struct {
     uint32_t code;
     drawing_attr_t attr;
-} canvas_datum;
+} canvas_datum_t;
 
 typedef struct {
     vector2d_t size;
-    canvas_datum* data;
+    canvas_datum_t* data;
 } canvas_buffer_t;
 
 typedef struct {

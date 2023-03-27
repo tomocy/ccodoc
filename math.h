@@ -9,4 +9,4 @@ typedef struct {
     unsigned int y;
 } vector2d_t;
 
-extern vector2d_t vector2d_add(vector2d_t vector, vector2d_t other);
+extern vector2d_t vec2d_add(vector2d_t vector, vector2d_t other);

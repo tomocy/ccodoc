@@ -4,7 +4,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-void run_cmd(const char* path, const char* const* args)
+void run_cmd(const char* const path, const char* const* const args)
 {
 #if PLATFORM == PLATFORM_LINUX || PLATFORM == PLATFORM_MACOS
     const int child_pid = fork();
