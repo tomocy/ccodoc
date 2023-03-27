@@ -38,15 +38,16 @@ typedef struct {
     bool debug;
 } config_t;
 
-typedef void (*processor_t)(void*, duration_t);
+typedef void (*mode_processor_t)(mode_t*, duration_t);
 
 static const char* configure_with_args(config_t* config, int argc, const char* const* argv);
 static int help(void);
 
-static int run_timer(mode_t* mode);
-static void process_timer(void* mode, duration_t delta);
+static int run(mode_t* mode, mode_processor_t processor);
 
-static void process(void* processor, processor_t f);
+static void process_timer(mode_t* mode, duration_t delta);
+
+static void process(mode_t* mode, mode_processor_t processor);
 
 int main(const int argc, const char* const* const argv)
 {
@@ -128,7 +129,7 @@ int main(const int argc, const char* const* const argv)
         },
     };
 
-    return run_timer(&mode);
+    return run(&mode, process_timer);
 }
 
 static const char* read_arg(int* const i, const char* const* const argv)
@@ -232,24 +233,22 @@ static int help(void)
     return EXIT_SUCCESS;
 }
 
-static int run_timer(mode_t* mode)
+static int run(mode_t* const mode, mode_processor_t const processor)
 {
     init_renderer(
         mode->rendering_ctx.renderer, mode->rendering_ctx.canvas,
         mode->target.timer.ccodoc
     );
 
-    process(mode, process_timer);
+    process(mode, processor);
 
     deinit_renderer(mode->rendering_ctx.renderer, mode->target.timer.ccodoc);
 
     return EXIT_SUCCESS;
 }
 
-static void process_timer(void* raw_mode, duration_t delta)
+static void process_timer(mode_t* const mode, const duration_t delta)
 {
-    mode_t* const mode = raw_mode;
-
     tick_ccodoc(mode->target.timer.ccodoc, delta);
     tick_timer(mode->target.timer.timer, delta);
 
@@ -260,7 +259,7 @@ static void process_timer(void* raw_mode, duration_t delta)
     );
 }
 
-static void process(void* const processor, processor_t const f)
+static void process(mode_t* mode, mode_processor_t processor)
 {
     static const duration_t min_delta = { .msecs = 1000 / 24 };
 
@@ -272,7 +271,7 @@ static void process(void* const processor, processor_t const f)
         const duration_t delta = duration_diff(time, last_time);
         last_time = time;
 
-        f(processor, delta);
+        processor(mode, delta);
 
         const duration_t process_time = duration_diff(monotonic_time(), time);
 
