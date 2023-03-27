@@ -211,7 +211,7 @@ static int run(ccodoc_t* const ccodoc, tick_timer_t* const timer, renderer_t* co
                 tick_timer(timer, delta);
                 tick_ccodoc(ccodoc, delta);
 
-                render_ccodoc(renderer, delta, timer, ccodoc);
+                render(renderer, delta, ccodoc, timer);
             }
 
             const duration_t process_time = duration_diff(monotonic_time(), time);

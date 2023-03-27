@@ -41,11 +41,11 @@ static void render_debug_info(
     duration_t delta, const tick_timer_t* timer, const ccodoc_t* ccodoc
 );
 
-void render_ccodoc(
+void render(
     renderer_t* const renderer,
     const duration_t delta,
-    const tick_timer_t* const timer,
-    const ccodoc_t* const ccodoc
+    const ccodoc_t* const ccodoc,
+    const tick_timer_t* const timer
 )
 {
     static const vector2d_t ccodoc_size = {

@@ -53,7 +53,7 @@ int test_renderer(void)
         {
             const duration_t delta = (duration_t) { .msecs = 0 };
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -88,7 +88,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -123,7 +123,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -158,7 +158,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -193,7 +193,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -228,7 +228,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -263,7 +263,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -298,7 +298,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -333,7 +333,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -368,7 +368,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -403,7 +403,7 @@ int test_renderer(void)
 
             tick(&timer, &ccodoc, delta);
 
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -436,7 +436,7 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
             tick(&timer, &ccodoc, delta);
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -469,7 +469,7 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
             tick(&timer, &ccodoc, delta);
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -502,7 +502,7 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
             tick(&timer, &ccodoc, delta);
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -535,7 +535,7 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 14, .msecs = 700 });
             tick(&timer, &ccodoc, delta);
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -568,7 +568,7 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 30 });
             tick(&timer, &ccodoc, delta);
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -601,7 +601,7 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .mins = 3, .secs = 30 });
             tick(&timer, &ccodoc, delta);
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
@@ -634,7 +634,7 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 30 });
             tick(&timer, &ccodoc, delta);
-            render_ccodoc(&renderer, delta, &timer, &ccodoc);
+            render(&renderer, delta, &ccodoc, &timer);
 
             print_elapsed_time(&timer);
             EXPECT_PASS_X(
