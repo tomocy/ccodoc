@@ -2,9 +2,9 @@ CC := clang
 CFLAGS := -std=c17 -Wall -Wextra -pedantic
 LDLIBS := -lm -lncursesw
 
-LIB_SRCS := ccodoc.c renderer.c time.c memory.c string.c math.c platform.c
-SRCS := main.c $(LIB_SRCS) canvas.c
-TEST_SRCS := test.c $(LIB_SRCS) canvas.c ccodoc_test.c renderer_test.c string_test.c time_test.c
+LIB_SRCS := ccodoc.c renderer.c canvas.c time.c memory.c string.c math.c platform.c
+SRCS := main.c mode.c $(LIB_SRCS)
+TEST_SRCS := test.c $(LIB_SRCS) ccodoc_test.c renderer_test.c string_test.c time_test.c
 
 _TARGET := $(shell ./tool/build/detect_platform.sh $(TARGET))
 ifeq ($(_TARGET),)
