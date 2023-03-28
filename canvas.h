@@ -24,8 +24,8 @@ typedef struct {
 typedef struct {
     drawing_attr_t attr;
 
-    vector2d_t origin;
-    vector2d_t current;
+    vec2d_t origin;
+    vec2d_t current;
 } drawing_context_t;
 
 typedef struct {
@@ -34,7 +34,7 @@ typedef struct {
 } canvas_datum_t;
 
 typedef struct {
-    vector2d_t size;
+    vec2d_t size;
     canvas_datum_t* data;
 } canvas_buffer_t;
 
@@ -73,7 +73,7 @@ extern canvas_t wrap_canvas_buffer(canvas_buffer_t* canvas);
 extern canvas_t wrap_canvas_curses(canvas_curses_t* canvas);
 extern canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas);
 
-extern void init_canvas_buffer(canvas_buffer_t* canvas, vector2d_t size);
+extern void init_canvas_buffer(canvas_buffer_t* canvas, vec2d_t size);
 extern void init_canvas_curses(canvas_curses_t* canvas, bool decorative);
 extern void init_canvas_proxy(canvas_proxy_t* canvas, canvas_curses_t* underlying);
 
@@ -82,9 +82,9 @@ extern void deinit_canvas(canvas_t* canvas);
 extern void clear_canvas(canvas_t* canvas);
 extern void flush_canvas(canvas_t* canvas);
 
-extern void draw(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
-extern void drawf(canvas_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, ...);
+extern void draw(canvas_t* canvas, vec2d_t point, drawing_attr_t attr, const char* s);
+extern void drawf(canvas_t* canvas, vec2d_t point, drawing_attr_t attr, const char* format, ...);
 
-extern vector2d_t get_canvas_size(const canvas_t* canvas);
+extern vec2d_t get_canvas_size(const canvas_t* canvas);
 
 extern void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n);

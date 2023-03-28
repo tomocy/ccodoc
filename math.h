@@ -7,6 +7,6 @@
 typedef struct {
     unsigned int x;
     unsigned int y;
-} vector2d_t;
+} vec2d_t;
 
-extern vector2d_t vec2d_add(vector2d_t vector, vector2d_t other);
+extern vec2d_t vec2d_add(vec2d_t vector, vec2d_t other);

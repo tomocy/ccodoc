@@ -16,7 +16,7 @@ int test_renderer(void)
     renderer_t renderer = { 0 };
 
     canvas_buffer_t canvas_buffer = { 0 };
-    init_canvas_buffer(&canvas_buffer, (vector2d_t) { .x = 20, .y = 20 });
+    init_canvas_buffer(&canvas_buffer, (vec2d_t) { .x = 20, .y = 20 });
 
     canvas_t canvas = wrap_canvas_buffer(&canvas_buffer);
 

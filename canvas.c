@@ -16,13 +16,13 @@ static void clear_canvas_curses(canvas_curses_t* canvas);
 static void flush_canvas_curses(canvas_curses_t* canvas);
 static void flush_canvas_proxy(canvas_proxy_t* canvas);
 
-static void draw_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
-static void draw_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* s);
+static void draw_curses(canvas_curses_t* canvas, vec2d_t point, drawing_attr_t attr, const char* s);
+static void draw_buffer(canvas_buffer_t* canvas, vec2d_t point, drawing_attr_t attr, const char* s);
 
-static void drawfv_buffer(canvas_buffer_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
-static void drawfv_curses(canvas_curses_t* canvas, vector2d_t point, drawing_attr_t attr, const char* format, va_list args);
+static void drawfv_buffer(canvas_buffer_t* canvas, vec2d_t point, drawing_attr_t attr, const char* format, va_list args);
+static void drawfv_curses(canvas_curses_t* canvas, vec2d_t point, drawing_attr_t attr, const char* format, va_list args);
 
-static vector2d_t get_canvas_size_curses(const canvas_curses_t* canvas);
+static vec2d_t get_canvas_size_curses(const canvas_curses_t* canvas);
 
 static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
 
@@ -119,7 +119,7 @@ void flush_canvas(canvas_t* const canvas)
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void draw(canvas_t* const canvas, const vector2d_t point, const drawing_attr_t attr, const char* const s)
+void draw(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const s)
 {
     canvas_delegate_t* const delegate = &canvas->delegate;
 
@@ -141,7 +141,7 @@ void draw(canvas_t* const canvas, const vector2d_t point, const drawing_attr_t a
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void drawfv(canvas_t* const canvas, const vector2d_t point, const drawing_attr_t attr, const char* const format, va_list args)
+static void drawfv(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const format, va_list args)
 {
     canvas_delegate_t* const delegate = &canvas->delegate;
 
@@ -162,7 +162,7 @@ static void drawfv(canvas_t* const canvas, const vector2d_t point, const drawing
     }
 }
 
-void drawf(canvas_t* const canvas, const vector2d_t point, const drawing_attr_t attr, const char* const format, ...)
+void drawf(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -173,7 +173,7 @@ void drawf(canvas_t* const canvas, const vector2d_t point, const drawing_attr_t 
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-vector2d_t get_canvas_size(const canvas_t* const canvas)
+vec2d_t get_canvas_size(const canvas_t* const canvas)
 {
     const canvas_delegate_t* const delegate = &canvas->delegate;
 
@@ -191,7 +191,7 @@ vector2d_t get_canvas_size(const canvas_t* const canvas)
 
 // buffer
 
-void init_canvas_buffer(canvas_buffer_t* const canvas, const vector2d_t size)
+void init_canvas_buffer(canvas_buffer_t* const canvas, const vec2d_t size)
 {
     canvas->size = size;
     canvas->data = calloc(
@@ -203,6 +203,7 @@ void init_canvas_buffer(canvas_buffer_t* const canvas, const vector2d_t size)
 static void deinit_canvas_buffer(canvas_buffer_t* const canvas)
 {
     free(canvas->data);
+    canvas->data = NULL;
 
     canvas->size.x = 0;
     canvas->size.y = 0;
@@ -218,7 +219,7 @@ static void clear_canvas_buffer(canvas_buffer_t* const canvas)
     }
 }
 
-static void draw_buffer(canvas_buffer_t* const canvas, const vector2d_t point, const drawing_attr_t attr, const char* const s)
+static void draw_buffer(canvas_buffer_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const s)
 {
     unsigned int n = 0;
     const char* c = s;
@@ -238,7 +239,7 @@ static void draw_buffer(canvas_buffer_t* const canvas, const vector2d_t point, c
 
 static void drawfv_buffer(
     canvas_buffer_t* const canvas,
-    const vector2d_t point,
+    const vec2d_t point,
     const drawing_attr_t attr,
     const char* const format, va_list args
 )
@@ -338,14 +339,14 @@ static unsigned int drawing_attr_flags(const drawing_attr_t attr)
         }                                                          \
     }
 
-static void draw_curses(canvas_curses_t* const canvas, const vector2d_t point, const drawing_attr_t attr, const char* const s)
+static void draw_curses(canvas_curses_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const s)
 {
     PREFER_DRAWING_WITH_ATTR_CURSES(canvas, attr, {
         mvwprintw(canvas->window, (int)point.y, (int)point.x, s);
     });
 }
 
-static void drawfv_curses(canvas_curses_t* const canvas, const vector2d_t point, const drawing_attr_t attr, const char* const format, va_list args)
+static void drawfv_curses(canvas_curses_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const format, va_list args)
 {
     PREFER_DRAWING_WITH_ATTR_CURSES(canvas, attr, {
         wmove(canvas->window, (int)point.y, (int)point.x);
@@ -353,9 +354,9 @@ static void drawfv_curses(canvas_curses_t* const canvas, const vector2d_t point,
     });
 }
 
-static vector2d_t get_canvas_size_curses(const canvas_curses_t* const canvas)
+static vec2d_t get_canvas_size_curses(const canvas_curses_t* const canvas)
 {
-    return (vector2d_t) {
+    return (vec2d_t) {
         .x = getmaxx(canvas->window),
         .y = getmaxy(canvas->window),
     };
@@ -408,7 +409,7 @@ void init_canvas_proxy(canvas_proxy_t* const canvas, canvas_curses_t* const unde
 {
     canvas->underlying = underlying;
 
-    const vector2d_t size = get_canvas_size_curses(canvas->underlying);
+    const vec2d_t size = get_canvas_size_curses(canvas->underlying);
 
     for (int i = 0; i < CANVAS_PROXY_BUFFER_BUCKET_SIZE; i++) {
         init_canvas_buffer(&canvas->buffers[i], size);
@@ -438,7 +439,7 @@ static void flush_canvas_proxy(canvas_proxy_t* const canvas)
             char c[5] = { 0 };
             encode_char_utf8(c, datum->code);
 
-            draw(&underlying, (vector2d_t) { .y = y, .x = x }, datum->attr, c);
+            draw(&underlying, (vec2d_t) { .y = y, .x = x }, datum->attr, c);
         }
     }
 

@@ -48,12 +48,12 @@ void render(
     const tick_timer_t* const timer
 )
 {
-    static const vector2d_t ccodoc_size = {
+    static const vec2d_t ccodoc_size = {
         .x = 14,
         .y = 6,
     };
 
-    const vector2d_t canvas_size = get_canvas_size(renderer->canvas);
+    const vec2d_t canvas_size = get_canvas_size(renderer->canvas);
 
     drawing_context_t dctx = {
         .origin = {
@@ -116,7 +116,7 @@ static void render_kakehi(renderer_t* const renderer, drawing_context_t* const c
 
             drawf(
                 renderer->canvas,
-                vec2d_add(ctx->current, (vector2d_t) { .x = i }),
+                vec2d_add(ctx->current, (vec2d_t) { .x = i }),
                 (drawing_attr_t) {
                     .color = has_water ? color_blue : color_yellow,
                 },
@@ -192,13 +192,13 @@ static void render_tsutsu(renderer_t* const renderer, drawing_context_t* const c
 
     assert(art != NULL);
 
-    const vector2d_t origin = vec2d_add(ctx->current, (vector2d_t) { .x = 3 });
+    const vec2d_t origin = vec2d_add(ctx->current, (vec2d_t) { .x = 3 });
 
     for (size_t h = 0; h < art_height; h++) {
         if (!renderer->decorative) {
             draw(
                 renderer->canvas,
-                vec2d_add(origin, (vector2d_t) { .y = h }),
+                vec2d_add(origin, (vec2d_t) { .y = h }),
                 ctx->attr,
                 art[h]
             );
@@ -227,7 +227,7 @@ static void render_tsutsu(renderer_t* const renderer, drawing_context_t* const c
 
             drawf(
                 renderer->canvas,
-                vec2d_add(origin, (vector2d_t) { .y = h, .x = i }),
+                vec2d_add(origin, (vec2d_t) { .y = h, .x = i }),
                 attr,
                 "%.*s", desc.len, c
             );
@@ -274,7 +274,7 @@ static void render_hachi(renderer_t* const renderer, drawing_context_t* const ct
 
             drawf(
                 renderer->canvas,
-                vec2d_add(ctx->current, (vector2d_t) { .x = i }),
+                vec2d_add(ctx->current, (vec2d_t) { .x = i }),
                 (drawing_attr_t) {
                     .color = has_water ? color_blue : color_grey,
                 },
@@ -288,7 +288,7 @@ static void render_hachi(renderer_t* const renderer, drawing_context_t* const ct
         draw(renderer->canvas, ctx->current, ctx->attr, art);
     }
 
-    ctx->current = vec2d_add(ctx->current, (vector2d_t) { .x = art_width });
+    ctx->current = vec2d_add(ctx->current, (vec2d_t) { .x = art_width });
 }
 
 static void render_roji(renderer_t* const renderer, drawing_context_t* const ctx)
@@ -299,7 +299,7 @@ static void render_roji(renderer_t* const renderer, drawing_context_t* const ctx
         (drawing_attr_t) { .color = color_green, .dim = true },
         "━━━━━━"
     );
-    ctx->current = vec2d_add(ctx->current, (vector2d_t) { .x = 6 });
+    ctx->current = vec2d_add(ctx->current, (vec2d_t) { .x = 6 });
 
     draw(
         renderer->canvas,
@@ -313,7 +313,7 @@ static void render_roji(renderer_t* const renderer, drawing_context_t* const ctx
 
 static void render_timer(renderer_t* const renderer, drawing_context_t* const ctx, const tick_timer_t* const timer)
 {
-    ctx->current = vec2d_add(ctx->current, (vector2d_t) { .y = 4 });
+    ctx->current = vec2d_add(ctx->current, (vec2d_t) { .y = 4 });
 
     {
         const moment_t moment = moment_from_duration(remaining_time(timer), time_min);
@@ -326,7 +326,7 @@ static void render_timer(renderer_t* const renderer, drawing_context_t* const ct
 
         drawf(
             renderer->canvas,
-            vec2d_add(ctx->current, (vector2d_t) { .x = 4 }),
+            vec2d_add(ctx->current, (vec2d_t) { .x = 4 }),
             (drawing_attr_t) { .color = color_white },
             format, moment.hours, moment.mins
         );
@@ -359,7 +359,7 @@ static void render_timer(renderer_t* const renderer, drawing_context_t* const ct
             if (!renderer->decorative) {
                 draw(
                     renderer->canvas,
-                    vec2d_add(ctx->current, (vector2d_t) { .x = i }),
+                    vec2d_add(ctx->current, (vec2d_t) { .x = i }),
                     ctx->attr,
                     remaining ? "─" : " "
                 );
@@ -370,7 +370,7 @@ static void render_timer(renderer_t* const renderer, drawing_context_t* const ct
 
             draw(
                 renderer->canvas,
-                vec2d_add(ctx->current, (vector2d_t) { .x = i }),
+                vec2d_add(ctx->current, (vec2d_t) { .x = i }),
                 attr,
                 "─"
             );

@@ -56,10 +56,10 @@ void sleep_for(const duration_t duration)
     } while (slept != 0);
 }
 
-moment_t moment_from_duration(const duration_t d, const time_precision_t precision)
+moment_t moment_from_duration(const duration_t duration, const time_precision_t precision)
 {
     moment_t moment = { 0 };
-    duration_t current = d;
+    duration_t current = duration;
 
     if (precision <= time_hour) {
         double hours = (double)current.msecs / time_hour;
