@@ -4,8 +4,8 @@
 
 int main(void)
 {
-    printf("# engine\n");
-    EXPECT_PASS(test_engine());
+    printf("# ccodoc\n");
+    EXPECT_PASS(test_ccodoc());
     printf("\n");
 
     printf("# string\n");

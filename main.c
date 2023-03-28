@@ -1,13 +1,13 @@
 #include "canvas.h"
-#include "engine.h"
+#include "ccodoc.h"
 #include "renderer.h"
 #include "string.h"
 #include "time.h"
 #include <stdlib.h>
 
 typedef enum {
-    mode_type_alone,
-    mode_type_timer,
+    mode_wabi,
+    mode_sabi,
 } mode_type_t;
 
 typedef struct {
@@ -21,12 +21,12 @@ typedef struct {
     union {
         struct {
             ccodoc_t* ccodoc;
-        } alone;
+        } wabi;
 
         struct {
             ccodoc_t* ccodoc;
             tick_timer_t* timer;
-        } timer;
+        } sabi;
     } target;
 } mode_t;
 
@@ -35,9 +35,9 @@ typedef struct {
 
     struct {
         duration_t duration;
-    } timer;
+    } sabi;
 
-    bool decorative;
+    bool satori;
 
     struct {
         const char* tsutsu_poured;
@@ -55,16 +55,16 @@ static int help(void);
 
 static int run(mode_t* mode, mode_processor_t processor);
 
-static void process_alone(mode_t* mode, duration_t delta);
-static void process_timer(mode_t* mode, duration_t delta);
+static void process_wabi(mode_t* mode, duration_t delta);
+static void process_sabi(mode_t* mode, duration_t delta);
 
 static void process(mode_t* mode, mode_processor_t processor);
 
 int main(const int argc, const char* const* const argv)
 {
     config_t config = {
-        .mode = mode_type_alone,
-        .decorative = true,
+        .mode = mode_wabi,
+        .satori = false,
         .help = false,
         .debug = false,
     };
@@ -107,7 +107,7 @@ int main(const int argc, const char* const* const argv)
     };
 
     renderer_t renderer = {
-        .decorative = config.decorative,
+        .ornamental = !config.satori,
         .debug = config.debug,
 
         .sound = {
@@ -117,7 +117,7 @@ int main(const int argc, const char* const* const argv)
     };
 
     canvas_curses_t canvas_delegate = { 0 };
-    init_canvas_curses(&canvas_delegate, config.decorative);
+    init_canvas_curses(&canvas_delegate, !config.satori);
 
     canvas_proxy_t canvas_proxy = { 0 };
     init_canvas_proxy(&canvas_proxy, &canvas_delegate);
@@ -125,7 +125,7 @@ int main(const int argc, const char* const* const argv)
     canvas_t canvas = wrap_canvas_proxy(&canvas_proxy);
 
     mode_t mode = {
-        .type = mode_type_timer,
+        .type = mode_sabi,
         .rendering_ctx = {
             .renderer = &renderer,
             .canvas = &canvas,
@@ -135,17 +135,17 @@ int main(const int argc, const char* const* const argv)
     mode_processor_t processor = NULL;
 
     switch (config.mode) {
-    case mode_type_alone:
-        mode.target.alone.ccodoc = &ccodoc;
-        processor = process_alone;
+    case mode_wabi:
+        mode.target.wabi.ccodoc = &ccodoc;
+        processor = process_wabi;
         break;
-    case mode_type_timer:
-        mode.target.timer.ccodoc = &ccodoc;
+    case mode_sabi:
+        mode.target.sabi.ccodoc = &ccodoc;
 
-        tick_timer_t timer = { .duration = config.timer.duration };
-        mode.target.timer.timer = &timer;
+        tick_timer_t timer = { .duration = config.sabi.duration };
+        mode.target.sabi.timer = &timer;
 
-        processor = process_timer;
+        processor = process_sabi;
         break;
     }
 
@@ -171,10 +171,10 @@ static const char* configure_with_args(config_t* const config, const int argc, c
     for (int i = 1; i < argc; i++) {
         const char* const arg = argv[i];
 
-        if (str_equals(arg, "--timer")) {
+        if (str_equals(arg, "--sabi")) {
             const char* const raw = read_arg(&i, argv);
             if (raw == NULL) {
-                return CONFIG_ERR_NO_VALUE_SPECIFIED("timer");
+                return CONFIG_ERR_NO_VALUE_SPECIFIED("sabi");
             }
 
             moment_t m = { 0 };
@@ -186,14 +186,14 @@ static const char* configure_with_args(config_t* const config, const int argc, c
                 return "timer: duration format must be HH:mm";
             }
 
-            config->mode = mode_type_timer;
-            config->timer.duration = d;
+            config->mode = mode_sabi;
+            config->sabi.duration = d;
 
             continue;
         }
 
-        if (str_equals(arg, "--plain")) {
-            config->decorative = false;
+        if (str_equals(arg, "--satori")) {
+            config->satori = true;
             continue;
         }
 
@@ -233,24 +233,63 @@ static const char* configure_with_args(config_t* const config, const int argc, c
     return NULL;
 }
 
-static void print_arg_help(const char* const arg, const char* const description)
+static void print_arg_help(const char* const arg, const char** const descs)
 {
     printf("%s\n", arg);
-    printf("  %s\n\n", description);
+
+    for (const char** desc = descs; *desc; desc++) {
+        printf("  %s\n", *desc);
+    }
+    printf("\n");
 }
 
 static int help(void)
 {
-    printf("# ccodoc（鹿威し）\n");
+    printf("# ccodoc\n");
 
-    printf("\n## options\n");
-    print_arg_help("--timer HH:mm", "Set the timer for this duration.");
+    printf("\nccodoc（鹿威し）simulated（造）in your terminal\n");
 
-    print_arg_help("--plain", "Render ccodoc without decoration.");
-    print_arg_help("--sound-tsutsu-poured", "Play this sound on tsutsu（筒）poured.");
-    print_arg_help("--sound-tsutsu-bumped", "Play this sound on tsutsu（筒）bumped.");
+    printf("\n\n## options\n\n");
 
-    print_arg_help("--help", "Print help.");
+    print_arg_help(
+        "--wabi",
+        (const char*[]) {
+            "Render ccodoc alone. (default)",
+            "Imperfect does not always mean \"not perfect\". Simple does not always mean \"not complicated\".",
+            "It is just what it is.（侘び）",
+            NULL,
+        }
+    );
+
+    print_arg_help(
+        "--sabi HH:mm",
+        (const char*[]) {
+            "Render ccodoc with the timer set for this duration.",
+            "Impermanent does not always mean \"not permanent\". Behind does not always mean \"not ahead\".",
+            "It will be just what it will be.（寂び）",
+            NULL,
+        }
+    );
+
+    print_arg_help(
+        "--satori",
+        (const char*[]) {
+            "Remove all ornaments.",
+            "Neither color nor sound is needed as they already lies within you.（悟り）",
+            NULL,
+        }
+    );
+
+    print_arg_help(
+        "--sound-tsutsu-poured file",
+        (const char*[]) { "Play this sound on tsutsu（筒）poured.", NULL }
+    );
+    print_arg_help(
+        "--sound-tsutsu-bumped file",
+        (const char*[]) { "Play this sound on tsutsu（筒）bumped.", NULL }
+    );
+
+    print_arg_help("--help", (const char*[]) { "Print help.", NULL });
 
     return EXIT_SUCCESS;
 }
@@ -259,36 +298,36 @@ static int run(mode_t* const mode, mode_processor_t const processor)
 {
     init_renderer(
         mode->rendering_ctx.renderer, mode->rendering_ctx.canvas,
-        mode->target.timer.ccodoc
+        mode->target.sabi.ccodoc
     );
 
     process(mode, processor);
 
-    deinit_renderer(mode->rendering_ctx.renderer, mode->target.timer.ccodoc);
+    deinit_renderer(mode->rendering_ctx.renderer, mode->target.sabi.ccodoc);
 
     return EXIT_SUCCESS;
 }
 
-static void process_alone(mode_t* mode, duration_t delta)
+static void process_wabi(mode_t* mode, duration_t delta)
 {
-    tick_ccodoc(mode->target.timer.ccodoc, delta);
+    tick_ccodoc(mode->target.sabi.ccodoc, delta);
 
     render(
         mode->rendering_ctx.renderer,
         delta,
-        mode->target.timer.ccodoc, NULL
+        mode->target.sabi.ccodoc, NULL
     );
 }
 
-static void process_timer(mode_t* const mode, const duration_t delta)
+static void process_sabi(mode_t* const mode, const duration_t delta)
 {
-    tick_ccodoc(mode->target.timer.ccodoc, delta);
-    tick_timer(mode->target.timer.timer, delta);
+    tick_ccodoc(mode->target.sabi.ccodoc, delta);
+    tick_timer(mode->target.sabi.timer, delta);
 
     render(
         mode->rendering_ctx.renderer,
         delta,
-        mode->target.timer.ccodoc, mode->target.timer.timer
+        mode->target.sabi.ccodoc, mode->target.sabi.timer
     );
 }
 

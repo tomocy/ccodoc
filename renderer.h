@@ -2,12 +2,12 @@
 
 #include "canvas.h"
 
-#include "engine.h"
+#include "ccodoc.h"
 
 typedef struct {
     canvas_t* canvas;
 
-    bool decorative;
+    bool ornamental;
 
     struct {
         const char* tsutsu_poured;

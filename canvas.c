@@ -268,17 +268,17 @@ static bool canvas_equals_buffer(const canvas_buffer_t* const canvas, const canv
 static void register_color_curses(color_t color, short r, short g, short b, short supplement);
 static short as_color_curses(color_t color);
 
-void init_canvas_curses(canvas_curses_t* const canvas, const bool decorative)
+void init_canvas_curses(canvas_curses_t* const canvas, const bool ornamental)
 {
     (void)setlocale(LC_ALL, "");
 
     canvas->window = initscr();
-    canvas->decorative = decorative;
+    canvas->ornamental = ornamental;
 
     noecho();
     curs_set(0);
 
-    if (!decorative) {
+    if (!ornamental) {
         return;
     }
 
@@ -329,7 +329,7 @@ static unsigned int drawing_attr_flags(const drawing_attr_t attr)
 
 #define PREFER_DRAWING_WITH_ATTR_CURSES(canvas, attr, ...)         \
     {                                                              \
-        if ((canvas)->decorative) {                                \
+        if ((canvas)->ornamental) {                                \
             const unsigned int flags = drawing_attr_flags((attr)); \
             attron(flags);                                         \
             __VA_ARGS__;                                           \

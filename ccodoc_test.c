@@ -1,8 +1,8 @@
-#include "engine.h"
+#include "ccodoc.h"
 
 #include "ccodoc_test.h"
 
-int test_engine(void)
+int test_ccodoc(void)
 {
     ccodoc_t ccodoc = {
         .kakehi = {

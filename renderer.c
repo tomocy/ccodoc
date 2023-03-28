@@ -345,7 +345,7 @@ static void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, c
             attr.dim = !remaining;
 
             const char* art = "─";
-            if (!renderer->decorative) {
+            if (!renderer->ornamental) {
                 art = remaining ? "─" : " ";
             }
 
@@ -393,7 +393,7 @@ static void render_debug_info(
             renderer->canvas,
             ctx.current,
             ctx.attr,
-            "decorative: %s", renderer->decorative ? "yes" : "no"
+            "ornamental: %s", renderer->ornamental ? "yes" : "no"
         );
         wrap_drawing_lines(&ctx, 1);
     }
@@ -544,7 +544,7 @@ static void play_sound(const char* name);
 static void on_tsutsu_poured(void* const raw_renderer)
 {
     const renderer_t* const renderer = raw_renderer;
-    if (!renderer->decorative || renderer->sound.tsutsu_poured == NULL) {
+    if (!renderer->ornamental || renderer->sound.tsutsu_poured == NULL) {
         return;
     }
 
@@ -554,7 +554,7 @@ static void on_tsutsu_poured(void* const raw_renderer)
 static void on_tsutsu_released_water(void* const raw_renderer)
 {
     const renderer_t* const renderer = raw_renderer;
-    if (!renderer->decorative || renderer->sound.tsutsu_bumped == NULL) {
+    if (!renderer->ornamental || renderer->sound.tsutsu_bumped == NULL) {
         return;
     }
 

@@ -24,7 +24,7 @@
         }                               \
     }
 
-extern int test_engine(void);
+extern int test_ccodoc(void);
 extern int test_str(void);
 extern int test_time(void);
 extern int test_renderer(void);

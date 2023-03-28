@@ -8,21 +8,22 @@
 
 static void tick(tick_timer_t* timer, ccodoc_t* ccodoc, const duration_t delta);
 static void print_elapsed_time(const tick_timer_t* timer);
-static int test_ccodoc(const canvas_buffer_t* actual, const char* expected);
-static void draw_ccodoc(const canvas_buffer_t* actual);
+static int test_rendering(const canvas_buffer_t* actual, const char* expected);
+static void print_ccodoc(const canvas_buffer_t* canvas);
 
-#define EXPECT_EQUAL_CCODOC(renderer, delta, ccodoc, timer, expected)             \
-    {                                                                             \
-        renderer_t* const renderer_ = (renderer);                                 \
-        const duration_t delta_ = (delta);                                        \
-        ccodoc_t* const ccodoc_ = (ccodoc);                                       \
-        tick_timer_t* const timer_ = (timer);                                     \
-                                                                                  \
-        tick(timer_, ccodoc_, delta_);                                            \
-        render(renderer_, delta_, ccodoc_, timer_);                               \
-                                                                                  \
-        print_elapsed_time(timer_);                                               \
-        EXPECT_PASS(test_ccodoc(renderer_->canvas->delegate.buffer, (expected))); \
+#define EXPECT_EQUAL_CCODOC(renderer, delta, ccodoc, timer, expected)                \
+    {                                                                                \
+        renderer_t* const renderer_ = (renderer);                                    \
+        const duration_t delta_ = (delta);                                           \
+        ccodoc_t* const ccodoc_ = (ccodoc);                                          \
+        tick_timer_t* const timer_ = (timer);                                        \
+                                                                                     \
+        tick(timer_, ccodoc_, delta_);                                               \
+        render(renderer_, delta_, ccodoc_, timer_);                                  \
+                                                                                     \
+        print_elapsed_time(timer_);                                                  \
+        print_ccodoc(renderer_->canvas->delegate.buffer);                            \
+        EXPECT_PASS(test_rendering(renderer_->canvas->delegate.buffer, (expected))); \
     }
 
 int test_renderer(void)
@@ -876,10 +877,8 @@ static void print_elapsed_time(const tick_timer_t* timer)
     printf("- elapsed: %um%us%ums\n", m.mins, m.secs, m.msecs);
 }
 
-static int test_ccodoc(const canvas_buffer_t* actual, const char* expected)
+static int test_rendering(const canvas_buffer_t* actual, const char* expected)
 {
-    draw_ccodoc(actual);
-
     char_descriptor_t* const expected_chars = calloc((unsigned long)actual->size.x * actual->size.y, sizeof(char_descriptor_t));
     assert(expected_chars != NULL);
 
@@ -915,7 +914,7 @@ static int test_ccodoc(const canvas_buffer_t* actual, const char* expected)
     return EXIT_SUCCESS;
 }
 
-static void draw_ccodoc(const canvas_buffer_t* canvas)
+static void print_ccodoc(const canvas_buffer_t* canvas)
 {
     for (unsigned int h = 0; h < canvas->size.y; h++) {
         for (unsigned int w = 0; w < canvas->size.x; w++) {
