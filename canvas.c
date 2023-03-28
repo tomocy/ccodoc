@@ -464,7 +464,7 @@ static void switch_canvas_buffer(canvas_proxy_t* const canvas)
     canvas->active_buffer_index = (canvas->active_buffer_index + 1) % CANVAS_PROXY_BUFFER_BUCKET_SIZE;
 }
 
-void wrap_drawing_lines(drawing_context_t* const ctx, const unsigned int n)
+void wrap_drawing_lines(drawing_ctx_t* const ctx, const unsigned int n)
 {
     ctx->current.y += n;
     ctx->current.x = ctx->origin.x;

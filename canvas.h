@@ -26,7 +26,7 @@ typedef struct {
 
     vec2d_t origin;
     vec2d_t current;
-} drawing_context_t;
+} drawing_ctx_t;
 
 typedef struct {
     uint32_t code;
@@ -87,4 +87,4 @@ extern void drawf(canvas_t* canvas, vec2d_t point, drawing_attr_t attr, const ch
 
 extern vec2d_t get_canvas_size(const canvas_t* canvas);
 
-extern void wrap_drawing_lines(drawing_context_t* ctx, unsigned int n);
+extern void wrap_drawing_lines(drawing_ctx_t* ctx, unsigned int n);

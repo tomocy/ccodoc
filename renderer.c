@@ -31,11 +31,11 @@ void deinit_renderer(renderer_t* const renderer, ccodoc_t* const ccodoc)
     ccodoc->tsutsu.on_released_water = (event_t) { 0 };
 }
 
-static void render_kakehi(renderer_t* renderer, drawing_context_t* ctx, const kakehi_t* kakehi);
-static void render_tsutsu(renderer_t* renderer, drawing_context_t* ctx, const tsutsu_t* tsutsu);
-static void render_hachi(renderer_t* renderer, drawing_context_t* ctx, const hachi_t* hachi);
-static void render_roji(renderer_t* renderer, drawing_context_t* ctx);
-static void render_timer(renderer_t* renderer, drawing_context_t* ctx, const tick_timer_t* timer);
+static void render_kakehi(renderer_t* renderer, drawing_ctx_t* ctx, const kakehi_t* kakehi);
+static void render_tsutsu(renderer_t* renderer, drawing_ctx_t* ctx, const tsutsu_t* tsutsu);
+static void render_hachi(renderer_t* renderer, drawing_ctx_t* ctx, const hachi_t* hachi);
+static void render_roji(renderer_t* renderer, drawing_ctx_t* ctx);
+static void render_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer);
 static void render_debug_info(
     renderer_t* renderer,
     duration_t delta, const ccodoc_t* ccodoc, const tick_timer_t* timer
@@ -55,7 +55,7 @@ void render(
 
     const vec2d_t canvas_size = get_canvas_size(renderer->canvas);
 
-    drawing_context_t dctx = {
+    drawing_ctx_t dctx = {
         .origin = {
             .x = (canvas_size.x - ccodoc_size.x) / 2,
             .y = (canvas_size.y - ccodoc_size.y) / 2,
@@ -81,7 +81,7 @@ void render(
     flush_canvas(renderer->canvas);
 }
 
-static void render_kakehi(renderer_t* const renderer, drawing_context_t* const ctx, const kakehi_t* const kakehi)
+static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, const kakehi_t* const kakehi)
 {
     const char* art = NULL;
     switch (kakehi->state) {
@@ -133,7 +133,7 @@ static void render_kakehi(renderer_t* const renderer, drawing_context_t* const c
     wrap_drawing_lines(ctx, 1);
 }
 
-static void render_tsutsu(renderer_t* const renderer, drawing_context_t* const ctx, const tsutsu_t* const tsutsu)
+static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, const tsutsu_t* const tsutsu)
 {
     static const size_t art_height = 4;
 
@@ -240,7 +240,7 @@ static void render_tsutsu(renderer_t* const renderer, drawing_context_t* const c
     wrap_drawing_lines(ctx, art_height);
 }
 
-static void render_hachi(renderer_t* const renderer, drawing_context_t* const ctx, const hachi_t* const hachi)
+static void render_hachi(renderer_t* const renderer, drawing_ctx_t* const ctx, const hachi_t* const hachi)
 {
     static const unsigned int art_width = 4;
 
@@ -291,7 +291,7 @@ static void render_hachi(renderer_t* const renderer, drawing_context_t* const ct
     ctx->current = vec2d_add(ctx->current, (vec2d_t) { .x = art_width });
 }
 
-static void render_roji(renderer_t* const renderer, drawing_context_t* const ctx)
+static void render_roji(renderer_t* const renderer, drawing_ctx_t* const ctx)
 {
     draw(
         renderer->canvas,
@@ -311,7 +311,7 @@ static void render_roji(renderer_t* const renderer, drawing_context_t* const ctx
     wrap_drawing_lines(ctx, 1);
 }
 
-static void render_timer(renderer_t* const renderer, drawing_context_t* const ctx, const tick_timer_t* const timer)
+static void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const tick_timer_t* const timer)
 {
     ctx->current = vec2d_add(ctx->current, (vec2d_t) { .y = 4 });
 
@@ -380,8 +380,8 @@ static void render_timer(renderer_t* const renderer, drawing_context_t* const ct
     }
 }
 
-static void render_debug_info_ccodoc(renderer_t* renderer, drawing_context_t* ctx, const ccodoc_t* ccodoc);
-static void render_debug_info_timer(renderer_t* renderer, drawing_context_t* ctx, const tick_timer_t* timer);
+static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, const ccodoc_t* ccodoc);
+static void render_debug_info_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer);
 static const char* water_flow_state_to_str(water_flow_state_t state);
 
 static void render_debug_info(
@@ -391,7 +391,7 @@ static void render_debug_info(
     const tick_timer_t* const timer
 )
 {
-    drawing_context_t ctx = {
+    drawing_ctx_t ctx = {
         .attr = { .color = color_white },
         .origin = { .x = 0, .y = 0 },
     };
@@ -440,7 +440,7 @@ static void render_debug_info(
     }
 }
 
-static void render_debug_info_ccodoc(renderer_t* renderer, drawing_context_t* ctx, const ccodoc_t* const ccodoc)
+static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, const ccodoc_t* const ccodoc)
 {
     draw(renderer->canvas, ctx->current, ctx->attr, "# ccodoc");
     wrap_drawing_lines(ctx, 1);
@@ -525,7 +525,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_context_t* ct
     }
 }
 
-static void render_debug_info_timer(renderer_t* renderer, drawing_context_t* ctx, const tick_timer_t* timer)
+static void render_debug_info_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer)
 {
     draw(renderer->canvas, ctx->current, ctx->attr, "# timer");
     wrap_drawing_lines(ctx, 1);
