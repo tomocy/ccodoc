@@ -11,6 +11,20 @@ static void print_elapsed_time(const tick_timer_t* timer);
 static int test_ccodoc(const canvas_buffer_t* actual, const char* expected);
 static void draw_ccodoc(const canvas_buffer_t* actual);
 
+#define EXPECT_EQUAL_CCODOC(renderer, delta, ccodoc, timer, expected)             \
+    {                                                                             \
+        renderer_t* const renderer_ = (renderer);                                 \
+        const duration_t delta_ = (delta);                                        \
+        ccodoc_t* const ccodoc_ = (ccodoc);                                       \
+        tick_timer_t* const timer_ = (timer);                                     \
+                                                                                  \
+        tick(timer_, ccodoc_, delta_);                                            \
+        render(renderer_, delta_, ccodoc_, timer_);                               \
+                                                                                  \
+        print_elapsed_time(timer_);                                               \
+        EXPECT_PASS(test_ccodoc(renderer_->canvas->delegate.buffer, (expected))); \
+    }
+
 int test_renderer(void)
 {
     renderer_t renderer = { 0 };
@@ -53,614 +67,504 @@ int test_renderer(void)
         {
             const duration_t delta = (duration_t) { .msecs = 0 };
 
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ━══              "
-                    "      ◥◣            "
-                    "        ◥◣          "
-                    "        ▕ ◥◣        "
-                    "        ▕   ◥◣      "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ═━═              "
-                    "      ◥◣            "
-                    "        ◥◣          "
-                    "        ▕ ◥◣        "
-                    "        ▕   ◥◣      "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═━═              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ══━              "
-                    "      ◥◣            "
-                    "        ◥◣          "
-                    "        ▕ ◥◣        "
-                    "        ▕   ◥◣      "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ══━              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ═══              "
-                    "      ◥◣            "
-                    "        ◥◣          "
-                    "        ▕ ◥◣        "
-                    "        ▕   ◥◣      "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 900 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ━══              "
-                    "      ◥◣            "
-                    "        ◥◣          "
-                    "        ▕ ◥◣        "
-                    "        ▕   ◥◣      "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ═━═              "
-                    "      ◥◣            "
-                    "        ◥◣          "
-                    "        ▕ ◥◣        "
-                    "        ▕   ◥◣      "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═━═              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ══━              "
-                    "      ◥◣            "
-                    "        ◥◣          "
-                    "        ▕ ◥◣        "
-                    "        ▕   ◥◣      "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ══━              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ═══              "
-                    "      ◥◣            "
-                    "        ◥◣          "
-                    "        ▕ ◥◣        "
-                    "        ▕   ◥◣      "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 6 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ═══              "
-                    "                    "
-                    "      ◢◤◢◤◢◤◢◤      "
-                    "        ▕           "
-                    "        ▕           "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "                    "
+                "      ◢◤◢◤◢◤◢◤      "
+                "        ▕           "
+                "        ▕           "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 3 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ═══              "
-                    "            ◢◤      "
-                    "          ◢◤        "
-                    "        ◢◤          "
-                    "      ◢◤▕           "
-                    "   ▭▬▬▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "            ◢◤      "
+                "          ◢◤        "
+                "        ◢◤          "
+                "      ◢◤▕           "
+                "   ▭▬▬▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
 
-            tick(&timer, &ccodoc, delta);
-
-            render(&renderer, delta, &ccodoc, &timer);
-
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ═══              "
-                    "            ◢◤      "
-                    "          ◢◤        "
-                    "        ◢◤          "
-                    "      ◢◤▕           "
-                    "   ▬▭▭▬━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "            ◢◤      "
+                "          ◢◤        "
+                "        ◢◤          "
+                "      ◢◤▕           "
+                "   ▬▭▭▬━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
-            tick(&timer, &ccodoc, delta);
-            render(&renderer, delta, &ccodoc, &timer);
 
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ═══              "
-                    "            ◢◤      "
-                    "          ◢◤        "
-                    "        ◢◤          "
-                    "      ◢◤▕           "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "            ◢◤      "
+                "          ◢◤        "
+                "        ◢◤          "
+                "      ◢◤▕           "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
-            tick(&timer, &ccodoc, delta);
-            render(&renderer, delta, &ccodoc, &timer);
 
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ━══              "
-                    "                    "
-                    "      ◢◤◢◤◢◤◢◤      "
-                    "        ▕           "
-                    "        ▕           "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "                    "
+                "      ◢◤◢◤◢◤◢◤      "
+                "        ▕           "
+                "        ▕           "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
-            tick(&timer, &ccodoc, delta);
-            render(&renderer, delta, &ccodoc, &timer);
 
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ━══              "
-                    "      ◥◣            "
-                    "        ◥◣          "
-                    "        ▕ ◥◣        "
-                    "        ▕   ◥◣      "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ──────────────   "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 14, .msecs = 700 });
-            tick(&timer, &ccodoc, delta);
-            render(&renderer, delta, &ccodoc, &timer);
 
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ━══              "
-                    "                    "
-                    "      ◢◤◢◤◢◤◢◤      "
-                    "        ▕           "
-                    "        ▕           "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ05ᴹ       "
-                    "   ─────────────    "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "                    "
+                "      ◢◤◢◤◢◤◢◤      "
+                "        ▕           "
+                "        ▕           "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ─────────────    "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 30 });
-            tick(&timer, &ccodoc, delta);
-            render(&renderer, delta, &ccodoc, &timer);
 
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ━══              "
-                    "                    "
-                    "      ◢◤◢◤◢◤◢◤      "
-                    "        ▕           "
-                    "        ▕           "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ04ᴹ       "
-                    "   ────────────     "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "                    "
+                "      ◢◤◢◤◢◤◢◤      "
+                "        ▕           "
+                "        ▕           "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ04ᴹ       "
+                "   ────────────     "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .mins = 3, .secs = 30 });
-            tick(&timer, &ccodoc, delta);
-            render(&renderer, delta, &ccodoc, &timer);
 
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ━══              "
-                    "                    "
-                    "      ◢◤◢◤◢◤◢◤      "
-                    "        ▕           "
-                    "        ▕           "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ01ᴹ       "
-                    "   ──               "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "                    "
+                "      ◢◤◢◤◢◤◢◤      "
+                "        ▕           "
+                "        ▕           "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ01ᴹ       "
+                "   ──               "
+                "                    "
             );
         }
 
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 30 });
-            tick(&timer, &ccodoc, delta);
-            render(&renderer, delta, &ccodoc, &timer);
 
-            print_elapsed_time(&timer);
-            EXPECT_PASS_X(
-                test_ccodoc(
-                    renderer.canvas->delegate.buffer,
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "   ━══              "
-                    "                    "
-                    "      ◢◤◢◤◢◤◢◤      "
-                    "        ▕           "
-                    "        ▕           "
-                    "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "                    "
-                    "       00ᴴ00ᴹ       "
-                    "                    "
-                    "                    "
-                )
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "                    "
+                "      ◢◤◢◤◢◤◢◤      "
+                "        ▕           "
+                "        ▕           "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ00ᴹ       "
+                "                    "
+                "                    "
             );
         }
     }

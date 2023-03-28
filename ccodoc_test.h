@@ -17,15 +17,7 @@
 #define EXPECT_TRUE(actual) EXPECT_EQUAL(actual, true)
 #define EXPECT_FALSE(actual) EXPECT_EQUAL(actual, false)
 
-#define EXPECT_PASS(label, actual)      \
-    {                                   \
-        printf(label);                  \
-        if ((actual) != EXIT_SUCCESS) { \
-            return EXIT_FAILURE;        \
-        }                               \
-    }
-
-#define EXPECT_PASS_X(actual)           \
+#define EXPECT_PASS(actual)             \
     {                                   \
         if ((actual) != EXIT_SUCCESS) { \
             return EXIT_FAILURE;        \
