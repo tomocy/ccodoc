@@ -93,6 +93,230 @@ int test_renderer(void)
         }
 
         {
+            const duration_t delta = (duration_t) { .msecs = 350 };
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═━═              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═━═              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ══━              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ══━              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 450 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 450 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
             EXPECT_EQUAL_CCODOC(
@@ -205,90 +429,6 @@ int test_renderer(void)
         }
 
         {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
-
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═━═              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
-
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ══━              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
-
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 6 });
 
             EXPECT_EQUAL_CCODOC(
@@ -300,7 +440,7 @@ int test_renderer(void)
                 "                    "
                 "                    "
                 "                    "
-                "   ═══              "
+                "   ━══              "
                 "                    "
                 "      ◢◤◢◤◢◤◢◤      "
                 "        ▕           "
@@ -317,7 +457,7 @@ int test_renderer(void)
         }
 
         {
-            const duration_t delta = duration_from_moment((moment_t) { .secs = 3 });
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 2100 });
 
             EXPECT_EQUAL_CCODOC(
                 &renderer, delta, &ccodoc, &timer,
@@ -345,7 +485,35 @@ int test_renderer(void)
         }
 
         {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "            ◢◤      "
+                "          ◢◤        "
+                "        ◢◤          "
+                "      ◢◤▕           "
+                "   ▭▬▬▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
 
             EXPECT_EQUAL_CCODOC(
                 &renderer, delta, &ccodoc, &timer,
@@ -373,7 +541,35 @@ int test_renderer(void)
         }
 
         {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "            ◢◤      "
+                "          ◢◤        "
+                "        ◢◤          "
+                "      ◢◤▕           "
+                "   ▬▭▭▬━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ──────────────   "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
 
             EXPECT_EQUAL_CCODOC(
                 &renderer, delta, &ccodoc, &timer,
@@ -457,7 +653,7 @@ int test_renderer(void)
         }
 
         {
-            const duration_t delta = duration_from_moment((moment_t) { .secs = 14, .msecs = 700 });
+            const duration_t delta = duration_from_moment((moment_t) { .secs = 13, .msecs = 700 });
 
             EXPECT_EQUAL_CCODOC(
                 &renderer, delta, &ccodoc, &timer,
@@ -468,7 +664,7 @@ int test_renderer(void)
                 "                    "
                 "                    "
                 "                    "
-                "   ━══              "
+                "   ══━              "
                 "                    "
                 "      ◢◤◢◤◢◤◢◤      "
                 "        ▕           "
@@ -485,7 +681,7 @@ int test_renderer(void)
         }
 
         {
-            const duration_t delta = duration_from_moment((moment_t) { .secs = 30 });
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 100 });
 
             EXPECT_EQUAL_CCODOC(
                 &renderer, delta, &ccodoc, &timer,
@@ -496,24 +692,24 @@ int test_renderer(void)
                 "                    "
                 "                    "
                 "                    "
-                "   ━══              "
-                "                    "
-                "      ◢◤◢◤◢◤◢◤      "
-                "        ▕           "
-                "        ▕           "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
+                "   ═══              "
+                "            ◢◤      "
+                "          ◢◤        "
+                "        ◢◤          "
+                "      ◢◤▕           "
+                "   ▭▬▬▭━━━━━━▨▨▨▨   "
                 "                    "
                 "                    "
-                "       00ᴴ04ᴹ       "
-                "   ────────────     "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ─────────────    "
                 "                    "
             );
         }
 
         {
-            const duration_t delta = duration_from_moment((moment_t) { .mins = 3, .secs = 30 });
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 1200 });
 
             EXPECT_EQUAL_CCODOC(
                 &renderer, delta, &ccodoc, &timer,
@@ -525,6 +721,62 @@ int test_renderer(void)
                 "                    "
                 "                    "
                 "   ━══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ05ᴹ       "
+                "   ─────────────    "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .mins = 3 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ━══              "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
+                "   ▭▭▭▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ02ᴹ       "
+                "   ─────            "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .mins = 1, .secs = 28, .msecs = 700 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ══━              "
                 "                    "
                 "      ◢◤◢◤◢◤◢◤      "
                 "        ▕           "
@@ -535,13 +787,41 @@ int test_renderer(void)
                 "                    "
                 "                    "
                 "       00ᴴ01ᴹ       "
-                "   ──               "
+                "   ─                "
                 "                    "
             );
         }
 
         {
-            const duration_t delta = duration_from_moment((moment_t) { .secs = 30 });
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 100 });
+
+            EXPECT_EQUAL_CCODOC(
+                &renderer, delta, &ccodoc, &timer,
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "   ═══              "
+                "            ◢◤      "
+                "          ◢◤        "
+                "        ◢◤          "
+                "      ◢◤▕           "
+                "   ▭▬▬▭━━━━━━▨▨▨▨   "
+                "                    "
+                "                    "
+                "                    "
+                "                    "
+                "       00ᴴ01ᴹ       "
+                "   ─                "
+                "                    "
+            );
+        }
+
+        {
+            const duration_t delta = duration_from_moment((moment_t) { .msecs = 1200 });
 
             EXPECT_EQUAL_CCODOC(
                 &renderer, delta, &ccodoc, &timer,
@@ -553,10 +833,10 @@ int test_renderer(void)
                 "                    "
                 "                    "
                 "   ━══              "
-                "                    "
-                "      ◢◤◢◤◢◤◢◤      "
-                "        ▕           "
-                "        ▕           "
+                "      ◥◣            "
+                "        ◥◣          "
+                "        ▕ ◥◣        "
+                "        ▕   ◥◣      "
                 "   ▭▭▭▭━━━━━━▨▨▨▨   "
                 "                    "
                 "                    "
