@@ -108,7 +108,7 @@ static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, 
 
     assert(art != NULL);
 
-    if (renderer->decorative) {
+    {
         int i = 0;
         for (const char* c = art; *c;) {
             const char_descriptor_t desc = decode_char_utf8(c);
@@ -126,8 +126,6 @@ static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, 
             i++;
             c += desc.len;
         }
-    } else {
-        draw(renderer->canvas, ctx->current, ctx->attr, art);
     }
 
     wrap_drawing_lines(ctx, 1);
@@ -195,16 +193,6 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
     const vec2d_t origin = vec2d_add(ctx->current, (vec2d_t) { .x = 3 });
 
     for (size_t h = 0; h < art_height; h++) {
-        if (!renderer->decorative) {
-            draw(
-                renderer->canvas,
-                vec2d_add(origin, (vec2d_t) { .y = h }),
-                ctx->attr,
-                art[h]
-            );
-            continue;
-        }
-
         int i = 0;
         const char* c = art[h];
         while (*c) {
@@ -265,7 +253,7 @@ static void render_hachi(renderer_t* const renderer, drawing_ctx_t* const ctx, c
     }
     }
 
-    if (renderer->decorative) {
+    {
         int i = 0;
         const char* c = art;
         while (*c) {
@@ -284,8 +272,6 @@ static void render_hachi(renderer_t* const renderer, drawing_ctx_t* const ctx, c
             i++;
             c += desc.len;
         }
-    } else {
-        draw(renderer->canvas, ctx->current, ctx->attr, art);
     }
 
     ctx->current = vec2d_add(ctx->current, (vec2d_t) { .x = art_width });
@@ -356,23 +342,18 @@ static void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, c
             const float ratio = (float)i / (float)progress_bar_width;
             const bool remaining = ratio < remaining_ratio;
 
-            if (!renderer->decorative) {
-                draw(
-                    renderer->canvas,
-                    vec2d_add(ctx->current, (vec2d_t) { .x = i }),
-                    ctx->attr,
-                    remaining ? "─" : " "
-                );
-                continue;
-            }
-
             attr.dim = !remaining;
+
+            const char* art = "─";
+            if (!renderer->decorative) {
+                art = remaining ? "─" : " ";
+            }
 
             draw(
                 renderer->canvas,
                 vec2d_add(ctx->current, (vec2d_t) { .x = i }),
                 attr,
-                "─"
+                art
             );
         }
 

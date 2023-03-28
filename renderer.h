@@ -8,12 +8,13 @@ typedef struct {
     canvas_t* canvas;
 
     bool decorative;
-    bool debug;
 
     struct {
         const char* tsutsu_poured;
         const char* tsutsu_bumped;
     } sound;
+
+    bool debug;
 } renderer_t;
 
 extern void init_renderer(renderer_t* renderer, canvas_t* canvas, ccodoc_t* ccodoc);
