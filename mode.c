@@ -1,5 +1,7 @@
 #include "mode.h"
 
+#include "platform.h"
+
 typedef void (*mode_processor_t)(void*, duration_t);
 
 static void init_mode_wabi(mode_wabi_t* mode, const mode_opt_wabi_t* opt);
@@ -11,10 +13,13 @@ static void deinit_mode_sabi(mode_sabi_t* mode);
 static void process_mode_wabi(void* mode, duration_t delta);
 static void process_mode_sabi(void* mode, duration_t delta);
 
-static void init_ccodoc(ccodoc_t* ccodoc);
+static void init_ccodoc(ccodoc_t* ccodoc, const mode_opt_general_t* opt);
+static void deinit_ccodoc(ccodoc_t* ccodoc);
 
-static void init_rendering_ctx(rendering_ctx_t* ctx, ccodoc_t* ccodoc, const mode_opt_general_t opt);
-static void deinit_rendering_ctx(rendering_ctx_t* ctx, ccodoc_t* ccodoc);
+static void init_rendering_ctx(rendering_ctx_t* ctx, const mode_opt_general_t* opt);
+static void deinit_rendering_ctx(rendering_ctx_t* ctx);
+
+static void play_sound(const char* file);
 
 void init_mode(mode_t* const mode, const mode_opt_t opt)
 {
@@ -78,13 +83,14 @@ void run_mode(mode_t* mode)
 
 static void init_mode_wabi(mode_wabi_t* const mode, const mode_opt_wabi_t* opt)
 {
-    init_ccodoc(&mode->ccodoc);
-    init_rendering_ctx(&mode->rendering_ctx, &mode->ccodoc, opt->general);
+    init_ccodoc(&mode->ccodoc, &opt->general);
+    init_rendering_ctx(&mode->rendering_ctx, &opt->general);
 }
 
 static void deinit_mode_wabi(mode_wabi_t* const mode)
 {
-    deinit_rendering_ctx(&mode->rendering_ctx, &mode->ccodoc);
+    deinit_ccodoc(&mode->ccodoc);
+    deinit_rendering_ctx(&mode->rendering_ctx);
 }
 
 static void process_mode_wabi(void* const raw_mode, const duration_t delta)
@@ -100,16 +106,17 @@ static void process_mode_wabi(void* const raw_mode, const duration_t delta)
 
 static void init_mode_sabi(mode_sabi_t* const mode, const mode_opt_sabi_t* opt)
 {
-    init_ccodoc(&mode->ccodoc);
+    init_ccodoc(&mode->ccodoc, &opt->general);
 
     mode->timer = (tick_timer_t) { .duration = opt->duration };
 
-    init_rendering_ctx(&mode->rendering_ctx, &mode->ccodoc, opt->general);
+    init_rendering_ctx(&mode->rendering_ctx, &opt->general);
 }
 
 static void deinit_mode_sabi(mode_sabi_t* const mode)
 {
-    deinit_rendering_ctx(&mode->rendering_ctx, &mode->ccodoc);
+    deinit_ccodoc(&mode->ccodoc);
+    deinit_rendering_ctx(&mode->rendering_ctx);
 }
 
 static void process_mode_sabi(void* const raw_mode, const duration_t delta)
@@ -122,7 +129,7 @@ static void process_mode_sabi(void* const raw_mode, const duration_t delta)
     render(&mode->rendering_ctx.renderer, delta, &mode->ccodoc, &mode->timer);
 }
 
-static void init_ccodoc(ccodoc_t* ccodoc)
+static void init_ccodoc(ccodoc_t* ccodoc, const mode_opt_general_t* opt)
 {
     *ccodoc = (ccodoc_t) {
         .kakehi = {
@@ -146,30 +153,66 @@ static void init_ccodoc(ccodoc_t* ccodoc)
             },
         },
     };
+
+    if (!opt->ornamental) {
+        return;
+    }
+
+    {
+        const char* file = opt->sound.tsutsu_poured;
+        if (file != NULL) {
+            ccodoc->tsutsu.on_poured = (event_t) {
+                .listener = (void*)file,
+                .notify = (void_callback_t)play_sound,
+            };
+        }
+    }
+    {
+        const char* file = opt->sound.tsutsu_bumped;
+        if (file != NULL) {
+            ccodoc->tsutsu.on_released_water = (event_t) {
+                .listener = (void*)file,
+                .notify = (void_callback_t)play_sound,
+            };
+        }
+    }
 }
 
-static void init_rendering_ctx(rendering_ctx_t* const ctx, ccodoc_t* const ccodoc, const mode_opt_general_t opt)
+static void deinit_ccodoc(ccodoc_t* ccodoc)
 {
-    init_canvas_curses(&ctx->canvas.delegate, opt.ornamental);
+    ccodoc->tsutsu.on_poured = (event_t) { 0 };
+    ccodoc->tsutsu.on_released_water = (event_t) { 0 };
+}
+
+static void init_rendering_ctx(rendering_ctx_t* const ctx, const mode_opt_general_t* opt)
+{
+    init_canvas_curses(&ctx->canvas.delegate, opt->ornamental);
     init_canvas_proxy(&ctx->canvas.proxy, &ctx->canvas.delegate);
 
     ctx->canvas.value = wrap_canvas_proxy(&ctx->canvas.proxy);
 
     ctx->renderer = (renderer_t) {
-        .ornamental = opt.ornamental,
-
-        .sound = {
-            .tsutsu_poured = opt.sound.tsutsu_poured,
-            .tsutsu_bumped = opt.sound.tsutsu_bumped,
-        },
-
-        .debug = opt.debug,
+        .ornamental = opt->ornamental,
+        .debug = opt->debug,
     };
 
-    init_renderer(&ctx->renderer, &ctx->canvas.value, ccodoc);
+    init_renderer(&ctx->renderer, &ctx->canvas.value);
 }
 
-static void deinit_rendering_ctx(rendering_ctx_t* const ctx, ccodoc_t* ccodoc)
+static void deinit_rendering_ctx(rendering_ctx_t* const ctx)
 {
-    deinit_renderer(&ctx->renderer, ccodoc);
+    deinit_renderer(&ctx->renderer);
+}
+
+// sound
+
+static void play_sound(const char* const name)
+{
+#if PLATFORM == PLATFORM_LINUX
+    (void)name;
+#endif
+#if PLATFORM == PLATFORM_MACOS
+    const char* const args[] = { "afplay", (char* const)name, NULL };
+    run_cmd("/usr/bin/afplay", args);
+#endif
 }

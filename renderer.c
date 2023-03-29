@@ -6,29 +6,14 @@
 #include <assert.h>
 #include <math.h>
 
-static void on_tsutsu_poured(void* renderer);
-static void on_tsutsu_released_water(void* renderer);
-
-void init_renderer(renderer_t* const renderer, canvas_t* const canvas, ccodoc_t* const ccodoc)
+void init_renderer(renderer_t* const renderer, canvas_t* const canvas)
 {
     renderer->canvas = canvas;
-
-    ccodoc->tsutsu.on_poured = (event_t) {
-        .listener = renderer,
-        .notify = on_tsutsu_poured,
-    };
-    ccodoc->tsutsu.on_released_water = (event_t) {
-        .listener = renderer,
-        .notify = on_tsutsu_released_water,
-    };
 }
 
-void deinit_renderer(renderer_t* const renderer, ccodoc_t* const ccodoc)
+void deinit_renderer(renderer_t* const renderer)
 {
     deinit_canvas(renderer->canvas);
-
-    ccodoc->tsutsu.on_poured = (event_t) { 0 };
-    ccodoc->tsutsu.on_released_water = (event_t) { 0 };
 }
 
 static void render_kakehi(renderer_t* renderer, drawing_ctx_t* ctx, const kakehi_t* kakehi);
@@ -537,37 +522,4 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
     case releasing_water:
         return "releasing";
     }
-}
-
-static void play_sound(const char* name);
-
-static void on_tsutsu_poured(void* const raw_renderer)
-{
-    const renderer_t* const renderer = raw_renderer;
-    if (!renderer->ornamental || renderer->sound.tsutsu_poured == NULL) {
-        return;
-    }
-
-    play_sound(renderer->sound.tsutsu_poured);
-}
-
-static void on_tsutsu_released_water(void* const raw_renderer)
-{
-    const renderer_t* const renderer = raw_renderer;
-    if (!renderer->ornamental || renderer->sound.tsutsu_bumped == NULL) {
-        return;
-    }
-
-    play_sound(renderer->sound.tsutsu_bumped);
-}
-
-static void play_sound(const char* const name)
-{
-#if PLATFORM == PLATFORM_LINUX
-    (void)name;
-#endif
-#if PLATFORM == PLATFORM_MACOS
-    const char* const args[] = { "afplay", (char* const)name, NULL };
-    run_cmd("/usr/bin/afplay", args);
-#endif
 }
