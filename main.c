@@ -52,22 +52,30 @@ int main(const int argc, const char* const* const argv)
 
     mode_t mode = { .type = config.mode };
 
-    mode_opt_t mode_opt = {
-        .ornamental = !config.satori,
-        .sound = {
-            .tsutsu_poured = config.sound.tsutsu_poured,
-            .tsutsu_bumped = config.sound.tsutsu_poured,
-        },
-        .debug = config.debug,
-    };
+    {
+        mode_opt_general_t general_opt = {
+            .ornamental = !config.satori,
+            .sound = {
+                .tsutsu_poured = config.sound.tsutsu_poured,
+                .tsutsu_bumped = config.sound.tsutsu_bumped,
+            },
+            .debug = config.debug,
+        };
 
-    switch (mode.type) {
-    case mode_wabi:
-        init_mode_wabi(&mode.delegate.wabi, mode_opt);
-        break;
-    case mode_sabi:
-        init_mode_sabi(&mode.delegate.sabi, config.sabi.duration, mode_opt);
-        break;
+        mode_opt_t opt = { .type = mode.type };
+        switch (mode.type) {
+        case mode_wabi:
+            opt.delegate.wabi = (mode_opt_wabi_t) { .general = general_opt };
+            break;
+        case mode_sabi:
+            opt.delegate.sabi = (mode_opt_sabi_t) {
+                .general = general_opt,
+                .duration = config.sabi.duration,
+            };
+            break;
+        }
+
+        init_mode(&mode, opt);
     }
 
     run_mode(&mode);

@@ -50,11 +50,25 @@ typedef struct {
     } sound;
 
     bool debug;
+} mode_opt_general_t;
+
+typedef struct {
+    mode_opt_general_t general;
+} mode_opt_wabi_t;
+
+typedef struct {
+    mode_opt_general_t general;
+    duration_t duration;
+} mode_opt_sabi_t;
+
+typedef struct {
+    mode_type_t type;
+    union {
+        mode_opt_wabi_t wabi;
+        mode_opt_sabi_t sabi;
+    } delegate;
 } mode_opt_t;
 
-extern void init_mode_wabi(mode_wabi_t* wabi, const mode_opt_t opt);
-extern void init_mode_sabi(mode_sabi_t* sabi, duration_t duration, const mode_opt_t opt);
-
+extern void init_mode(mode_t* mode, const mode_opt_t opt);
 extern void deinit_mode(mode_t* mode);
-
 extern void run_mode(mode_t* mode);

@@ -2,6 +2,9 @@
 
 typedef void (*mode_processor_t)(void*, duration_t);
 
+static void init_mode_wabi(mode_wabi_t* mode, const mode_opt_wabi_t* opt);
+static void init_mode_sabi(mode_sabi_t* mode, const mode_opt_sabi_t* opt);
+
 static void deinit_mode_wabi(mode_wabi_t* mode);
 static void deinit_mode_sabi(mode_sabi_t* mode);
 
@@ -10,8 +13,20 @@ static void process_mode_sabi(void* mode, duration_t delta);
 
 static void init_ccodoc(ccodoc_t* ccodoc);
 
-static void init_rendering_ctx(rendering_ctx_t* ctx, ccodoc_t* ccodoc, const mode_opt_t opt);
+static void init_rendering_ctx(rendering_ctx_t* ctx, ccodoc_t* ccodoc, const mode_opt_general_t opt);
 static void deinit_rendering_ctx(rendering_ctx_t* ctx, ccodoc_t* ccodoc);
+
+void init_mode(mode_t* const mode, const mode_opt_t opt)
+{
+    switch (mode->type) {
+    case mode_wabi:
+        init_mode_wabi(&mode->delegate.wabi, &opt.delegate.wabi);
+        break;
+    case mode_sabi:
+        init_mode_sabi(&mode->delegate.sabi, &opt.delegate.sabi);
+        break;
+    }
+}
 
 void deinit_mode(mode_t* const mode)
 {
@@ -61,10 +76,10 @@ void run_mode(mode_t* mode)
 
 // wabi
 
-void init_mode_wabi(mode_wabi_t* const mode, const mode_opt_t opt)
+static void init_mode_wabi(mode_wabi_t* const mode, const mode_opt_wabi_t* opt)
 {
     init_ccodoc(&mode->ccodoc);
-    init_rendering_ctx(&mode->rendering_ctx, &mode->ccodoc, opt);
+    init_rendering_ctx(&mode->rendering_ctx, &mode->ccodoc, opt->general);
 }
 
 static void deinit_mode_wabi(mode_wabi_t* const mode)
@@ -83,13 +98,13 @@ static void process_mode_wabi(void* const raw_mode, const duration_t delta)
 
 // sabi
 
-void init_mode_sabi(mode_sabi_t* const mode, const duration_t duration, const mode_opt_t opt)
+static void init_mode_sabi(mode_sabi_t* const mode, const mode_opt_sabi_t* opt)
 {
     init_ccodoc(&mode->ccodoc);
 
-    mode->timer = (tick_timer_t) { .duration = duration };
+    mode->timer = (tick_timer_t) { .duration = opt->duration };
 
-    init_rendering_ctx(&mode->rendering_ctx, &mode->ccodoc, opt);
+    init_rendering_ctx(&mode->rendering_ctx, &mode->ccodoc, opt->general);
 }
 
 static void deinit_mode_sabi(mode_sabi_t* const mode)
@@ -133,7 +148,7 @@ static void init_ccodoc(ccodoc_t* ccodoc)
     };
 }
 
-static void init_rendering_ctx(rendering_ctx_t* const ctx, ccodoc_t* const ccodoc, const mode_opt_t opt)
+static void init_rendering_ctx(rendering_ctx_t* const ctx, ccodoc_t* const ccodoc, const mode_opt_general_t opt)
 {
     init_canvas_curses(&ctx->canvas.delegate, opt.ornamental);
     init_canvas_proxy(&ctx->canvas.proxy, &ctx->canvas.delegate);
