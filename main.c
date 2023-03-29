@@ -180,7 +180,7 @@ static int help(void)
 {
     printf("# ccodoc\n");
 
-    printf("\nccodoc（鹿威し）simulated（造）in your terminal\n");
+    printf("\nccodoc（鹿威し）simulated（造）in your terminal（庭）\n");
 
     printf("\n\n## options\n\n");
 
@@ -188,7 +188,7 @@ static int help(void)
         "--wabi",
         (const char*[]) {
             "Render ccodoc alone. (default)",
-            "Imperfect does not always mean \"not perfect\". Simple does not always mean \"not complicated\".",
+            "Imperfect does not always mean not-perfect. Simple does not always mean not-complicated.",
             "It is just what it is.（侘び）",
             NULL,
         }
@@ -198,7 +198,7 @@ static int help(void)
         "--sabi HH:mm",
         (const char*[]) {
             "Render ccodoc with the timer set for this duration.",
-            "Impermanent does not always mean \"not permanent\". Behind does not always mean \"not ahead\".",
+            "Impermanent does not always mean not-permanent. Behind does not always mean not-ahead.",
             "It will be just what it will be.（寂び）",
             NULL,
         }
