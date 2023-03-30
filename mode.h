@@ -4,71 +4,35 @@
 #include "renderer.h"
 #include "time.h"
 
-typedef struct {
-    renderer_t renderer;
-
-    struct {
-        canvas_t value;
-        canvas_curses_t delegate;
-        canvas_proxy_t proxy;
-    } canvas;
-} rendering_ctx_t;
-
-typedef struct {
-    ccodoc_t ccodoc;
-
-    rendering_ctx_t rendering_ctx;
-} mode_wabi_t;
-
-typedef struct {
-    ccodoc_t ccodoc;
-    tick_timer_t timer;
-
-    rendering_ctx_t rendering_ctx;
-} mode_sabi_t;
-
 typedef enum {
     mode_wabi,
     mode_sabi,
 } mode_type_t;
 
 typedef struct {
-    mode_type_t type;
-
-    union {
-        mode_wabi_t wabi;
-        mode_sabi_t sabi;
-    } delegate;
-} mode_t;
-
-typedef struct {
     bool ornamental;
+    bool debug;
+
+    ccodoc_t ccodoc;
+    tick_timer_t timer;
+
+    struct {
+        renderer_t renderer;
+        struct {
+            canvas_t value;
+            canvas_curses_t delegate;
+            canvas_proxy_t proxy;
+        } canvas;
+    } rendering;
 
     struct {
         const char* tsutsu_poured;
         const char* tsutsu_bumped;
     } sound;
+} mode_t;
 
-    bool debug;
-} mode_opt_general_t;
-
-typedef struct {
-    mode_opt_general_t general;
-} mode_opt_wabi_t;
-
-typedef struct {
-    mode_opt_general_t general;
-    duration_t duration;
-} mode_opt_sabi_t;
-
-typedef struct {
-    mode_type_t type;
-    union {
-        mode_opt_wabi_t wabi;
-        mode_opt_sabi_t sabi;
-    } delegate;
-} mode_opt_t;
-
-extern void init_mode(mode_t* mode, const mode_opt_t opt);
+extern void init_mode(mode_t* mode);
 extern void deinit_mode(mode_t* mode);
-extern void run_mode(mode_t* mode);
+
+extern void run_mode_wabi(mode_t* mode);
+extern void run_mode_sabi(mode_t* mode);

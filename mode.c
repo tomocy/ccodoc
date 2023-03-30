@@ -4,65 +4,44 @@
 #include "platform.h"
 #include <signal.h>
 
-typedef bool (*mode_processor_t)(void*, duration_t);
+typedef bool (*mode_processor_t)(mode_t*, duration_t);
 
-static void init_mode_wabi(mode_wabi_t* mode, const mode_opt_wabi_t* opt);
-static void init_mode_sabi(mode_sabi_t* mode, const mode_opt_sabi_t* opt);
+static void run_mode(mode_t* mode, mode_processor_t processor);
+static bool process_mode_wabi(mode_t*, duration_t delta);
+static bool process_mode_sabi(mode_t*, duration_t delta);
 
-static void deinit_mode_wabi(mode_wabi_t* mode);
-static void deinit_mode_sabi(mode_sabi_t* mode);
+static void init_ccodoc(mode_t* mode);
+static void deinit_ccodoc(mode_t* mode);
 
-static bool process_mode_wabi(void* mode, duration_t delta);
-static bool process_mode_sabi(void* mode, duration_t delta);
-
-static void init_ccodoc(ccodoc_t* ccodoc, const mode_opt_general_t* opt);
-static void deinit_ccodoc(ccodoc_t* ccodoc);
-
-static void init_rendering_ctx(rendering_ctx_t* ctx, const mode_opt_general_t* opt);
-static void deinit_rendering_ctx(rendering_ctx_t* ctx);
+static void init_rendering_ctx(mode_t* mode);
+static void deinit_rendering_ctx(mode_t* mode);
 
 static void play_sound(const char* file);
 
-void init_mode(mode_t* const mode, const mode_opt_t opt)
+void init_mode(mode_t* const mode)
 {
-    switch (mode->type) {
-    case mode_wabi:
-        init_mode_wabi(&mode->delegate.wabi, &opt.delegate.wabi);
-        break;
-    case mode_sabi:
-        init_mode_sabi(&mode->delegate.sabi, &opt.delegate.sabi);
-        break;
-    }
+    init_ccodoc(mode);
+    init_rendering_ctx(mode);
 }
 
 void deinit_mode(mode_t* const mode)
 {
-    switch (mode->type) {
-    case mode_wabi:
-        deinit_mode_wabi(&mode->delegate.wabi);
-        break;
-    case mode_sabi:
-        deinit_mode_sabi(&mode->delegate.sabi);
-        break;
-    }
+    deinit_ccodoc(mode);
+    deinit_rendering_ctx(mode);
 }
 
-void run_mode(mode_t* mode)
+void run_mode_wabi(mode_t* const mode)
 {
-    void* raw_mode = NULL;
-    mode_processor_t processor = NULL;
+    run_mode(mode, process_mode_wabi);
+}
 
-    switch (mode->type) {
-    case mode_wabi:
-        raw_mode = &mode->delegate.wabi;
-        processor = process_mode_wabi;
-        break;
-    case mode_sabi:
-        raw_mode = &mode->delegate.sabi;
-        processor = process_mode_sabi;
-        break;
-    }
+void run_mode_sabi(mode_t* const mode)
+{
+    run_mode(mode, process_mode_sabi);
+}
 
+static void run_mode(mode_t* const mode, const mode_processor_t processor)
+{
     static const duration_t min_delta = { .msecs = 1000 / 24 };
 
     duration_t last_time = monotonic_time();
@@ -73,7 +52,7 @@ void run_mode(mode_t* mode)
         const duration_t delta = duration_diff(time, last_time);
         last_time = time;
 
-        const bool continues = processor(raw_mode, delta);
+        const bool continues = processor(mode, delta);
         if (!continues) {
             break;
         }
@@ -91,56 +70,23 @@ void run_mode(mode_t* mode)
 
 // wabi
 
-static void init_mode_wabi(mode_wabi_t* const mode, const mode_opt_wabi_t* opt)
+static bool process_mode_wabi(mode_t* const mode, const duration_t delta)
 {
-    init_ccodoc(&mode->ccodoc, &opt->general);
-    init_rendering_ctx(&mode->rendering_ctx, &opt->general);
-}
-
-static void deinit_mode_wabi(mode_wabi_t* const mode)
-{
-    deinit_ccodoc(&mode->ccodoc);
-    deinit_rendering_ctx(&mode->rendering_ctx);
-}
-
-static bool process_mode_wabi(void* const raw_mode, const duration_t delta)
-{
-    mode_wabi_t* mode = raw_mode;
-
     tick_ccodoc(&mode->ccodoc, delta);
 
-    render(&mode->rendering_ctx.renderer, delta, &mode->ccodoc, NULL);
+    render(&mode->rendering.renderer, delta, &mode->ccodoc, NULL);
 
     return true;
 }
 
-// sabi
-
-static void init_mode_sabi(mode_sabi_t* const mode, const mode_opt_sabi_t* opt)
+static bool process_mode_sabi(mode_t* const mode, const duration_t delta)
 {
-    init_ccodoc(&mode->ccodoc, &opt->general);
-
-    mode->timer = (tick_timer_t) { .duration = opt->duration };
-
-    init_rendering_ctx(&mode->rendering_ctx, &opt->general);
-}
-
-static void deinit_mode_sabi(mode_sabi_t* const mode)
-{
-    deinit_ccodoc(&mode->ccodoc);
-    deinit_rendering_ctx(&mode->rendering_ctx);
-}
-
-static bool process_mode_sabi(void* const raw_mode, const duration_t delta)
-{
-    mode_sabi_t* mode = raw_mode;
-
     const water_flow_state_t tsutsu_last_state = mode->ccodoc.tsutsu.state;
 
     tick_ccodoc(&mode->ccodoc, delta);
     tick_timer(&mode->timer, delta);
 
-    render(&mode->rendering_ctx.renderer, delta, &mode->ccodoc, &mode->timer);
+    render(&mode->rendering.renderer, delta, &mode->ccodoc, &mode->timer);
 
     if (!timer_expires(&mode->timer)) {
         return true;
@@ -152,9 +98,9 @@ static bool process_mode_sabi(void* const raw_mode, const duration_t delta)
     return !(tsutsu_last_state == releasing_water && tsutsu_has_released_water(&mode->ccodoc.tsutsu));
 }
 
-static void init_ccodoc(ccodoc_t* ccodoc, const mode_opt_general_t* opt)
+static void init_ccodoc(mode_t* const mode)
 {
-    *ccodoc = (ccodoc_t) {
+    mode->ccodoc = (ccodoc_t) {
         .kakehi = {
             .release_water_ratio = 0.1f,
             .holding_water_timer = {
@@ -177,23 +123,23 @@ static void init_ccodoc(ccodoc_t* ccodoc, const mode_opt_general_t* opt)
         },
     };
 
-    if (!opt->ornamental) {
+    if (!mode->ornamental) {
         return;
     }
 
     {
-        const char* file = opt->sound.tsutsu_poured;
+        const char* file = mode->sound.tsutsu_poured;
         if (file != NULL) {
-            ccodoc->tsutsu.on_poured = (event_t) {
+            mode->ccodoc.tsutsu.on_poured = (event_t) {
                 .listener = (void*)file,
                 .notify = (void_callback_t)play_sound,
             };
         }
     }
     {
-        const char* file = opt->sound.tsutsu_bumped;
+        const char* file = mode->sound.tsutsu_bumped;
         if (file != NULL) {
-            ccodoc->tsutsu.on_released_water = (event_t) {
+            mode->ccodoc.tsutsu.on_released_water = (event_t) {
                 .listener = (void*)file,
                 .notify = (void_callback_t)play_sound,
             };
@@ -201,32 +147,30 @@ static void init_ccodoc(ccodoc_t* ccodoc, const mode_opt_general_t* opt)
     }
 }
 
-static void deinit_ccodoc(ccodoc_t* ccodoc)
+static void deinit_ccodoc(mode_t* const mode)
 {
-    ccodoc->tsutsu.on_poured = (event_t) { 0 };
-    ccodoc->tsutsu.on_released_water = (event_t) { 0 };
+    mode->ccodoc.tsutsu.on_poured = (event_t) { 0 };
+    mode->ccodoc.tsutsu.on_released_water = (event_t) { 0 };
 }
 
-static void init_rendering_ctx(rendering_ctx_t* const ctx, const mode_opt_general_t* opt)
+static void init_rendering_ctx(mode_t* const mode)
 {
-    init_canvas_curses(&ctx->canvas.delegate);
-    init_canvas_proxy(&ctx->canvas.proxy, &ctx->canvas.delegate);
+    init_canvas_curses(&mode->rendering.canvas.delegate);
+    init_canvas_proxy(&mode->rendering.canvas.proxy, &mode->rendering.canvas.delegate);
 
-    ctx->canvas.value = wrap_canvas_proxy(&ctx->canvas.proxy);
+    mode->rendering.canvas.value = wrap_canvas_proxy(&mode->rendering.canvas.proxy);
 
-    ctx->renderer = (renderer_t) {
-        .canvas = &ctx->canvas.value,
-        .ornamental = opt->ornamental,
-        .debug = opt->debug,
+    mode->rendering.renderer = (renderer_t) {
+        .canvas = &mode->rendering.canvas.value,
+        .ornamental = mode->ornamental,
+        .debug = mode->debug,
     };
 }
 
-static void deinit_rendering_ctx(rendering_ctx_t* const ctx)
+static void deinit_rendering_ctx(mode_t* const mode)
 {
-    deinit_renderer(&ctx->renderer);
+    deinit_renderer(&mode->rendering.renderer);
 }
-
-// sound
 
 static void play_sound(const char* const name)
 {

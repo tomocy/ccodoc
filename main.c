@@ -7,37 +7,34 @@
 #include <stdlib.h>
 
 typedef struct {
-    mode_type_t mode;
-
     struct {
-        duration_t duration;
-    } sabi;
-
-    bool satori;
-
-    struct {
-        const char* tsutsu_poured;
-        const char* tsutsu_bumped;
-    } sound;
+        mode_type_t type;
+        mode_t* value;
+    } mode;
 
     bool help;
-    bool debug;
 } config_t;
 
-static const char* configure_with_args(config_t* config, int argc, const char* const* argv);
+static const char* configure(config_t* config, int argc, const char* const* argv);
 static int help(void);
 
 int main(const int argc, const char* const* const argv)
 {
-    config_t config = {
-        .mode = mode_wabi,
-        .satori = false,
-        .help = false,
+    mode_t mode = {
+        .ornamental = true,
         .debug = false,
     };
 
+    config_t config = {
+        .mode = {
+            .type = mode_wabi,
+            .value = &mode,
+        },
+        .help = false,
+    };
+
     {
-        const char* const err = configure_with_args(&config, argc, argv);
+        const char* const err = configure(&config, argc, argv);
         if (err != NULL) {
             help();
             printf("\n");
@@ -50,35 +47,16 @@ int main(const int argc, const char* const* const argv)
         return help();
     }
 
-    mode_t mode = { .type = config.mode };
+    init_mode(&mode);
 
-    {
-        mode_opt_general_t general_opt = {
-            .ornamental = !config.satori,
-            .sound = {
-                .tsutsu_poured = config.sound.tsutsu_poured,
-                .tsutsu_bumped = config.sound.tsutsu_bumped,
-            },
-            .debug = config.debug,
-        };
-
-        mode_opt_t opt = { .type = mode.type };
-        switch (mode.type) {
-        case mode_wabi:
-            opt.delegate.wabi = (mode_opt_wabi_t) { .general = general_opt };
-            break;
-        case mode_sabi:
-            opt.delegate.sabi = (mode_opt_sabi_t) {
-                .general = general_opt,
-                .duration = config.sabi.duration,
-            };
-            break;
-        }
-
-        init_mode(&mode, opt);
+    switch (config.mode.type) {
+    case mode_wabi:
+        run_mode_wabi(&mode);
+        break;
+    case mode_sabi:
+        run_mode_sabi(&mode);
+        break;
     }
-
-    run_mode(&mode);
 
     deinit_mode(&mode);
 
@@ -99,7 +77,7 @@ static const char* read_arg(int* const i, const char* const* const argv)
 
 #define CONFIG_ERR_NO_VALUE_SPECIFIED(label) label ": value must be specified"
 
-static const char* configure_with_args(config_t* const config, const int argc, const char* const* const argv)
+static const char* configure(config_t* const config, const int argc, const char* const* const argv)
 {
     for (int i = 1; i < argc; i++) {
         const char* const arg = argv[i];
@@ -119,14 +97,14 @@ static const char* configure_with_args(config_t* const config, const int argc, c
                 return "timer: duration format must be HH:mm";
             }
 
-            config->mode = mode_sabi;
-            config->sabi.duration = d;
+            config->mode.type = mode_sabi;
+            config->mode.value->timer.duration = d;
 
             continue;
         }
 
         if (str_equals(arg, "--satori")) {
-            config->satori = true;
+            config->mode.value->ornamental = false;
             continue;
         }
 
@@ -136,7 +114,7 @@ static const char* configure_with_args(config_t* const config, const int argc, c
                 return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-poured");
             }
 
-            config->sound.tsutsu_poured = name;
+            config->mode.value->sound.tsutsu_poured = name;
 
             continue;
         }
@@ -147,7 +125,7 @@ static const char* configure_with_args(config_t* const config, const int argc, c
                 return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-bumped");
             }
 
-            config->sound.tsutsu_bumped = name;
+            config->mode.value->sound.tsutsu_bumped = name;
 
             continue;
         }
@@ -158,7 +136,7 @@ static const char* configure_with_args(config_t* const config, const int argc, c
         }
 
         if (str_equals(arg, "--debug")) {
-            config->debug = true;
+            config->mode.value->debug = true;
             continue;
         }
     }
