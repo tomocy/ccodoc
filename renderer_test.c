@@ -58,7 +58,7 @@ int test_renderer(void)
         },
     };
 
-    init_renderer(&renderer, &canvas, &ccodoc);
+    init_renderer(&renderer, &canvas);
 
     {
         printf("## canvas\n");
@@ -850,7 +850,7 @@ int test_renderer(void)
         }
     }
 
-    deinit_renderer(&renderer, &ccodoc);
+    deinit_renderer(&renderer);
 
     return EXIT_SUCCESS;
 }
