@@ -31,6 +31,9 @@ TEST_OBJS := $(patsubst %.c, %.o, $(TEST_SRCS))
 ccodoc: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
 
+%.o: %.h %.c
+	$(CC) $(CFLAGS) -c -o $@ $*.c
+
 .PHONY: run
 run: ccodoc
 	./ccodoc $(ARGS)
