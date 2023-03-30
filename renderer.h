@@ -11,7 +11,6 @@ typedef struct {
     bool debug;
 } renderer_t;
 
-extern void init_renderer(renderer_t* renderer, canvas_t* canvas);
 extern void deinit_renderer(renderer_t* renderer);
 
 extern void render(

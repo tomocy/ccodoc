@@ -40,7 +40,6 @@ typedef struct {
 
 typedef struct {
     WINDOW* window;
-    bool ornamental;
 } canvas_curses_t;
 
 enum { CANVAS_PROXY_BUFFER_BUCKET_SIZE = 2 };
@@ -74,7 +73,7 @@ extern canvas_t wrap_canvas_curses(canvas_curses_t* canvas);
 extern canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas);
 
 extern void init_canvas_buffer(canvas_buffer_t* canvas, vec2d_t size);
-extern void init_canvas_curses(canvas_curses_t* canvas, bool ornamental);
+extern void init_canvas_curses(canvas_curses_t* canvas);
 extern void init_canvas_proxy(canvas_proxy_t* canvas, canvas_curses_t* underlying);
 
 extern void deinit_canvas(canvas_t* canvas);
@@ -83,6 +82,7 @@ extern void clear_canvas(canvas_t* canvas);
 extern void flush_canvas(canvas_t* canvas);
 
 extern void draw(canvas_t* canvas, vec2d_t point, drawing_attr_t attr, const char* s);
+extern void drawfv(canvas_t* canvas, vec2d_t point, drawing_attr_t attr, const char* format, va_list args);
 extern void drawf(canvas_t* canvas, vec2d_t point, drawing_attr_t attr, const char* format, ...);
 
 extern vec2d_t get_canvas_size(const canvas_t* canvas);

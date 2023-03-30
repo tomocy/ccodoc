@@ -186,17 +186,16 @@ static void deinit_ccodoc(ccodoc_t* ccodoc)
 
 static void init_rendering_ctx(rendering_ctx_t* const ctx, const mode_opt_general_t* opt)
 {
-    init_canvas_curses(&ctx->canvas.delegate, opt->ornamental);
+    init_canvas_curses(&ctx->canvas.delegate);
     init_canvas_proxy(&ctx->canvas.proxy, &ctx->canvas.delegate);
 
     ctx->canvas.value = wrap_canvas_proxy(&ctx->canvas.proxy);
 
     ctx->renderer = (renderer_t) {
+        .canvas = &ctx->canvas.value,
         .ornamental = opt->ornamental,
         .debug = opt->debug,
     };
-
-    init_renderer(&ctx->renderer, &ctx->canvas.value);
 }
 
 static void deinit_rendering_ctx(rendering_ctx_t* const ctx)

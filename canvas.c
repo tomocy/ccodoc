@@ -16,8 +16,8 @@ static void clear_canvas_curses(canvas_curses_t* canvas);
 static void flush_canvas_curses(canvas_curses_t* canvas);
 static void flush_canvas_proxy(canvas_proxy_t* canvas);
 
-static void draw_curses(canvas_curses_t* canvas, vec2d_t point, drawing_attr_t attr, const char* s);
 static void draw_buffer(canvas_buffer_t* canvas, vec2d_t point, drawing_attr_t attr, const char* s);
+static void draw_curses(canvas_curses_t* canvas, vec2d_t point, drawing_attr_t attr, const char* s);
 
 static void drawfv_buffer(canvas_buffer_t* canvas, vec2d_t point, drawing_attr_t attr, const char* format, va_list args);
 static void drawfv_curses(canvas_curses_t* canvas, vec2d_t point, drawing_attr_t attr, const char* format, va_list args);
@@ -141,7 +141,7 @@ void draw(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t attr
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void drawfv(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const format, va_list args)
+void drawfv(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const format, va_list args)
 {
     canvas_delegate_t* const delegate = &canvas->delegate;
 
@@ -268,19 +268,14 @@ static bool canvas_equals_buffer(const canvas_buffer_t* const canvas, const canv
 static void register_color_curses(color_t color, short r, short g, short b, short supplement);
 static short as_color_curses(color_t color);
 
-void init_canvas_curses(canvas_curses_t* const canvas, const bool ornamental)
+void init_canvas_curses(canvas_curses_t* const canvas)
 {
     (void)setlocale(LC_ALL, "");
 
     canvas->window = initscr();
-    canvas->ornamental = ornamental;
 
     noecho();
     curs_set(0);
-
-    if (!ornamental) {
-        return;
-    }
 
     if (has_colors()) {
         start_color();
@@ -339,16 +334,24 @@ static unsigned int drawing_attr_flags(const drawing_attr_t attr)
         }                                                          \
     }
 
+#define WITH_ATTR_CURSES(attr, ...)                            \
+    {                                                          \
+        const unsigned int flags = drawing_attr_flags((attr)); \
+        attron(flags);                                         \
+        __VA_ARGS__;                                           \
+        attroff(flags);                                        \
+    }
+
 static void draw_curses(canvas_curses_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const s)
 {
-    PREFER_DRAWING_WITH_ATTR_CURSES(canvas, attr, {
+    WITH_ATTR_CURSES(attr, {
         mvwprintw(canvas->window, (int)point.y, (int)point.x, s);
     });
 }
 
 static void drawfv_curses(canvas_curses_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const format, va_list args)
 {
-    PREFER_DRAWING_WITH_ATTR_CURSES(canvas, attr, {
+    WITH_ATTR_CURSES(attr, {
         wmove(canvas->window, (int)point.y, (int)point.x);
         vw_printw(canvas->window, format, args);
     });

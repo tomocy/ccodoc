@@ -28,12 +28,12 @@ static void print_ccodoc(const canvas_buffer_t* canvas);
 
 int test_renderer(void)
 {
-    renderer_t renderer = { 0 };
-
     canvas_buffer_t canvas_buffer = { 0 };
     init_canvas_buffer(&canvas_buffer, (vec2d_t) { .x = 20, .y = 20 });
 
     canvas_t canvas = wrap_canvas_buffer(&canvas_buffer);
+
+    renderer_t renderer = { .canvas = &canvas };
 
     ccodoc_t ccodoc = {
         .kakehi = {
@@ -57,8 +57,6 @@ int test_renderer(void)
             },
         },
     };
-
-    init_renderer(&renderer, &canvas);
 
     {
         printf("## canvas\n");
