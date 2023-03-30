@@ -18,6 +18,9 @@ typedef enum {
 // kakehi（筧）
 typedef struct {
     water_flow_state_t state;
+
+    bool disabled;
+
     float release_water_ratio;
     tick_timer_t holding_water_timer;
     tick_timer_t releasing_water_timer;
@@ -26,6 +29,7 @@ typedef struct {
 // tsutsu（筒）
 typedef struct {
     water_flow_state_t state;
+
     unsigned int water_amount;
     unsigned int water_capacity;
     tick_timer_t releasing_water_timer;
@@ -37,6 +41,7 @@ typedef struct {
 // hachi（手水鉢）
 typedef struct {
     water_flow_state_t state;
+
     tick_timer_t releasing_water_timer;
 } hachi_t;
 
@@ -48,7 +53,8 @@ typedef struct {
 } ccodoc_t;
 
 extern void tick_ccodoc(ccodoc_t* ccodoc, duration_t delta);
-// - debug
+
 extern float tsutsu_water_amount_ratio(const tsutsu_t* tsutsu);
+extern bool tsutsu_has_released_water(const tsutsu_t* tsutsu);
 
 extern void notify_listener(event_t* event);

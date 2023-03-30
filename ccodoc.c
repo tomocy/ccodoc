@@ -1,6 +1,7 @@
 #include "ccodoc.h"
 
 #include "math.h"
+#include "time.h"
 #include <assert.h>
 #include <stddef.h>
 
@@ -29,6 +30,10 @@ void tick_ccodoc(ccodoc_t* const ccodoc, const duration_t delta)
 
 static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
 {
+    if (ccodoc->kakehi.disabled) {
+        return;
+    }
+
     kakehi_t* const kakehi = &ccodoc->kakehi;
 
     switch (kakehi->state) {
@@ -208,6 +213,11 @@ float tsutsu_water_amount_ratio(const tsutsu_t* const tsutsu)
 {
     assert(tsutsu->water_capacity != 0);
     return (float)tsutsu->water_amount / (float)tsutsu->water_capacity;
+}
+
+bool tsutsu_has_released_water(const tsutsu_t* tsutsu)
+{
+    return timer_expires(&tsutsu->releasing_water_timer);
 }
 
 void notify_listener(event_t* const event)

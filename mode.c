@@ -1,8 +1,10 @@
 #include "mode.h"
 
+#include "ccodoc.h"
 #include "platform.h"
+#include <signal.h>
 
-typedef void (*mode_processor_t)(void*, duration_t);
+typedef bool (*mode_processor_t)(void*, duration_t);
 
 static void init_mode_wabi(mode_wabi_t* mode, const mode_opt_wabi_t* opt);
 static void init_mode_sabi(mode_sabi_t* mode, const mode_opt_sabi_t* opt);
@@ -10,8 +12,8 @@ static void init_mode_sabi(mode_sabi_t* mode, const mode_opt_sabi_t* opt);
 static void deinit_mode_wabi(mode_wabi_t* mode);
 static void deinit_mode_sabi(mode_sabi_t* mode);
 
-static void process_mode_wabi(void* mode, duration_t delta);
-static void process_mode_sabi(void* mode, duration_t delta);
+static bool process_mode_wabi(void* mode, duration_t delta);
+static bool process_mode_sabi(void* mode, duration_t delta);
 
 static void init_ccodoc(ccodoc_t* ccodoc, const mode_opt_general_t* opt);
 static void deinit_ccodoc(ccodoc_t* ccodoc);
@@ -71,12 +73,20 @@ void run_mode(mode_t* mode)
         const duration_t delta = duration_diff(time, last_time);
         last_time = time;
 
-        processor(raw_mode, delta);
+        const bool continues = processor(raw_mode, delta);
+        if (!continues) {
+            break;
+        }
 
         const duration_t process_time = duration_diff(monotonic_time(), time);
 
         sleep_for(duration_diff(min_delta, process_time));
     }
+
+    sigset_t sigs = { 0 };
+    sigemptyset(&sigs);
+
+    sigsuspend(&sigs);
 }
 
 // wabi
@@ -93,13 +103,15 @@ static void deinit_mode_wabi(mode_wabi_t* const mode)
     deinit_rendering_ctx(&mode->rendering_ctx);
 }
 
-static void process_mode_wabi(void* const raw_mode, const duration_t delta)
+static bool process_mode_wabi(void* const raw_mode, const duration_t delta)
 {
     mode_wabi_t* mode = raw_mode;
 
     tick_ccodoc(&mode->ccodoc, delta);
 
     render(&mode->rendering_ctx.renderer, delta, &mode->ccodoc, NULL);
+
+    return true;
 }
 
 // sabi
@@ -119,14 +131,25 @@ static void deinit_mode_sabi(mode_sabi_t* const mode)
     deinit_rendering_ctx(&mode->rendering_ctx);
 }
 
-static void process_mode_sabi(void* const raw_mode, const duration_t delta)
+static bool process_mode_sabi(void* const raw_mode, const duration_t delta)
 {
     mode_sabi_t* mode = raw_mode;
+
+    const water_flow_state_t tsutsu_last_state = mode->ccodoc.tsutsu.state;
 
     tick_ccodoc(&mode->ccodoc, delta);
     tick_timer(&mode->timer, delta);
 
     render(&mode->rendering_ctx.renderer, delta, &mode->ccodoc, &mode->timer);
+
+    if (!timer_expires(&mode->timer)) {
+        return true;
+    }
+
+    // Stop the water flow since kakehi has released last water drop to fill up tsutsu,
+    mode->ccodoc.kakehi.disabled = mode->ccodoc.kakehi.state == releasing_water;
+    // and wait for tsutsu to have released water.
+    return !(tsutsu_last_state == releasing_water && tsutsu_has_released_water(&mode->ccodoc.tsutsu));
 }
 
 static void init_ccodoc(ccodoc_t* ccodoc, const mode_opt_general_t* opt)
