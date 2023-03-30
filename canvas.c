@@ -245,7 +245,6 @@ static void drawfv_buffer(
 )
 {
     char s[1 << 8] = { 0 };
-
     (void)vsprintf(s, format, args);
     draw_buffer(canvas, point, attr, s);
 }
@@ -321,18 +320,6 @@ static unsigned int drawing_attr_flags(const drawing_attr_t attr)
 
     return flags;
 }
-
-#define PREFER_DRAWING_WITH_ATTR_CURSES(canvas, attr, ...)         \
-    {                                                              \
-        if ((canvas)->ornamental) {                                \
-            const unsigned int flags = drawing_attr_flags((attr)); \
-            attron(flags);                                         \
-            __VA_ARGS__;                                           \
-            attroff(flags);                                        \
-        } else {                                                   \
-            __VA_ARGS__;                                           \
-        }                                                          \
-    }
 
 #define WITH_ATTR_CURSES(attr, ...)                            \
     {                                                          \

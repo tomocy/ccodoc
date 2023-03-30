@@ -27,8 +27,10 @@ endif
 OBJS := $(patsubst %.c, %.o, $(SRCS))
 TEST_OBJS := $(patsubst %.c, %.o, $(TEST_SRCS))
 
-# ccodoc
 ccodoc: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
+
+ccodoc_test: $(TEST_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
 
 %.o: %.h %.c
@@ -37,10 +39,6 @@ ccodoc: $(OBJS)
 .PHONY: run
 run: ccodoc
 	./ccodoc $(ARGS)
-
-# test
-ccodoc_test: $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
 
 .PHONY: test
 test: ccodoc_test

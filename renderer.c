@@ -6,15 +6,7 @@
 #include <assert.h>
 #include <math.h>
 
-void deinit_renderer(renderer_t* const renderer)
-{
-    deinit_canvas(renderer->canvas);
-}
-
-static void render_kakehi(renderer_t* renderer, drawing_ctx_t* ctx, const kakehi_t* kakehi);
-static void render_tsutsu(renderer_t* renderer, drawing_ctx_t* ctx, const tsutsu_t* tsutsu);
-static void render_hachi(renderer_t* renderer, drawing_ctx_t* ctx, const hachi_t* hachi);
-static void render_roji(renderer_t* renderer, drawing_ctx_t* ctx);
+static void render_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, const ccodoc_t* ccodoc);
 static void render_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer);
 static void render_debug_info(
     renderer_t* renderer,
@@ -23,6 +15,11 @@ static void render_debug_info(
 
 static void draw_on_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s);
 static void drawf_on_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...);
+
+void deinit_renderer(renderer_t* const renderer)
+{
+    deinit_canvas(renderer->canvas);
+}
 
 void render(
     renderer_t* const renderer,
@@ -48,10 +45,7 @@ void render(
 
     clear_canvas(renderer->canvas);
 
-    render_kakehi(renderer, &dctx, &ccodoc->kakehi);
-    render_tsutsu(renderer, &dctx, &ccodoc->tsutsu);
-    render_hachi(renderer, &dctx, &ccodoc->hachi);
-    render_roji(renderer, &dctx);
+    render_ccodoc(renderer, &dctx, ccodoc);
 
     if (timer != NULL) {
         render_timer(renderer, &dctx, timer);
@@ -62,6 +56,19 @@ void render(
     }
 
     flush_canvas(renderer->canvas);
+}
+
+static void render_kakehi(renderer_t* renderer, drawing_ctx_t* ctx, const kakehi_t* kakehi);
+static void render_tsutsu(renderer_t* renderer, drawing_ctx_t* ctx, const tsutsu_t* tsutsu);
+static void render_hachi(renderer_t* renderer, drawing_ctx_t* ctx, const hachi_t* hachi);
+static void render_roji(renderer_t* renderer, drawing_ctx_t* ctx);
+
+static void render_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const ccodoc_t* ccodoc)
+{
+    render_kakehi(renderer, ctx, &ccodoc->kakehi);
+    render_tsutsu(renderer, ctx, &ccodoc->tsutsu);
+    render_hachi(renderer, ctx, &ccodoc->hachi);
+    render_roji(renderer, ctx);
 }
 
 static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, const kakehi_t* const kakehi)
