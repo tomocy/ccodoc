@@ -28,6 +28,7 @@ typedef struct {
     struct {
         const char* tsutsu_poured;
         const char* tsutsu_bumped;
+        const char* uguisu_call;
     } sound;
 } mode_t;
 

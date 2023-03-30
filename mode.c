@@ -68,8 +68,6 @@ static void run_mode(mode_t* const mode, const mode_processor_t processor)
     sigsuspend(&sigs);
 }
 
-// wabi
-
 static bool process_mode_wabi(mode_t* const mode, const duration_t delta)
 {
     tick_ccodoc(&mode->ccodoc, delta);
@@ -95,7 +93,16 @@ static bool process_mode_sabi(mode_t* const mode, const duration_t delta)
     // Stop the water flow since kakehi has released last water drop to fill up tsutsu,
     mode->ccodoc.kakehi.disabled = mode->ccodoc.kakehi.state == releasing_water;
     // and wait for tsutsu to have released water.
-    return !(tsutsu_last_state == releasing_water && tsutsu_has_released_water(&mode->ccodoc.tsutsu));
+    if (tsutsu_last_state != releasing_water || !tsutsu_has_released_water(&mode->ccodoc.tsutsu)) {
+        return true;
+    }
+
+    if (mode->ornamental && mode->sound.uguisu_call != NULL) {
+        sleep_for((duration_t) { .msecs = 2000 });
+        play_sound(mode->sound.uguisu_call);
+    }
+
+    return false;
 }
 
 static void init_ccodoc(mode_t* const mode)

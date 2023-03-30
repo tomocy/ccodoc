@@ -130,6 +130,17 @@ static const char* configure(config_t* const config, const int argc, const char*
             continue;
         }
 
+        if (str_equals(arg, "--sound-uguisu-call")) {
+            const char* const name = read_arg(&i, argv);
+            if (name == NULL) {
+                return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-uguisu-call");
+            }
+
+            config->mode.value->sound.uguisu_call = name;
+
+            continue;
+        }
+
         if (str_equals(arg, "--help")) {
             config->help = true;
             continue;
@@ -198,6 +209,14 @@ static int help(void)
     print_arg_help(
         "--sound-tsutsu-bumped file",
         (const char*[]) { "Play this sound on tsutsu（筒）bumped.", NULL }
+    );
+    print_arg_help(
+        "--sound-uguisu-call file",
+        (const char*[]) {
+            "Play this sound on uguisu（鶯）calling.",
+            "Uguisu calls when the timer expires in sabi mode, etc.",
+            NULL,
+        }
     );
 
     print_arg_help("--help", (const char*[]) { "Print help.", NULL });
