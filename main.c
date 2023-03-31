@@ -8,8 +8,8 @@
 
 typedef struct {
     struct {
-        mode_type_t type;
-        mode_t* value;
+        ccodoc_mode_type_t type;
+        ccodoc_mode_t* value;
     } mode;
 
     bool help;
@@ -20,7 +20,7 @@ static int help(void);
 
 int main(const int argc, const char* const* const argv)
 {
-    mode_t mode = {
+    ccodoc_mode_t mode = {
         .ornamental = true,
         .debug = false,
     };

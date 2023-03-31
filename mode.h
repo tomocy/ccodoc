@@ -7,7 +7,7 @@
 typedef enum {
     mode_wabi,
     mode_sabi,
-} mode_type_t;
+} ccodoc_mode_type_t;
 
 typedef struct {
     bool ornamental;
@@ -30,10 +30,10 @@ typedef struct {
         const char* tsutsu_bump;
         const char* uguisu_call;
     } sound;
-} mode_t;
+} ccodoc_mode_t;
 
-extern void init_mode(mode_t* mode);
-extern void deinit_mode(mode_t* mode);
+extern void init_mode(ccodoc_mode_t* mode);
+extern void deinit_mode(ccodoc_mode_t* mode);
 
-extern void run_mode_wabi(mode_t* mode);
-extern void run_mode_sabi(mode_t* mode);
+extern void run_mode_wabi(ccodoc_mode_t* mode);
+extern void run_mode_sabi(ccodoc_mode_t* mode);
