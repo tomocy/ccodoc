@@ -21,7 +21,8 @@
 				"74th.scrollkey",
 				"llvm-vs-code-extensions.vscode-clangd",
 				"timonwong.shellcheck",
-				"foxundermoon.shell-format"
+				"foxundermoon.shell-format",
+				"DavidAnson.vscode-markdownlint"
 			]
 		}
 	}

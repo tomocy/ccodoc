@@ -41,7 +41,7 @@ typedef struct {
     event_t on_bumped;
 } tsutsu_t;
 
-// hachi（手水鉢）
+// hachi（鉢）
 typedef struct {
     water_flow_state_t state;
     action_t releasing_water;

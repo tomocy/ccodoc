@@ -186,7 +186,7 @@ static int help(void)
         "--wabi",
         (const char*[]) {
             "Render ccodoc alone. (default)",
-            "Imperfect does not always mean not-perfect. Simple does not always mean not-complicated.",
+            "Unsatisfied does not always mean not-satisfied. Absent does not always mean not-present.",
             "It is just what it is.（侘び）",
             NULL,
         }
@@ -213,7 +213,7 @@ static int help(void)
 
     print_arg_help(
         "--sound-tsutsu-drip file",
-        (const char*[]) { "Play this sound when water drips into tsutsu（筒）.", NULL }
+        (const char*[]) { "Play this sound when water drips from kakehi（筧）into tsutsu（筒）.", NULL }
     );
     print_arg_help(
         "--sound-tsutsu-bump file",
