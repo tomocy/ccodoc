@@ -29,7 +29,7 @@ static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* canvas);
 canvas_t wrap_canvas_buffer(canvas_buffer_t* const canvas)
 {
     return (canvas_t) {
-        .type = canvas_type_buffer,
+        .type = canvas_buffer,
         .delegate = { .buffer = canvas },
     };
 }
@@ -37,7 +37,7 @@ canvas_t wrap_canvas_buffer(canvas_buffer_t* const canvas)
 canvas_t wrap_canvas_curses(canvas_curses_t* const canvas)
 {
     return (canvas_t) {
-        .type = canvas_type_curses,
+        .type = canvas_curses,
         .delegate = { .curses = canvas },
     };
 }
@@ -45,7 +45,7 @@ canvas_t wrap_canvas_curses(canvas_curses_t* const canvas)
 canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas)
 {
     return (canvas_t) {
-        .type = canvas_type_proxy,
+        .type = canvas_proxy,
         .delegate = { .proxy = canvas },
     };
 }
@@ -56,13 +56,13 @@ void deinit_canvas(canvas_t* const canvas)
     canvas_delegate_t* const delegate = &canvas->delegate;
 
     switch (canvas->type) {
-    case canvas_type_buffer:
+    case canvas_buffer:
         deinit_canvas_buffer(delegate->buffer);
         break;
-    case canvas_type_curses:
+    case canvas_curses:
         deinit_canvas_curses(delegate->curses);
         break;
-    case canvas_type_proxy: {
+    case canvas_proxy: {
         {
             canvas_t canvas = wrap_canvas_buffer(
                 serve_current_canvas_buffer(delegate->proxy)
@@ -84,13 +84,13 @@ void clear_canvas(canvas_t* const canvas)
     canvas_delegate_t* const delegate = &canvas->delegate;
 
     switch (canvas->type) {
-    case canvas_type_buffer:
+    case canvas_buffer:
         clear_canvas_buffer(delegate->buffer);
         break;
-    case canvas_type_curses:
+    case canvas_curses:
         clear_canvas_curses(delegate->curses);
         break;
-    case canvas_type_proxy: {
+    case canvas_proxy: {
         canvas_t canvas = wrap_canvas_buffer(
             serve_current_canvas_buffer(delegate->proxy)
         );
@@ -106,12 +106,12 @@ void flush_canvas(canvas_t* const canvas)
     canvas_delegate_t* const delegate = &canvas->delegate;
 
     switch (canvas->type) {
-    case canvas_type_buffer:
+    case canvas_buffer:
         break;
-    case canvas_type_curses:
+    case canvas_curses:
         flush_canvas_curses(delegate->curses);
         break;
-    case canvas_type_proxy: {
+    case canvas_proxy: {
         flush_canvas_proxy(delegate->proxy);
         break;
     }
@@ -124,13 +124,13 @@ void draw(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t attr
     canvas_delegate_t* const delegate = &canvas->delegate;
 
     switch (canvas->type) {
-    case canvas_type_buffer:
+    case canvas_buffer:
         draw_buffer(delegate->buffer, point, attr, s);
         break;
-    case canvas_type_curses:
+    case canvas_curses:
         draw_curses(delegate->curses, point, attr, s);
         break;
-    case canvas_type_proxy: {
+    case canvas_proxy: {
         canvas_t canvas = wrap_canvas_buffer(
             serve_current_canvas_buffer(delegate->proxy)
         );
@@ -146,13 +146,13 @@ void drawfv(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t at
     canvas_delegate_t* const delegate = &canvas->delegate;
 
     switch (canvas->type) {
-    case canvas_type_buffer:
+    case canvas_buffer:
         drawfv_buffer(delegate->buffer, point, attr, format, args);
         break;
-    case canvas_type_curses:
+    case canvas_curses:
         drawfv_curses(delegate->curses, point, attr, format, args);
         break;
-    case canvas_type_proxy: {
+    case canvas_proxy: {
         canvas_t canvas = wrap_canvas_buffer(
             serve_current_canvas_buffer(delegate->proxy)
         );
@@ -178,11 +178,11 @@ vec2d_t get_canvas_size(const canvas_t* const canvas)
     const canvas_delegate_t* const delegate = &canvas->delegate;
 
     switch (canvas->type) {
-    case canvas_type_buffer:
+    case canvas_buffer:
         return delegate->buffer->size;
-    case canvas_type_curses:
+    case canvas_curses:
         return get_canvas_size_curses(delegate->curses);
-    case canvas_type_proxy: {
+    case canvas_proxy: {
         canvas_t canvas = wrap_canvas_curses(delegate->proxy->underlying);
         return get_canvas_size(&canvas);
     }

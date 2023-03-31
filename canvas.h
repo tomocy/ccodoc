@@ -52,9 +52,9 @@ typedef struct {
 } canvas_proxy_t;
 
 typedef enum {
-    canvas_type_buffer,
-    canvas_type_curses,
-    canvas_type_proxy,
+    canvas_buffer,
+    canvas_curses,
+    canvas_proxy,
 } canvas_type_t;
 
 typedef union {
