@@ -38,21 +38,21 @@ int test_renderer(void)
     ccodoc_t ccodoc = {
         .kakehi = {
             .release_water_ratio = 0.2f,
-            .holding_water_timer = {
+            .holding_water = {
                 .duration = { .msecs = 2100 },
             },
-            .releasing_water_timer = {
+            .releasing_water = {
                 .duration = { .msecs = 900 },
             },
         },
         .tsutsu = {
             .water_capacity = 10,
-            .releasing_water_timer = {
+            .releasing_water = {
                 .duration = { .msecs = 1200 },
             },
         },
         .hachi = {
-            .releasing_water_timer = {
+            .releasing_water = {
                 .duration = { .msecs = 1000 },
             },
         },

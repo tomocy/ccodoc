@@ -38,9 +38,9 @@ static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
 
     switch (kakehi->state) {
     case holding_water:
-        tick_timer(&kakehi->holding_water_timer, delta);
+        tick_action(&kakehi->holding_water, delta);
 
-        if (!timer_expires(&kakehi->holding_water_timer)) {
+        if (!action_has_finished(&kakehi->holding_water)) {
             return;
         }
 
@@ -48,9 +48,9 @@ static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
 
         break;
     case releasing_water:
-        tick_timer(&kakehi->releasing_water_timer, delta);
+        tick_action(&kakehi->releasing_water, delta);
 
-        if (!timer_expires(&kakehi->releasing_water_timer)) {
+        if (!action_has_finished(&kakehi->releasing_water)) {
             return;
         }
 
@@ -74,9 +74,9 @@ static void tick_tsutsu(ccodoc_t* const ccodoc, const duration_t delta)
 
         break;
     case releasing_water: {
-        tick_timer(&tsutsu->releasing_water_timer, delta);
+        tick_action(&tsutsu->releasing_water, delta);
 
-        const float ratio = elapsed_time_ratio(&tsutsu->releasing_water_timer);
+        const float ratio = action_progress_ratio(&tsutsu->releasing_water);
 
         fill_tsutsu_by(tsutsu, 1.0f - ratio);
 
@@ -101,9 +101,9 @@ static void tick_hachi(ccodoc_t* const ccodoc, const duration_t delta)
     case holding_water:
         break;
     case releasing_water:
-        tick_timer(&hachi->releasing_water_timer, delta);
+        tick_action(&hachi->releasing_water, delta);
 
-        if (!timer_expires(&hachi->releasing_water_timer)) {
+        if (!action_has_finished(&hachi->releasing_water)) {
             break;
         }
 
@@ -123,7 +123,7 @@ static void hold_kakehi_water(ccodoc_t* const ccodoc)
     }
 
     kakehi->state = state;
-    reset_timer(&kakehi->holding_water_timer);
+    reset_action(&kakehi->holding_water);
 }
 
 static void release_kakehi_water(ccodoc_t* const ccodoc)
@@ -136,7 +136,7 @@ static void release_kakehi_water(ccodoc_t* const ccodoc)
     }
 
     kakehi->state = state;
-    reset_timer(&kakehi->releasing_water_timer);
+    reset_action(&kakehi->releasing_water);
 
     pour_tsutsu_by(&ccodoc->tsutsu, kakehi->release_water_ratio);
 }
@@ -164,7 +164,7 @@ static void release_tsutsu_water(ccodoc_t* const ccodoc)
     }
 
     tsutsu->state = state;
-    reset_timer(&tsutsu->releasing_water_timer);
+    reset_action(&tsutsu->releasing_water);
 
     release_hachi_water(ccodoc);
 }
@@ -191,7 +191,7 @@ static void release_hachi_water(ccodoc_t* const ccodoc)
     }
 
     hachi->state = state;
-    reset_timer(&hachi->releasing_water_timer);
+    reset_action(&hachi->releasing_water);
 }
 
 static void pour_tsutsu_by(tsutsu_t* const tsutsu, const float ratio)
@@ -215,12 +215,27 @@ float tsutsu_water_amount_ratio(const tsutsu_t* const tsutsu)
     return (float)tsutsu->water_amount / (float)tsutsu->water_capacity;
 }
 
-bool tsutsu_has_released_water(const tsutsu_t* tsutsu)
+void tick_action(action_t* const action, const duration_t delta)
 {
-    return timer_expires(&tsutsu->releasing_water_timer);
+    tick_timer(action, delta);
 }
 
-void notify_listener(event_t* const event)
+void reset_action(action_t* const action)
+{
+    reset_timer(action);
+}
+
+float action_progress_ratio(const action_t* const action)
+{
+    return elapsed_time_ratio(action);
+}
+
+bool action_has_finished(const action_t* const action)
+{
+    return timer_expires(action);
+}
+
+void notify_listener(const event_t* const event)
 {
     if (event->listen == NULL) {
         return;

@@ -3,6 +3,8 @@
 #include "time.h"
 #include <stdbool.h>
 
+typedef tick_timer_t action_t;
+
 typedef void (*event_listener_t)(void*);
 
 typedef struct {
@@ -21,9 +23,10 @@ typedef struct {
 
     bool disabled;
 
+    action_t holding_water;
+
     float release_water_ratio;
-    tick_timer_t holding_water_timer;
-    tick_timer_t releasing_water_timer;
+    action_t releasing_water;
 } kakehi_t;
 
 // tsutsu（筒）
@@ -32,7 +35,7 @@ typedef struct {
 
     unsigned int water_amount;
     unsigned int water_capacity;
-    tick_timer_t releasing_water_timer;
+    action_t releasing_water;
 
     event_t on_poured;
     event_t on_released_water;
@@ -41,8 +44,7 @@ typedef struct {
 // hachi（手水鉢）
 typedef struct {
     water_flow_state_t state;
-
-    tick_timer_t releasing_water_timer;
+    action_t releasing_water;
 } hachi_t;
 
 // ccodoc（鹿威し）
@@ -55,6 +57,10 @@ typedef struct {
 extern void tick_ccodoc(ccodoc_t* ccodoc, duration_t delta);
 
 extern float tsutsu_water_amount_ratio(const tsutsu_t* tsutsu);
-extern bool tsutsu_has_released_water(const tsutsu_t* tsutsu);
 
-extern void notify_listener(event_t* event);
+extern void tick_action(action_t* action, duration_t delta);
+extern void reset_action(action_t* action);
+extern float action_progress_ratio(const action_t* action);
+extern bool action_has_finished(const action_t* action);
+
+extern void notify_listener(const event_t* event);

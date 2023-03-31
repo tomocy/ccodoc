@@ -93,7 +93,7 @@ static bool process_mode_sabi(mode_t* const mode, const duration_t delta)
     // Stop the water flow since kakehi has released last water drop to fill up tsutsu,
     mode->ccodoc.kakehi.disabled = mode->ccodoc.kakehi.state == releasing_water;
     // and wait for tsutsu to have released water.
-    if (tsutsu_last_state != releasing_water || !tsutsu_has_released_water(&mode->ccodoc.tsutsu)) {
+    if (tsutsu_last_state != releasing_water || !action_has_finished(&mode->ccodoc.tsutsu.releasing_water)) {
         return true;
     }
 
@@ -110,21 +110,21 @@ static void init_ccodoc(mode_t* const mode)
     mode->ccodoc = (ccodoc_t) {
         .kakehi = {
             .release_water_ratio = 0.1f,
-            .holding_water_timer = {
+            .holding_water = {
                 .duration = { .msecs = 2200 },
             },
-            .releasing_water_timer = {
+            .releasing_water = {
                 .duration = { .msecs = 800 },
             },
         },
         .tsutsu = {
             .water_capacity = 10,
-            .releasing_water_timer = {
+            .releasing_water = {
                 .duration = { .msecs = 1200 },
             },
         },
         .hachi = {
-            .releasing_water_timer = {
+            .releasing_water = {
                 .duration = { .msecs = 1000 },
             },
         },
