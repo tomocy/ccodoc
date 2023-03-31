@@ -3,11 +3,11 @@
 #include "time.h"
 #include <stdbool.h>
 
-typedef void (*void_callback_t)(void*);
+typedef void (*event_listener_t)(void*);
 
 typedef struct {
     void* listener;
-    void_callback_t notify;
+    event_listener_t listen;
 } event_t;
 
 typedef enum {

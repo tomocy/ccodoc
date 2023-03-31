@@ -222,9 +222,9 @@ bool tsutsu_has_released_water(const tsutsu_t* tsutsu)
 
 void notify_listener(event_t* const event)
 {
-    if (event->notify == NULL) {
+    if (event->listen == NULL) {
         return;
     }
 
-    event->notify(event->listener);
+    event->listen(event->listener);
 }

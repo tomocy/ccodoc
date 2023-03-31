@@ -139,7 +139,7 @@ static void init_ccodoc(mode_t* const mode)
         if (file != NULL) {
             mode->ccodoc.tsutsu.on_poured = (event_t) {
                 .listener = (void*)file,
-                .notify = (void_callback_t)play_sound,
+                .listen = (event_listener_t)play_sound,
             };
         }
     }
@@ -148,7 +148,7 @@ static void init_ccodoc(mode_t* const mode)
         if (file != NULL) {
             mode->ccodoc.tsutsu.on_released_water = (event_t) {
                 .listener = (void*)file,
-                .notify = (void_callback_t)play_sound,
+                .listen = (event_listener_t)play_sound,
             };
         }
     }
