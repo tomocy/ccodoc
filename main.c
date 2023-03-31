@@ -5,6 +5,7 @@
 #include "string.h"
 #include "time.h"
 #include <stdlib.h>
+#include <sys/stat.h>
 
 typedef struct {
     struct {
@@ -15,7 +16,9 @@ typedef struct {
     bool help;
 } config_t;
 
-static const char* configure(config_t* config, int argc, const char* const* argv);
+static const char* configure(config_t* config, unsigned int argc, const char* const* argv);
+static bool finds_file(const char* path);
+
 static int help(void);
 
 int main(const int argc, const char* const* const argv)
@@ -63,9 +66,9 @@ int main(const int argc, const char* const* const argv)
     return EXIT_SUCCESS;
 }
 
-static const char* read_arg(int* const i, const char* const* const argv)
+static const char* read_arg(unsigned int* const i, const char* const* const argv)
 {
-    const int next_i = *i + 1;
+    const unsigned int next_i = *i + 1;
     const char* next_arg = argv[next_i];
     if (!next_arg) {
         return NULL;
@@ -76,10 +79,28 @@ static const char* read_arg(int* const i, const char* const* const argv)
 }
 
 #define CONFIG_ERR_NO_VALUE_SPECIFIED(label) label ": value must be specified"
+#define CONFIG_ERR_NO_FILE_FOUND(label) label ": file not found"
 
-static const char* configure(config_t* const config, const int argc, const char* const* const argv)
+#define READ_ARG_FILE(dst, argv, i, name)               \
+    {                                                   \
+        const char** dst_ = (dst);                      \
+        const char* const* const argv_ = (argv);        \
+        unsigned int* i_ = (i);                         \
+        ;                                               \
+        const char* const file = read_arg(i_, argv_);   \
+        if (file == NULL) {                             \
+            return CONFIG_ERR_NO_VALUE_SPECIFIED(name); \
+        };                                              \
+        if (!finds_file(file)) {                        \
+            return CONFIG_ERR_NO_FILE_FOUND(name);      \
+        }                                               \
+                                                        \
+        *dst_ = file;                                   \
+    }
+
+static const char* configure(config_t* const config, const unsigned int argc, const char* const* const argv)
 {
-    for (int i = 1; i < argc; i++) {
+    for (unsigned int i = 1; i < argc; i++) {
         const char* const arg = argv[i];
 
         if (str_equals(arg, "--sabi")) {
@@ -109,35 +130,17 @@ static const char* configure(config_t* const config, const int argc, const char*
         }
 
         if (str_equals(arg, "--sound-tsutsu-drip")) {
-            const char* const file = read_arg(&i, argv);
-            if (file == NULL) {
-                return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-drip");
-            }
-
-            config->mode.value->sound.tsutsu_drip = file;
-
+            READ_ARG_FILE(&config->mode.value->sound.tsutsu_drip, argv, &i, "sound-tsutsu-drip");
             continue;
         }
 
         if (str_equals(arg, "--sound-tsutsu-bump")) {
-            const char* const file = read_arg(&i, argv);
-            if (file == NULL) {
-                return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-bump");
-            }
-
-            config->mode.value->sound.tsutsu_bump = file;
-
+            READ_ARG_FILE(&config->mode.value->sound.tsutsu_bump, argv, &i, "sound-tsutsu-bump");
             continue;
         }
 
         if (str_equals(arg, "--sound-uguisu-call")) {
-            const char* const file = read_arg(&i, argv);
-            if (file == NULL) {
-                return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-uguisu-call");
-            }
-
-            config->mode.value->sound.uguisu_call = file;
-
+            READ_ARG_FILE(&config->mode.value->sound.uguisu_call, argv, &i, "sound-uguisu-call");
             continue;
         }
 
@@ -153,6 +156,12 @@ static const char* configure(config_t* const config, const int argc, const char*
     }
 
     return NULL;
+}
+
+static bool finds_file(const char* path)
+{
+    struct stat s = { 0 };
+    return stat(path, &s) == 0;
 }
 
 static void print_arg_help(const char* const arg, const char** const descs)
