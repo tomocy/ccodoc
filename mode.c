@@ -109,7 +109,7 @@ static void init_ccodoc(mode_t* const mode)
 {
     mode->ccodoc = (ccodoc_t) {
         .kakehi = {
-            .release_water_ratio = 0.1f,
+            .release_water_amount = 1,
             .holding_water = {
                 .duration = { .msecs = 2200 },
             },
@@ -135,18 +135,18 @@ static void init_ccodoc(mode_t* const mode)
     }
 
     {
-        const char* file = mode->sound.tsutsu_poured;
+        const char* file = mode->sound.tsutsu_drip;
         if (file != NULL) {
-            mode->ccodoc.tsutsu.on_poured = (event_t) {
+            mode->ccodoc.tsutsu.on_got_drip = (event_t) {
                 .listener = (void*)file,
                 .listen = (event_listener_t)play_sound,
             };
         }
     }
     {
-        const char* file = mode->sound.tsutsu_bumped;
+        const char* file = mode->sound.tsutsu_bump;
         if (file != NULL) {
-            mode->ccodoc.tsutsu.on_released_water = (event_t) {
+            mode->ccodoc.tsutsu.on_bumped = (event_t) {
                 .listener = (void*)file,
                 .listen = (event_listener_t)play_sound,
             };
@@ -156,8 +156,8 @@ static void init_ccodoc(mode_t* const mode)
 
 static void deinit_ccodoc(mode_t* const mode)
 {
-    mode->ccodoc.tsutsu.on_poured = (event_t) { 0 };
-    mode->ccodoc.tsutsu.on_released_water = (event_t) { 0 };
+    mode->ccodoc.tsutsu.on_got_drip = (event_t) { 0 };
+    mode->ccodoc.tsutsu.on_bumped = (event_t) { 0 };
 }
 
 static void init_rendering_ctx(mode_t* const mode)

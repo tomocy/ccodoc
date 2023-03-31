@@ -108,35 +108,35 @@ static const char* configure(config_t* const config, const int argc, const char*
             continue;
         }
 
-        if (str_equals(arg, "--sound-tsutsu-poured")) {
-            const char* const name = read_arg(&i, argv);
-            if (name == NULL) {
-                return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-poured");
+        if (str_equals(arg, "--sound-tsutsu-drip")) {
+            const char* const file = read_arg(&i, argv);
+            if (file == NULL) {
+                return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-drip");
             }
 
-            config->mode.value->sound.tsutsu_poured = name;
+            config->mode.value->sound.tsutsu_drip = file;
 
             continue;
         }
 
-        if (str_equals(arg, "--sound-tsutsu-bumped")) {
-            const char* const name = read_arg(&i, argv);
-            if (name == NULL) {
-                return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-bumped");
+        if (str_equals(arg, "--sound-tsutsu-bump")) {
+            const char* const file = read_arg(&i, argv);
+            if (file == NULL) {
+                return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-tsutsu-bump");
             }
 
-            config->mode.value->sound.tsutsu_bumped = name;
+            config->mode.value->sound.tsutsu_bump = file;
 
             continue;
         }
 
         if (str_equals(arg, "--sound-uguisu-call")) {
-            const char* const name = read_arg(&i, argv);
-            if (name == NULL) {
+            const char* const file = read_arg(&i, argv);
+            if (file == NULL) {
                 return CONFIG_ERR_NO_VALUE_SPECIFIED("sound-uguisu-call");
             }
 
-            config->mode.value->sound.uguisu_call = name;
+            config->mode.value->sound.uguisu_call = file;
 
             continue;
         }
@@ -197,23 +197,23 @@ static int help(void)
         "--satori",
         (const char*[]) {
             "Remove all ornaments.",
-            "Neither color nor sound is needed as they already lies within you.（悟り）",
+            "Neither color nor sound is needed as they already lie within you.（悟り）",
             NULL,
         }
     );
 
     print_arg_help(
-        "--sound-tsutsu-poured file",
-        (const char*[]) { "Play this sound on tsutsu（筒）poured.", NULL }
+        "--sound-tsutsu-drip file",
+        (const char*[]) { "Play this sound when water drips into tsutsu（筒）.", NULL }
     );
     print_arg_help(
-        "--sound-tsutsu-bumped file",
-        (const char*[]) { "Play this sound on tsutsu（筒）bumped.", NULL }
+        "--sound-tsutsu-bump file",
+        (const char*[]) { "Play this sound when tsutsu（筒）bumps.", NULL }
     );
     print_arg_help(
         "--sound-uguisu-call file",
         (const char*[]) {
-            "Play this sound on uguisu（鶯）calling.",
+            "Play this sound when uguisu（鶯）calls.",
             "Uguisu calls when the timer expires in sabi mode, etc.",
             NULL,
         }

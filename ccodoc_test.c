@@ -6,7 +6,7 @@ int test_ccodoc(void)
 {
     ccodoc_t ccodoc = {
         .kakehi = {
-            .release_water_ratio = 0.5f,
+            .release_water_amount = 5,
             .holding_water = {
                 .duration = { .msecs = 2500 },
             },
@@ -132,7 +132,7 @@ int test_ccodoc(void)
 
         EXPECT_EQUAL(ccodoc.tsutsu.state, releasing_water);
         EXPECT_EQUAL(action_progress_ratio(&ccodoc.tsutsu.releasing_water), 0);
-        EXPECT_EQUAL(tsutsu_water_amount_ratio(&ccodoc.tsutsu), 1);
+        EXPECT_EQUAL(tsutsu_water_amount_ratio(&ccodoc.tsutsu), 0);
 
         EXPECT_EQUAL(ccodoc.hachi.state, holding_water);
         EXPECT_EQUAL(action_progress_ratio(&ccodoc.hachi.releasing_water), 1);
@@ -148,7 +148,7 @@ int test_ccodoc(void)
 
         EXPECT_EQUAL(ccodoc.tsutsu.state, releasing_water);
         EXPECT_EQUAL(action_progress_ratio(&ccodoc.tsutsu.releasing_water), 1.0f / 3);
-        EXPECT_EQUAL(tsutsu_water_amount_ratio(&ccodoc.tsutsu), 0.6f);
+        EXPECT_EQUAL(tsutsu_water_amount_ratio(&ccodoc.tsutsu), 0);
 
         EXPECT_EQUAL(ccodoc.hachi.state, holding_water);
         EXPECT_EQUAL(action_progress_ratio(&ccodoc.hachi.releasing_water), 1);

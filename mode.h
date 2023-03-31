@@ -26,8 +26,8 @@ typedef struct {
     } rendering;
 
     struct {
-        const char* tsutsu_poured;
-        const char* tsutsu_bumped;
+        const char* tsutsu_drip;
+        const char* tsutsu_bump;
         const char* uguisu_call;
     } sound;
 } mode_t;

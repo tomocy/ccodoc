@@ -37,7 +37,7 @@ int test_renderer(void)
 
     ccodoc_t ccodoc = {
         .kakehi = {
-            .release_water_ratio = 0.2f,
+            .release_water_amount = 2,
             .holding_water = {
                 .duration = { .msecs = 2100 },
             },

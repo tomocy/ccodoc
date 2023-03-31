@@ -18,8 +18,7 @@ static void release_tsutsu_water(ccodoc_t* ccodoc);
 static void hold_hachi_water(ccodoc_t* ccodoc);
 static void release_hachi_water(ccodoc_t* ccodoc);
 
-static void pour_tsutsu_by(tsutsu_t* tsutsu, float ratio);
-static void fill_tsutsu_by(tsutsu_t* tsutsu, float ratio);
+static void drip_water_into_tsutsu(tsutsu_t* tsutsu, unsigned int amount);
 
 void tick_ccodoc(ccodoc_t* const ccodoc, const duration_t delta)
 {
@@ -76,15 +75,11 @@ static void tick_tsutsu(ccodoc_t* const ccodoc, const duration_t delta)
     case releasing_water: {
         tick_action(&tsutsu->releasing_water, delta);
 
-        const float ratio = action_progress_ratio(&tsutsu->releasing_water);
-
-        fill_tsutsu_by(tsutsu, 1.0f - ratio);
-
-        if (ratio < 1) {
+        if (!action_has_finished(&tsutsu->releasing_water)) {
             break;
         }
 
-        notify_listener(&tsutsu->on_released_water);
+        notify_listener(&tsutsu->on_bumped);
 
         hold_tsutsu_water(ccodoc);
 
@@ -138,7 +133,7 @@ static void release_kakehi_water(ccodoc_t* const ccodoc)
     kakehi->state = state;
     reset_action(&kakehi->releasing_water);
 
-    pour_tsutsu_by(&ccodoc->tsutsu, kakehi->release_water_ratio);
+    drip_water_into_tsutsu(&ccodoc->tsutsu, kakehi->release_water_amount);
 }
 
 static void hold_tsutsu_water(ccodoc_t* const ccodoc)
@@ -165,6 +160,8 @@ static void release_tsutsu_water(ccodoc_t* const ccodoc)
 
     tsutsu->state = state;
     reset_action(&tsutsu->releasing_water);
+
+    tsutsu->water_amount = 0;
 
     release_hachi_water(ccodoc);
 }
@@ -194,19 +191,10 @@ static void release_hachi_water(ccodoc_t* const ccodoc)
     reset_action(&hachi->releasing_water);
 }
 
-static void pour_tsutsu_by(tsutsu_t* const tsutsu, const float ratio)
+static void drip_water_into_tsutsu(tsutsu_t* const tsutsu, const unsigned int amount)
 {
-    const unsigned int delta = (unsigned int)((float)tsutsu->water_capacity * ratio);
-    tsutsu->water_amount = (tsutsu->water_capacity - tsutsu->water_amount > delta)
-        ? tsutsu->water_amount + delta
-        : tsutsu->water_capacity;
-
-    notify_listener(&tsutsu->on_poured);
-}
-
-static void fill_tsutsu_by(tsutsu_t* const tsutsu, const float ratio)
-{
-    tsutsu->water_amount = (unsigned int)((float)tsutsu->water_capacity * CLAMP(0, 1, ratio));
+    tsutsu->water_amount = MIN(tsutsu->water_amount + amount, tsutsu->water_capacity);
+    notify_listener(&tsutsu->on_got_drip);
 }
 
 float tsutsu_water_amount_ratio(const tsutsu_t* const tsutsu)

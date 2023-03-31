@@ -25,7 +25,7 @@ typedef struct {
 
     action_t holding_water;
 
-    float release_water_ratio;
+    unsigned int release_water_amount;
     action_t releasing_water;
 } kakehi_t;
 
@@ -37,8 +37,8 @@ typedef struct {
     unsigned int water_capacity;
     action_t releasing_water;
 
-    event_t on_poured;
-    event_t on_released_water;
+    event_t on_got_drip;
+    event_t on_bumped;
 } tsutsu_t;
 
 // hachi（手水鉢）
