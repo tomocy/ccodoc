@@ -14,12 +14,14 @@ typedef struct {
     } mode;
 
     bool help;
+    bool version;
 } config_t;
 
 static const char* configure(config_t* config, unsigned int argc, const char* const* argv);
 static bool finds_file(const char* path);
 
 static int help(void);
+static int version(void);
 
 int main(const int argc, const char* const* const argv)
 {
@@ -48,6 +50,9 @@ int main(const int argc, const char* const* const argv)
 
     if (config.help) {
         return help();
+    }
+    if (config.version) {
+        return version();
     }
 
     init_mode(&mode);
@@ -149,6 +154,11 @@ static const char* configure(config_t* const config, const unsigned int argc, co
             continue;
         }
 
+        if (str_equals(arg, "--version")) {
+            config->version = true;
+            continue;
+        }
+
         if (str_equals(arg, "--debug")) {
             config->mode.value->debug = true;
             continue;
@@ -229,6 +239,13 @@ static int help(void)
     );
 
     print_arg_help("--help", (const char*[]) { "Print help.", NULL });
+    print_arg_help("--version", (const char*[]) { "Print version.", NULL });
 
+    return EXIT_SUCCESS;
+}
+
+static int version(void)
+{
+    printf("???\n");
     return EXIT_SUCCESS;
 }
