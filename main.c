@@ -19,6 +19,8 @@ typedef struct {
 static const char* configure(config_t* config, unsigned int argc, const char* const* argv);
 static bool finds_file(const char* path);
 
+static const char* version = "v0.0.0";
+
 static int help(void);
 
 int main(const int argc, const char* const* const argv)
