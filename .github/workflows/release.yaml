@@ -1,0 +1,30 @@
+name: release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yaml
+
+  release:
+    needs: ["test"]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: build
+      run: make
+    - name: package
+      uses: actions/upload-artifact@v3
+      with:
+        name: ccodoc-${{ github.ref_name }}-linux
+        path: ccodoc
+        if-no-files-found: error
+    - name: prepare
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ccodoc
+        draft: true
+        tag_name: ${{ github.ref_name }}
