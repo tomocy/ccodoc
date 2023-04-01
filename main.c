@@ -246,6 +246,6 @@ static int help(void)
 
 static int version(void)
 {
-    printf("???\n");
+    printf("v0.0.0\n");
     return EXIT_SUCCESS;
 }
