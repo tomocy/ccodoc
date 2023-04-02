@@ -43,3 +43,16 @@ ccodoc（鹿威し）simulated（造）in your terminal（庭）
     Play this sound when uguisu（鶯）calls.
 
     Uguisu calls when the timer expires in sabi mode, etc.
+
+## license
+
+- [MIT License](./LICENSE)
+
+    things unless otherwise stated
+
+- [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/deed.en)
+  - assets/sound/tsutsu_drip.mp3
+  - assets/sound/tsutsu_bump.mp3
+
+- [ＮＨＫクリエイティブ･ライブラリー](https://www.nhk.or.jp/archives/creative/rule.html) by NHK
+  - assets/sound/uguisu_call.mp3
