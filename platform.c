@@ -17,6 +17,22 @@ char* user_home_dir(void)
 #endif
 }
 
+char* user_cache_dir(void)
+{
+#if PLATFORM == PLATFORM_LINUX
+    const char* const dir = getenv("XDG_CACHE_HOME");
+    if (!str_equals(dir, "")) {
+        return (char*)dir;
+    }
+
+    return join_paths((const char*[]) { user_home_dir(), ".cache", NULL });
+#elif PLATFORM == PLATFORM_MACOS
+    return join_paths((const char*[]) { user_home_dir(), "Library/Caches", NULL });
+#else
+    return NULL;
+#endif
+}
+
 char* join_paths(const char* const* const paths)
 {
     char* x = { 0 };
