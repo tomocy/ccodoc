@@ -1,6 +1,7 @@
 ccodoc
 ccodoc_test
-*.o
+**/*.o
+**/*.exe
 
 .vscode/settings.json
 compile_flags.txt

@@ -33,8 +33,14 @@ ccodoc: $(OBJS)
 ccodoc_test: $(TEST_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
 
+assets/sounds/sounds.h: tool/build/embed_sounds.exe assets/sounds/*.mp3
+	./$<
+
 %.o: %.h %.c
 	$(CC) $(CFLAGS) -c -o $@ $*.c
+
+%.exe: %.c
+	$(CC) $(CFLAGS) -o $@ $*.c
 
 .PHONY: run
 run: ccodoc
@@ -46,7 +52,8 @@ test: ccodoc_test
 
 .PHONY: clean
 clean:
-	$(RM) ccodoc ccodoc_test *.o
+	$(RM) ccodoc ccodoc_test
+	find . -name '*.o' -or -name '*.exe' | while read -r file; do $(RM) "$${file}"; done
 
 # dev
 .vscode/settings.json: $(VSCODE_SETTINGS)
