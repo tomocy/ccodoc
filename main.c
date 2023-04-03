@@ -36,7 +36,6 @@ int main(const int argc, const char* const* const argv)
             .type = mode_wabi,
             .value = &mode,
         },
-        .help = false,
     };
 
     {
@@ -95,11 +94,11 @@ static const char* read_arg(unsigned int* const i, const char* const* const argv
         const char** dst_ = (dst);                      \
         const char* const* const argv_ = (argv);        \
         unsigned int* i_ = (i);                         \
-        ;                                               \
+                                                        \
         const char* const file = read_arg(i_, argv_);   \
         if (file == NULL) {                             \
             return CONFIG_ERR_NO_VALUE_SPECIFIED(name); \
-        };                                              \
+        }                                               \
         if (!has_file(file)) {                          \
             return CONFIG_ERR_NO_FILE_FOUND(name);      \
         }                                               \
