@@ -12,8 +12,10 @@
 
 char* user_home_dir(void)
 {
-#if PLATFORM == PLATFORM_LINUX || PLATFORM_MACOS
+#if PLATFORM == PLATFORM_LINUX || PLATFORM == PLATFORM_MACOS
     return getenv("HOME");
+#else
+    return NULL;
 #endif
 }
 

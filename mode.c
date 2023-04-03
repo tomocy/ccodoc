@@ -215,6 +215,10 @@ static char* install_sound(const char* const name, const unsigned char* const da
     return NULL;
 #endif
 
+    if (path == NULL) {
+        return NULL;
+    }
+
     if (!has_file(path)) {
         FILE* file = fopen(path, "w");
         if (file == NULL) {
