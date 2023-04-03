@@ -16,6 +16,10 @@ int main(void)
     EXPECT_PASS(test_time());
     printf("\n");
 
+    printf("# platform\n");
+    EXPECT_PASS(test_platform());
+    printf("\n");
+
     printf("# renderer\n");
     EXPECT_PASS(test_renderer());
     printf("\n");

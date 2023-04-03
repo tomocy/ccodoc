@@ -14,6 +14,11 @@ bool str_equals_n(const char* const str, const char* const other, const unsigned
     return strncmp(str, other, n) == 0;
 }
 
+bool str_starts_with(const char* str, const char* prefix)
+{
+    return str_equals_n(str, prefix, strlen(prefix));
+}
+
 char_descriptor_t encode_char_utf8(char* const dst, const uint32_t code)
 {
     char_descriptor_t desc = { .code = code };

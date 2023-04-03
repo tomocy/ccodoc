@@ -5,16 +5,31 @@
 
 int test_str(void)
 {
-    EXPECT_TRUE(str_equals("foo", "foo"));
+    {
+        printf("- str_equals\n");
 
-    EXPECT_FALSE(str_equals("foo", "bar"));
+        EXPECT_TRUE(str_equals("foo", "foo"));
 
-    EXPECT_TRUE(str_equals("", ""));
+        EXPECT_FALSE(str_equals("foo", "bar"));
 
-    EXPECT_TRUE(str_equals_n("foobar", "foorab", 1));
-    EXPECT_TRUE(str_equals_n("foobar", "foorab", 3));
-    EXPECT_FALSE(str_equals_n("foobar", "foorab", 4));
-    EXPECT_FALSE(str_equals_n("foobar", "foorab", 6));
+        EXPECT_TRUE(str_equals("", ""));
+
+        EXPECT_TRUE(str_equals_n("foobar", "foorab", 1));
+        EXPECT_TRUE(str_equals_n("foobar", "foorab", 3));
+        EXPECT_FALSE(str_equals_n("foobar", "foorab", 4));
+        EXPECT_FALSE(str_equals_n("foobar", "foorab", 6));
+    }
+
+    {
+        printf("- str_starts_with\n");
+
+        EXPECT_TRUE(str_starts_with("foobar", "f"));
+        EXPECT_FALSE(str_starts_with("foobar", "r"));
+        EXPECT_TRUE(str_starts_with("foobar", "foo"));
+        EXPECT_FALSE(str_equals("foobar", "bar"));
+        EXPECT_TRUE(str_starts_with("foobar", "foobar"));
+        EXPECT_FALSE(str_starts_with("foobar", "foobarfoo"));
+    }
 
     {
         printf("- utf-8: encode\n");

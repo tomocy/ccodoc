@@ -27,4 +27,5 @@
 extern int test_ccodoc(void);
 extern int test_str(void);
 extern int test_time(void);
+extern int test_platform(void);
 extern int test_renderer(void);

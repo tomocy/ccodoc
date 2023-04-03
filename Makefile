@@ -6,7 +6,7 @@ LDLIBS := -lm -lncursesw
 LIB_SRCS := ccodoc.c renderer.c canvas.c time.c memory.c string.c math.c platform.c
 SRCS := main.c mode.c $(LIB_SRCS)
 OBJS := $(patsubst %.c, %.o, $(SRCS))
-TEST_SRCS := test.c $(LIB_SRCS) ccodoc_test.c renderer_test.c string_test.c time_test.c
+TEST_SRCS := test.c $(LIB_SRCS) ccodoc_test.c renderer_test.c string_test.c time_test.c platform_test.c
 TEST_OBJS := $(patsubst %.c, %.o, $(TEST_SRCS))
 
 override TARGET := $(shell ./tool/build/detect_platform.sh $(TARGET))
