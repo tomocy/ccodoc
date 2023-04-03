@@ -1,8 +1,11 @@
 #include "mode.h"
 
+#include "assets/sounds/sounds.h"
 #include "ccodoc.h"
 #include "platform.h"
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef bool (*mode_processor_t)(ccodoc_mode_t*, duration_t);
 
@@ -16,12 +19,16 @@ static void deinit_ccodoc(ccodoc_mode_t* mode);
 static void init_rendering_ctx(ccodoc_mode_t* mode);
 static void deinit_rendering_ctx(ccodoc_mode_t* mode);
 
+static void init_sound_ctx(ccodoc_mode_t* mode);
+
 static void play_sound(const char* file);
 
 void init_mode(ccodoc_mode_t* const mode)
 {
-    init_ccodoc(mode);
     init_rendering_ctx(mode);
+    init_sound_ctx(mode);
+
+    init_ccodoc(mode);
 }
 
 void deinit_mode(ccodoc_mode_t* const mode)
@@ -179,13 +186,60 @@ static void deinit_rendering_ctx(ccodoc_mode_t* const mode)
     deinit_renderer(&mode->rendering.renderer);
 }
 
-static void play_sound(const char* const name)
+static char* install_sound(const char* const name, const unsigned char* data, size_t len);
+
+static void init_sound_ctx(ccodoc_mode_t* mode)
+{
+    if (!mode->ornamental) {
+        return;
+    }
+
+    if (mode->sound.tsutsu_drip == NULL) {
+        mode->sound.tsutsu_drip = install_sound("tsutsu_drip.mp3", sound_tsutsu_drip, sizeof(sound_tsutsu_drip));
+    }
+    if (mode->sound.tsutsu_bump == NULL) {
+        mode->sound.tsutsu_bump = install_sound("tsutsu_bump.mp3", sound_tsutsu_bump, sizeof(sound_tsutsu_bump));
+    }
+    if (mode->sound.uguisu_call == NULL) {
+        mode->sound.uguisu_call = install_sound("uguisu_call.mp3", sound_uguisu_call, sizeof(sound_uguisu_call));
+    }
+}
+
+static char* install_sound(const char* const name, const unsigned char* const data, size_t len)
 {
 #if PLATFORM == PLATFORM_LINUX
+    const char* path = join_paths((const char*[]) { user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
+#elif PLATFORM == PLATFORM_MACOS
+    const char* path = join_paths((const char*[]) { user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
+#else
+    return NULL;
+#endif
+
+    if (!has_file(path)) {
+        FILE* file = fopen(path, "w");
+        if (file == NULL) {
+            free((void*)path);
+            return NULL;
+        }
+
+        size_t n = fwrite(data, sizeof(unsigned char), len, file);
+        if (n < len) {
+            free((void*)path);
+            return NULL;
+        }
+
+        (void)fclose(file);
+    }
+
+    return (char*)path;
+}
+
+static void play_sound(const char* const name)
+{
+#if PLATFORM != PLATFORM_MACOS
     (void)name;
+    return;
 #endif
-#if PLATFORM == PLATFORM_MACOS
-    const char* const args[] = { "afplay", (char* const)name, NULL };
-    run_cmd("/usr/bin/afplay", args);
-#endif
+
+    run_cmd("/usr/bin/afplay", (const char*[]) { "afplay", (char* const)name, NULL });
 }

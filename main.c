@@ -15,13 +15,14 @@ typedef struct {
 
     bool help;
     bool version;
+    bool license;
 } config_t;
 
 static const char* configure(config_t* config, unsigned int argc, const char* const* argv);
-static bool finds_file(const char* path);
 
 static int help(void);
 static int version(void);
+static int lisence(void);
 
 int main(const int argc, const char* const* const argv)
 {
@@ -53,6 +54,9 @@ int main(const int argc, const char* const* const argv)
     }
     if (config.version) {
         return version();
+    }
+    if (config.license) {
+        return lisence();
     }
 
     init_mode(&mode);
@@ -96,7 +100,7 @@ static const char* read_arg(unsigned int* const i, const char* const* const argv
         if (file == NULL) {                             \
             return CONFIG_ERR_NO_VALUE_SPECIFIED(name); \
         };                                              \
-        if (!finds_file(file)) {                        \
+        if (!has_file(file)) {                          \
             return CONFIG_ERR_NO_FILE_FOUND(name);      \
         }                                               \
                                                         \
@@ -159,6 +163,11 @@ static const char* configure(config_t* const config, const unsigned int argc, co
             continue;
         }
 
+        if (str_equals(arg, "--license")) {
+            config->license = true;
+            continue;
+        }
+
         if (str_equals(arg, "--debug")) {
             config->mode.value->debug = true;
             continue;
@@ -166,12 +175,6 @@ static const char* configure(config_t* const config, const unsigned int argc, co
     }
 
     return NULL;
-}
-
-static bool finds_file(const char* path)
-{
-    struct stat s = { 0 };
-    return stat(path, &s) == 0;
 }
 
 static void print_arg_help(const char* const arg, const char** const descs)
@@ -240,6 +243,7 @@ static int help(void)
 
     print_arg_help("--help", (const char*[]) { "Print help.", NULL });
     print_arg_help("--version", (const char*[]) { "Print version.", NULL });
+    print_arg_help("--license", (const char*[]) { "Print license.", NULL });
 
     return EXIT_SUCCESS;
 }
@@ -247,5 +251,23 @@ static int help(void)
 static int version(void)
 {
     printf("v0.0.0\n");
+    return EXIT_SUCCESS;
+}
+
+static int lisence(void)
+{
+    printf("- MIT License (https://github.com/tomocy/ccodoc/blob/main/LICENSE)\n");
+    printf("  things unless otherwise stated\n");
+    printf("\n");
+
+    printf("- CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/deed.en)\n");
+    printf("  - tsutsu_drip sound\n");
+    printf("  - tsutsu_bump sound\n");
+    printf("\n");
+
+    printf("- ＮＨＫクリエイティブ･ライブラリー（https://www.nhk.or.jp/archives/creative/rule.html）by NHK\n");
+    printf("  - uguisu_call sound\n");
+    printf("\n");
+
     return EXIT_SUCCESS;
 }
