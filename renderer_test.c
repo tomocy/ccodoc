@@ -1,30 +1,15 @@
 #include "renderer.h"
 
-#include "ccodoc_test.h"
 #include "math.h"
+#include "test.h"
 #include "time.h"
 #include <assert.h>
 #include <stdio.h>
 
-static void tick(tick_timer_t* timer, ccodoc_t* ccodoc, const duration_t delta);
-static void print_elapsed_time(const tick_timer_t* timer);
-static int test_rendering(const canvas_buffer_t* actual, const char* expected);
-static void print_ccodoc(const canvas_buffer_t* canvas);
+static void tick(const duration_t delta, ccodoc_t* ccodoc, tick_timer_t* timer);
+static int test_tick_render(const char* file, int line, duration_t delta, ccodoc_t* ccodoc, tick_timer_t* timer, renderer_t* renderer, const char* expected);
 
-#define EXPECT_EQUAL_CCODOC(renderer, delta, ccodoc, timer, expected)                \
-    {                                                                                \
-        renderer_t* const renderer_ = (renderer);                                    \
-        const duration_t delta_ = (delta);                                           \
-        ccodoc_t* const ccodoc_ = (ccodoc);                                          \
-        tick_timer_t* const timer_ = (timer);                                        \
-                                                                                     \
-        tick(timer_, ccodoc_, delta_);                                               \
-        render(renderer_, delta_, ccodoc_, timer_);                                  \
-                                                                                     \
-        print_elapsed_time(timer_);                                                  \
-        print_ccodoc(renderer_->canvas->delegate.buffer);                            \
-        EXPECT_PASS(test_rendering(renderer_->canvas->delegate.buffer, (expected))); \
-    }
+#define EXPECT_TICK_CCODOC(delta, ccodoc, timer, renderer, expected) EXPECT_PASS(test_tick_render(__FILE__, __LINE__, delta, ccodoc, timer, renderer, expected))
 
 int test_renderer(void)
 {
@@ -66,8 +51,8 @@ int test_renderer(void)
         {
             const duration_t delta = (duration_t) { .msecs = 0 };
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -94,8 +79,8 @@ int test_renderer(void)
         {
             const duration_t delta = (duration_t) { .msecs = 350 };
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -122,8 +107,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -150,8 +135,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -178,8 +163,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -206,8 +191,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -234,8 +219,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -262,8 +247,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 450 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -290,8 +275,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 450 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -318,8 +303,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -346,8 +331,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -374,8 +359,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -402,8 +387,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 900 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -430,8 +415,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 6 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -458,8 +443,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 2100 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -486,8 +471,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -514,8 +499,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -542,8 +527,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -570,8 +555,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -598,8 +583,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -626,8 +611,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -654,8 +639,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .secs = 13, .msecs = 700 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -682,8 +667,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 100 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -710,8 +695,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 1200 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -738,8 +723,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .mins = 3 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -766,8 +751,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .mins = 1, .secs = 28, .msecs = 700 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -794,8 +779,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 100 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -822,8 +807,8 @@ int test_renderer(void)
         {
             const duration_t delta = duration_from_moment((moment_t) { .msecs = 1200 });
 
-            EXPECT_EQUAL_CCODOC(
-                &renderer, delta, &ccodoc, &timer,
+            EXPECT_TICK_CCODOC(
+                delta, &ccodoc, &timer, &renderer,
                 "                    "
                 "                    "
                 "                    "
@@ -853,7 +838,7 @@ int test_renderer(void)
     return EXIT_SUCCESS;
 }
 
-static void tick(tick_timer_t* timer, ccodoc_t* ccodoc, const duration_t delta)
+static void tick(const duration_t delta, ccodoc_t* const ccodoc, tick_timer_t* const timer)
 {
     static const duration_t min_delta = { .msecs = 100 };
 
@@ -862,54 +847,39 @@ static void tick(tick_timer_t* timer, ccodoc_t* ccodoc, const duration_t delta)
             .msecs = MIN(delta.msecs - elapsed.msecs, min_delta.msecs),
         };
 
-        tick_timer(timer, d);
         tick_ccodoc(ccodoc, d);
+        tick_timer(timer, d);
 
         elapsed.msecs += d.msecs;
     }
+}
+
+static void print_elapsed_time(const tick_timer_t* timer);
+static void print_ccodoc(const canvas_buffer_t* canvas);
+static int test_canvas_equals(const char* file, int line, const canvas_buffer_t* canvas, const char* other);
+
+static int test_tick_render(
+    const char* const file, const int line,
+    const duration_t delta,
+    ccodoc_t* const ccodoc,
+    tick_timer_t* const timer,
+    renderer_t* const renderer,
+    const char* const expected
+)
+{
+    tick(delta, ccodoc, timer);
+    render(renderer, delta, ccodoc, timer);
+
+    print_elapsed_time(timer);
+    print_ccodoc(renderer->canvas->delegate.buffer);
+
+    return test_canvas_equals(file, line, renderer->canvas->delegate.buffer, expected);
 }
 
 static void print_elapsed_time(const tick_timer_t* timer)
 {
     const moment_t m = moment_from_duration(timer->ticker.elapsed, time_msec);
     printf("- elapsed: %um%us%ums\n", m.mins, m.secs, m.msecs);
-}
-
-static int test_rendering(const canvas_buffer_t* actual, const char* expected)
-{
-    char_descriptor_t* const expected_chars = calloc((unsigned long)actual->size.x * actual->size.y, sizeof(char_descriptor_t));
-    assert(expected_chars != NULL);
-
-    decode_str_utf8(expected_chars, expected);
-
-    for (unsigned int h = 0; h < actual->size.y; h++) {
-        for (unsigned int w = 0; w < actual->size.x; w++) {
-            const unsigned int i = h * actual->size.x + w;
-
-            const char_descriptor_t expected_char = expected_chars[i];
-
-            const uint32_t code = actual->data[i].code;
-            if (code != expected_char.code) {
-                char actual_str[5] = { 0 };
-                encode_char_utf8(actual_str, code);
-
-                char expected_str[5] = { 0 };
-                encode_char_utf8(expected_str, expected_char.code);
-
-                REPORTF_FAIL(
-                    "%d:%d: actual '%s'(%d) != expected: '%s'(%d)\n",
-                    h, w,
-                    actual_str, code, expected_str, expected_char.code
-                );
-
-                return EXIT_FAILURE;
-            }
-        }
-    }
-
-    free(expected_chars);
-
-    return EXIT_SUCCESS;
 }
 
 static void print_ccodoc(const canvas_buffer_t* canvas)
@@ -926,4 +896,40 @@ static void print_ccodoc(const canvas_buffer_t* canvas)
 
         printf("\n");
     }
+}
+
+static int test_canvas_equals(const char* const file, const int line, const canvas_buffer_t* const canvas, const char* const other)
+{
+    char_descriptor_t* const expected_chars = calloc((unsigned long)canvas->size.x * canvas->size.y, sizeof(char_descriptor_t));
+    assert(expected_chars != NULL);
+
+    decode_str_utf8(expected_chars, other);
+
+    for (unsigned int h = 0; h < canvas->size.y; h++) {
+        for (unsigned int w = 0; w < canvas->size.x; w++) {
+            const unsigned int i = h * canvas->size.x + w;
+
+            const char_descriptor_t expected_char = expected_chars[i];
+
+            const uint32_t code = canvas->data[i].code;
+            if (code != expected_char.code) {
+                char actual_str[5] = { 0 };
+                encode_char_utf8(actual_str, code);
+
+                char expected_str[5] = { 0 };
+                encode_char_utf8(expected_str, expected_char.code);
+
+                printf("FAIL: %d:%d\n", h, w);
+                printf("  expected: '%s'(%d)\n", expected_str, expected_char.code);
+                printf("  actual: '%s'(%d)\n", actual_str, code);
+                printf("%s:%d\n", file, line);
+
+                return EXIT_FAILURE;
+            }
+        }
+    }
+
+    free(expected_chars);
+
+    return EXIT_SUCCESS;
 }

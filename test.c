@@ -1,4 +1,4 @@
-#include "ccodoc_test.h"
+#include "test.h"
 
 #pragma clang diagnostic ignored "-Wempty-translation-unit"
 

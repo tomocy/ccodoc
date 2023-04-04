@@ -30,7 +30,7 @@ endif
 ccodoc: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
 
-ccodoc_test: $(TEST_OBJS)
+test.exe: $(TEST_OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
 
 assets/sounds/sounds.h: tool/build/embed_sounds.exe assets/sounds/*.mp3
@@ -47,12 +47,12 @@ run: ccodoc
 	./ccodoc $(ARGS)
 
 .PHONY: test
-test: ccodoc_test
-	./ccodoc_test $(ARGS)
+test: test.exe
+	./$< $(ARGS)
 
 .PHONY: clean
 clean:
-	$(RM) ccodoc ccodoc_test
+	$(RM) ccodoc
 	find . -name '*.o' -or -name '*.exe' | while read -r file; do $(RM) "$${file}"; done
 
 # dev
