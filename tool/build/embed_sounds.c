@@ -25,10 +25,11 @@ int main(void)
     static const struct asset {
         const char* name;
         const char* file;
+        const char* license;
     } assets[] = {
-        (struct asset) { .name = "sound_tsutsu_drip", "./assets/sounds/tsutsu_drip.mp3" },
-        (struct asset) { .name = "sound_tsutsu_bump", "./assets/sounds/tsutsu_bump.mp3" },
-        (struct asset) { .name = "sound_uguisu_call", "./assets/sounds/uguisu_call.mp3" },
+        (struct asset) { .name = "sound_tsutsu_drip", "./assets/sounds/tsutsu_drip.mp3", .license = "CC0 1.0" },
+        (struct asset) { .name = "sound_tsutsu_bump", "./assets/sounds/tsutsu_bump.mp3", .license = "CC0 1.0" },
+        (struct asset) { .name = "sound_uguisu_call", "./assets/sounds/uguisu_call.mp3", .license = "ＮＨＫクリエイティブ･ライブラリー" },
     };
     static const size_t assets_len = sizeof(assets) / sizeof(struct asset);
 
@@ -49,6 +50,14 @@ int main(void)
             const char* const err = read_file(&data, &len, asset.file);
             if (err != NULL) {
                 (void)fprintf(stderr, "failed to read asset: %s: %s\n", asset.file, err);
+                return 1;
+            }
+        }
+
+        {
+            size_t n = fprintf(dst, "// license: %s\n", asset.license);
+            if (n < 0) {
+                (void)fprintf(stderr, "failed to embed asset: %s\n", asset.file);
                 return 1;
             }
         }
