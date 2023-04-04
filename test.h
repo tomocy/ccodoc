@@ -12,6 +12,13 @@ extern void report_status(
     const char* actual, const char* expected
 );
 
+extern void report_status_str(
+    const char* file, int line,
+    bool passes,
+    const char* label,
+    const char* actual, const char* expected
+);
+
 #define REPORT_TEST_STATUS(passes, label, format, actual, expected) \
     {                                                               \
         if ((passes)) {                                             \

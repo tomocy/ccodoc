@@ -46,3 +46,19 @@ void report_status(
     printf("  actual: %s\n", actual);
     printf("%s:%d\n", file, line);
 }
+
+void report_status_str(
+    const char* const file, const int line,
+    const bool passes,
+    const char* const label,
+    const char* const actual, const char* const expected
+)
+{
+    char actual_label[1 << 5] = { 0 };
+    (void)snprintf(actual_label, sizeof(actual_label), "\"%s\"", actual);
+
+    char expected_label[1 << 5] = { 0 };
+    (void)snprintf(expected_label, sizeof(expected_label), "\"%s\"", expected);
+
+    report_status(file, line, passes, label, actual_label, expected_label);
+}

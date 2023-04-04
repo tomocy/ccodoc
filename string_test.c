@@ -199,7 +199,7 @@ static int expect_encode_char_utf8(const char* const file, const int line, const
 
     const bool passes = str_equals(actual, expected);
 
-    report_status(file, line, passes, label, actual, expected);
+    report_status_str(file, line, passes, label, actual, expected);
 
     return passes ? EXIT_SUCCESS : EXIT_FAILURE;
 }
