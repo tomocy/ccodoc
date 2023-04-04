@@ -2,6 +2,16 @@
 
 #include "test.h"
 
+struct timer_state_t {
+    float elapsed_time_ratio;
+    duration_t remaining_time;
+};
+static int expect_timer(const char* file, int line, const char* label, tick_timer_t* timer, struct timer_state_t expected);
+#define EXPECT_TIMER(label, timer, expected) EXPECT_PASS(expect_timer(__FILE__, __LINE__, label, timer, expected))
+
+static int expect_moment_from_duration(const char* file, int line, duration_t duration, time_precision_t precision, moment_t expected);
+#define EXPECT_MOMENT_FROM_DURATION(duration, precision, expected) EXPECT_PASS(expect_moment_from_duration(__FILE__, __LINE__, duration, precision, expected))
+
 int test_time(void)
 {
     {
@@ -11,46 +21,62 @@ int test_time(void)
             .duration = { .msecs = 1000 },
         };
 
-        {
-            printf("- initial\n");
-            EXPECT_TRUE_X(elapsed_time_ratio(&timer) == 0);
-            EXPECT_TRUE_X(remaining_time(&timer).msecs == 1000);
-        }
+        tick_timer(&timer, (duration_t) { .msecs = 0 });
+        EXPECT_TIMER(
+            "inital",
+            &timer,
+            ((struct timer_state_t) {
+                .elapsed_time_ratio = 0,
+                .remaining_time = { .msecs = 1000 },
+            })
+        );
 
-        {
-            printf("- tick (200ms)\n");
-            tick_timer(&timer, (duration_t) { .msecs = 200 });
-            EXPECT_TRUE_X(elapsed_time_ratio(&timer) == 0.2f);
-            EXPECT_TRUE_X(remaining_time(&timer).msecs == 800);
-        }
+        tick_timer(&timer, (duration_t) { .msecs = 200 });
+        EXPECT_TIMER(
+            "tick 200 msecs",
+            &timer,
+            ((struct timer_state_t) {
+                .elapsed_time_ratio = 0.2,
+                .remaining_time = { .msecs = 800 },
+            })
+        );
 
-        {
-            printf("- tick (400ms)\n");
-            tick_timer(&timer, (duration_t) { .msecs = 400 });
-            EXPECT_TRUE_X(elapsed_time_ratio(&timer) == 0.6f);
-            EXPECT_TRUE_X(remaining_time(&timer).msecs == 400);
-        }
+        tick_timer(&timer, (duration_t) { .msecs = 400 });
+        EXPECT_TIMER(
+            "tick 400 msecs",
+            &timer,
+            ((struct timer_state_t) {
+                .elapsed_time_ratio = 0.6,
+                .remaining_time = { .msecs = 400 },
+            })
+        );
 
-        {
-            printf("- tick (600ms)\n");
-            tick_timer(&timer, (duration_t) { .msecs = 600 });
-            EXPECT_TRUE_X(elapsed_time_ratio(&timer) == 1);
-            EXPECT_TRUE_X(remaining_time(&timer).msecs == 0);
-        }
+        tick_timer(&timer, (duration_t) { .msecs = 600 });
+        EXPECT_TIMER(
+            "tick 600 msecs",
+            &timer,
+            ((struct timer_state_t) {
+                .elapsed_time_ratio = 1,
+                .remaining_time = { .msecs = 0 },
+            })
+        );
 
-        {
-            printf("- reset\n");
-            reset_timer(&timer);
-            EXPECT_TRUE_X(elapsed_time_ratio(&timer) == 0);
-            EXPECT_TRUE_X(remaining_time(&timer).msecs == 1000);
-        }
+        reset_timer(&timer);
+        EXPECT_TIMER(
+            "reset",
+            &timer,
+            ((struct timer_state_t) {
+                .elapsed_time_ratio = 0,
+                .remaining_time = { .msecs = 1000 },
+            })
+        );
     }
 
     {
-        printf("\n## duration\n");
+        printf("## moment from duration\n");
 
         {
-            printf("### 02:45:20:500\n");
+            printf("- 02:45:20:500\n");
 
             const duration_t duration = duration_from_moment((moment_t) {
                 .hours = 2,
@@ -59,67 +85,27 @@ int test_time(void)
                 .msecs = 500,
             });
 
-            {
-                printf("- msecs\n");
-                EXPECT_TRUE_X(duration.msecs == 2 * time_hour + 45 * time_min + 20 * time_sec + 500 * time_msec);
-            }
-
-            {
-                printf("- moment (precision: hour)\n");
-                const moment_t m = moment_from_duration(duration, time_hour);
-                EXPECT_TRUE_X(m.hours == 3);
-                EXPECT_TRUE_X(m.mins == 0);
-                EXPECT_TRUE_X(m.secs == 0);
-                EXPECT_TRUE_X(m.msecs == 0);
-            }
-
-            {
-                printf("- moment (precision: min)\n");
-                moment_t m = moment_from_duration(duration, time_min);
-                EXPECT_TRUE_X(m.hours == 2);
-                EXPECT_TRUE_X(m.mins == 46);
-                EXPECT_TRUE_X(m.secs == 0);
-                EXPECT_TRUE_X(m.msecs == 0);
-            }
-
-            {
-                printf("- moment (precision: sec)\n");
-                const moment_t m = moment_from_duration(duration, time_sec);
-                EXPECT_TRUE_X(m.hours == 2);
-                EXPECT_TRUE_X(m.mins == 45);
-                EXPECT_TRUE_X(m.secs == 21);
-                EXPECT_TRUE_X(m.msecs == 0);
-            }
-
-            {
-                printf("- moment (precision: msec)\n");
-                const moment_t m = moment_from_duration(duration, time_msec);
-                EXPECT_TRUE_X(m.hours == 2);
-                EXPECT_TRUE_X(m.mins == 45);
-                EXPECT_TRUE_X(m.secs == 20);
-                EXPECT_TRUE_X(m.msecs == 500);
-            }
+            EXPECT_MOMENT_FROM_DURATION(duration, time_hour, ((moment_t) { .hours = 3 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_min, ((moment_t) { .hours = 2, .mins = 46 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_sec, ((moment_t) { .hours = 2, .mins = 45, .secs = 21 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_msec, ((moment_t) { .hours = 2, .mins = 45, .secs = 20, .msecs = 500 }));
         }
 
         {
-            printf("\n### 01:00:00:000\n");
+            printf("- 01:00:00:000\n");
 
             const duration_t duration = duration_from_moment((moment_t) {
                 .hours = 1,
             });
 
-            {
-                printf("- moment (precision: min)\n");
-                const moment_t m = moment_from_duration(duration, time_min);
-                EXPECT_TRUE_X(m.hours == 1);
-                EXPECT_TRUE_X(m.mins == 0);
-                EXPECT_TRUE_X(m.secs == 0);
-                EXPECT_TRUE_X(m.msecs == 0);
-            }
+            EXPECT_MOMENT_FROM_DURATION(duration, time_hour, ((moment_t) { .hours = 1 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_min, ((moment_t) { .hours = 1 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_sec, ((moment_t) { .hours = 1 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_msec, ((moment_t) { .hours = 1 }));
         }
 
         {
-            printf("\n### 00:59:59:999\n");
+            printf("- 00:59:59:999\n");
 
             const duration_t duration = duration_from_moment((moment_t) {
                 .mins = 59,
@@ -127,43 +113,90 @@ int test_time(void)
                 .msecs = 999,
             });
 
-            {
-                printf("- moment (precision: hour)\n");
-                const moment_t m = moment_from_duration(duration, time_hour);
-                EXPECT_TRUE_X(m.hours == 1);
-                EXPECT_TRUE_X(m.mins == 0);
-                EXPECT_TRUE_X(m.secs == 0);
-                EXPECT_TRUE_X(m.msecs == 0);
-            }
-
-            {
-                printf("- moment (precision: min)\n");
-                const moment_t m = moment_from_duration(duration, time_min);
-                EXPECT_TRUE_X(m.hours == 0);
-                EXPECT_TRUE_X(m.mins == 59);
-                EXPECT_TRUE_X(m.secs == 0);
-                EXPECT_TRUE_X(m.msecs == 0);
-            }
-
-            {
-                printf("- moment (precision: sec)\n");
-                const moment_t m = moment_from_duration(duration, time_sec);
-                EXPECT_TRUE_X(m.hours == 0);
-                EXPECT_TRUE_X(m.mins == 59);
-                EXPECT_TRUE_X(m.secs == 59);
-                EXPECT_TRUE_X(m.msecs == 0);
-            }
-
-            {
-                printf("- moment (precision: msec)\n");
-                const moment_t m = moment_from_duration(duration, time_msec);
-                EXPECT_TRUE_X(m.hours == 0);
-                EXPECT_TRUE_X(m.mins == 59);
-                EXPECT_TRUE_X(m.secs == 59);
-                EXPECT_TRUE_X(m.msecs == 999);
-            }
+            EXPECT_MOMENT_FROM_DURATION(duration, time_hour, ((moment_t) { .hours = 1 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_min, ((moment_t) { .mins = 59 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_sec, ((moment_t) { .mins = 59, .secs = 59 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_msec, ((moment_t) { .mins = 59, .secs = 59, .msecs = 999 }));
         }
     }
 
     return EXIT_SUCCESS;
+}
+
+static int expect_timer(const char* const file, int line, const char* const label, tick_timer_t* timer, struct timer_state_t expected)
+{
+    struct timer_state_t actual = {
+        .elapsed_time_ratio = elapsed_time_ratio(timer),
+        .remaining_time = remaining_time(timer),
+    };
+
+    char actual_label[1 << 8] = { 0 };
+    (void)snprintf(
+        actual_label, sizeof(actual_label),
+        "elapsed_time_ratio: %f, remaining_time: %ld msecs",
+        actual.elapsed_time_ratio, actual.remaining_time.msecs
+    );
+
+    char expected_label[1 << 8] = { 0 };
+    (void)snprintf(
+        expected_label, sizeof(expected_label),
+        "elapsed_time_ratio: %f, remaining_time: %ld msecs",
+        expected.elapsed_time_ratio, expected.remaining_time.msecs
+    );
+
+    const bool passes = actual.elapsed_time_ratio == expected.elapsed_time_ratio
+        && actual.remaining_time.msecs == expected.remaining_time.msecs;
+
+    report_status(file, line, passes, label, actual_label, expected_label);
+
+    return passes ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static const char* time_precision_to_str(time_precision_t precision)
+{
+    switch (precision) {
+    case time_hour:
+        return "hour";
+    case time_min:
+        return "min";
+    case time_sec:
+        return "sec";
+    case time_msec:
+        return "msec";
+    }
+}
+
+static int expect_moment_from_duration(
+    const char* const file, const int line,
+    const duration_t duration, const time_precision_t precision,
+    const moment_t expected
+)
+{
+    const moment_t actual = moment_from_duration(duration, precision);
+
+    char label[1 << 5] = { 0 };
+    (void)snprintf(label, sizeof(label), "%ld msecs in %s", duration.msecs, time_precision_to_str(precision));
+
+    char actual_label[1 << 8] = { 0 };
+    (void)snprintf(
+        actual_label, sizeof(actual_label),
+        "hours: %d, mins: %d, secs: %d, msecs: %d",
+        actual.hours, actual.mins, actual.secs, actual.msecs
+    );
+
+    char expected_label[1 << 8] = { 0 };
+    (void)snprintf(
+        expected_label, sizeof(expected_label),
+        "hours: %d, mins: %d, secs: %d, msecs: %d",
+        expected.hours, expected.mins, expected.secs, expected.msecs
+    );
+
+    const bool passes = actual.hours == expected.hours
+        && actual.mins == expected.mins
+        && actual.secs == expected.secs
+        && actual.msecs == expected.msecs;
+
+    report_status(file, line, passes, label, actual_label, expected_label);
+
+    return passes ? EXIT_SUCCESS : EXIT_FAILURE;
 }
