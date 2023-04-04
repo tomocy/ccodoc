@@ -20,6 +20,7 @@ static void init_rendering_ctx(ccodoc_mode_t* mode);
 static void deinit_rendering_ctx(ccodoc_mode_t* mode);
 
 static void init_sound_ctx(ccodoc_mode_t* mode);
+static void deinit_sound_ctx(ccodoc_mode_t* mode);
 
 static void play_sound(const char* file);
 
@@ -35,6 +36,7 @@ void deinit_mode(ccodoc_mode_t* const mode)
 {
     deinit_ccodoc(mode);
     deinit_rendering_ctx(mode);
+    deinit_sound_ctx(mode);
 }
 
 void run_mode_wabi(ccodoc_mode_t* const mode)
@@ -194,14 +196,31 @@ static void init_sound_ctx(ccodoc_mode_t* mode)
         return;
     }
 
-    if (mode->sound.tsutsu_drip == NULL) {
-        mode->sound.tsutsu_drip = install_sound("tsutsu_drip.mp3", sound_tsutsu_drip, sizeof(sound_tsutsu_drip));
+    mode->sound.tsutsu_drip = mode->sound.tsutsu_drip == NULL
+        ? install_sound("tsutsu_drip.mp3", sound_tsutsu_drip, sizeof(sound_tsutsu_drip))
+        : format_str(mode->sound.tsutsu_drip);
+
+    mode->sound.tsutsu_bump = mode->sound.tsutsu_bump == NULL
+        ? install_sound("tsutsu_bump.mp3", sound_tsutsu_bump, sizeof(sound_tsutsu_bump))
+        : format_str(mode->sound.tsutsu_bump);
+
+    mode->sound.uguisu_call = mode->sound.uguisu_call == NULL
+        ? install_sound("uguisu_call.mp3", sound_uguisu_call, sizeof(sound_uguisu_call))
+        : format_str(mode->sound.uguisu_call);
+}
+
+static void deinit_sound_ctx(ccodoc_mode_t* mode)
+{
+    if (mode->sound.tsutsu_drip != NULL) {
+        free((void*)mode->sound.tsutsu_drip);
     }
-    if (mode->sound.tsutsu_bump == NULL) {
-        mode->sound.tsutsu_bump = install_sound("tsutsu_bump.mp3", sound_tsutsu_bump, sizeof(sound_tsutsu_bump));
+
+    if (mode->sound.tsutsu_bump != NULL) {
+        free((void*)mode->sound.tsutsu_bump);
     }
-    if (mode->sound.uguisu_call == NULL) {
-        mode->sound.uguisu_call = install_sound("uguisu_call.mp3", sound_uguisu_call, sizeof(sound_uguisu_call));
+
+    if (mode->sound.uguisu_call != NULL) {
+        free((void*)mode->sound.uguisu_call);
     }
 }
 
