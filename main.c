@@ -101,6 +101,11 @@ static const char* configure(config_t* const config, const unsigned int argc, co
     for (unsigned int i = 1; i < argc; i++) {
         const char* const arg = argv[i];
 
+        if (str_equals(arg, "--wabi")) {
+            config->mode.type = mode_wabi;
+            continue;
+        }
+
         if (str_equals(arg, "--sabi")) {
             const char* const raw = read_arg(argv, &i);
             if (raw == NULL) {
@@ -161,6 +166,8 @@ static const char* configure(config_t* const config, const unsigned int argc, co
             config->mode.value->debug = true;
             continue;
         }
+
+        return format_str("unknown argument: %s", arg);
     }
 
     return NULL;
