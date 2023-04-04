@@ -3,6 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define BOOL_TO_STR(x) (x) ? "true" : "false"
+
+extern void report_status(
+    const char* file, int line,
+    bool passes,
+    const char* label,
+    const char* actual, const char* expected
+);
+
 #define REPORT_TEST_STATUS(passes, label, format, actual, expected) \
     {                                                               \
         if ((passes)) {                                             \

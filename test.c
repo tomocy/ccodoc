@@ -28,3 +28,21 @@ int main(void)
 
     return EXIT_SUCCESS;
 }
+
+void report_status(
+    const char* const file, const int line,
+    const bool passes,
+    const char* const label,
+    const char* const actual, const char* const expected
+)
+{
+    if (passes) {
+        printf("PASS: %s => %s\n", label, expected);
+        return;
+    }
+
+    printf("FAIL: %s =>\n", label);
+    printf("  expected: %s\n", expected);
+    printf("  actual: %s\n", actual);
+    printf("%s:%d\n", file, line);
+}
