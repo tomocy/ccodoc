@@ -1,11 +1,9 @@
-#define _POSIX_C_SOURCE 200809L
-
-#include "string.h"
-#include <stdarg.h>
-#include <stdio.h>
-
 #pragma clang diagnostic ignored "-Wgnu-binary-literal"
 
+#include "string.h"
+
+#include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 bool str_equals(const char* const str, const char* const other)

@@ -1,6 +1,7 @@
 #include "canvas.h"
 #include "ccodoc.h"
 #include "mode.h"
+#include "platform.h"
 #include "renderer.h"
 #include "string.h"
 #include "time.h"
@@ -173,28 +174,6 @@ static const char* configure(config_t* const config, const unsigned int argc, co
     return NULL;
 }
 
-static const char* read_arg(const char* const* const argv, unsigned int* const i)
-{
-    const unsigned int next_i = *i + 1;
-    const char* next_arg = argv[next_i];
-    if (!next_arg) {
-        return NULL;
-    }
-
-    *i = next_i;
-    return next_arg;
-}
-
-static const char* config_err_no_value_specified(const char* const name)
-{
-    return format_str("%s: value must be specified", name);
-}
-
-static const char* config_err_no_file_found(const char* const name)
-{
-    return format_str("%s: file not found", name);
-}
-
 static void print_arg_help(const char* arg, const char* const* descs);
 
 static int help(void)
@@ -258,16 +237,6 @@ static int help(void)
     return EXIT_SUCCESS;
 }
 
-static void print_arg_help(const char* const arg, const char* const* const descs)
-{
-    printf("%s\n", arg);
-
-    for (const char* const* desc = descs; *desc; desc++) {
-        printf("  %s\n", *desc);
-    }
-    printf("\n");
-}
-
 static int version(void)
 {
     printf("v0.0.0\n");
@@ -290,4 +259,36 @@ static int lisence(void)
     printf("\n");
 
     return EXIT_SUCCESS;
+}
+
+static const char* read_arg(const char* const* const argv, unsigned int* const i)
+{
+    const unsigned int next_i = *i + 1;
+    const char* next_arg = argv[next_i];
+    if (!next_arg) {
+        return NULL;
+    }
+
+    *i = next_i;
+    return next_arg;
+}
+
+static const char* config_err_no_value_specified(const char* const name)
+{
+    return format_str("%s: value must be specified", name);
+}
+
+static const char* config_err_no_file_found(const char* const name)
+{
+    return format_str("%s: file not found", name);
+}
+
+static void print_arg_help(const char* const arg, const char* const* const descs)
+{
+    printf("%s\n", arg);
+
+    for (const char* const* desc = descs; *desc; desc++) {
+        printf("  %s\n", *desc);
+    }
+    printf("\n");
 }

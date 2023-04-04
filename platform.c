@@ -1,5 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
-
 #include "platform.h"
 
 #include "string.h"
@@ -10,7 +8,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-char* user_home_dir(void)
+const char* user_home_dir(void)
 {
 #if PLATFORM == PLATFORM_LINUX || PLATFORM == PLATFORM_MACOS
     return getenv("HOME");
@@ -19,7 +17,7 @@ char* user_home_dir(void)
 #endif
 }
 
-char* user_cache_dir(void)
+const char* user_cache_dir(void)
 {
 #if PLATFORM == PLATFORM_LINUX
     const char* const dir = getenv("XDG_CACHE_HOME");
@@ -35,13 +33,13 @@ char* user_cache_dir(void)
 #endif
 }
 
-char* join_paths(const char* const* const paths)
+const char* join_paths(const char* const* const paths)
 {
     char* x = { 0 };
     size_t len = 0;
 
     {
-        FILE* buf = open_memstream(&x, &len);
+        FILE* const buf = open_memstream(&x, &len);
 
         int i = 0;
         const char* const* path = paths;

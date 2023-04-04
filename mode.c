@@ -1,11 +1,12 @@
 #include "mode.h"
 
-#include "assets/sounds/sounds.h"
 #include "ccodoc.h"
 #include "platform.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "assets/sounds/sounds.h"
 
 typedef bool (*mode_processor_t)(ccodoc_mode_t*, duration_t);
 
@@ -185,7 +186,7 @@ static void init_rendering_ctx(ccodoc_mode_t* const mode)
 
 static void deinit_rendering_ctx(ccodoc_mode_t* const mode)
 {
-    deinit_renderer(&mode->rendering.renderer);
+    deinit_canvas(&mode->rendering.canvas.value);
 }
 
 static char* install_sound(const char* const name, const unsigned char* data, size_t len);
@@ -231,9 +232,13 @@ static char* install_sound(const char* const name, const unsigned char* const da
 #elif PLATFORM == PLATFORM_MACOS
     const char* path = join_paths((const char*[]) { user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
 #else
+    (void)name;
+    (void)data;
+    (void)len;
     return NULL;
 #endif
 
+#if PLATFORM == PLATFORM_LINUX || PLATFORM == PLATFORM_MACOS
     if (path == NULL) {
         return NULL;
     }
@@ -255,6 +260,7 @@ static char* install_sound(const char* const name, const unsigned char* const da
     }
 
     return (char*)path;
+#endif
 }
 
 static void play_sound(const char* const name)

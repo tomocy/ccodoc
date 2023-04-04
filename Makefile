@@ -15,13 +15,13 @@ $(error failed to detect target platform)
 endif
 
 ifeq ($(TARGET), linux)
-CFLAGS += -include ccodoc_macros_linux.h
+CFLAGS += -include env_linux.h
 
 COMPILE_FLAGS := compile_flags_linux.txt
 endif
 
 ifeq ($(TARGET), macos)
-CFLAGS += -include ccodoc_macros_macos.h
+CFLAGS += -include env_macos.h
 
 VSCODE_SETTINGS := .vscode/settings_macos.json
 COMPILE_FLAGS := compile_flags_macos.txt

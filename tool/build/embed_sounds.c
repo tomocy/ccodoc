@@ -2,7 +2,25 @@
 
 #include <stdio.h>
 
-static char* read_file(char** data, size_t* len, const char* file);
+static const char* read_file(char** data, size_t* len, const char* file);
+
+#define EMBED_ASSET(dst, file, s)                                         \
+    {                                                                     \
+        size_t n = fprintf((dst), s);                                     \
+        if (n < 0) {                                                      \
+            (void)fprintf(stderr, "failed to embed asset: %s\n", (file)); \
+            return 1;                                                     \
+        }                                                                 \
+    }
+
+#define EMBEDF_ASSET(dst, file, format, ...)                              \
+    {                                                                     \
+        size_t n = fprintf((dst), (format), __VA_ARGS__);                 \
+        if (n < 0) {                                                      \
+            (void)fprintf(stderr, "failed to embed asset: %s\n", (file)); \
+            return 1;                                                     \
+        }                                                                 \
+    }
 
 int main(void)
 {
@@ -36,14 +54,6 @@ int main(void)
     for (size_t i = 0; i < assets_len; i++) {
         const struct asset asset = assets[i];
 
-        {
-            size_t n = fprintf(dst, "\n");
-            if (n < 0) {
-                (void)fprintf(stderr, "failed to embed asset: %s\n", asset.file);
-                return 1;
-            }
-        }
-
         char* data = { 0 };
         size_t len = 0;
         {
@@ -54,39 +64,19 @@ int main(void)
             }
         }
 
-        {
-            size_t n = fprintf(dst, "// license: %s\n", asset.license);
-            if (n < 0) {
-                (void)fprintf(stderr, "failed to embed asset: %s\n", asset.file);
-                return 1;
-            }
-        }
+        EMBED_ASSET(dst, asset.file, "\n");
 
-        {
-            size_t n = fprintf(dst, "const unsigned char %s[] = {", asset.name);
-            if (n < 0) {
-                (void)fprintf(stderr, "failed to embed asset: %s\n", asset.file);
-                return 1;
-            }
-        }
+        EMBEDF_ASSET(dst, asset.file, "// license: %s\n", asset.license);
+
+        EMBEDF_ASSET(dst, asset.file, "const unsigned char %s[] = {", asset.name);
 
         for (size_t i = 0; i < len; i++) {
             const char* format = i != 0 ? ", 0x%02x" : "0x%02x";
             const unsigned char c = data[i];
-            size_t n = fprintf(dst, format, c);
-            if (n < 0) {
-                (void)fprintf(stderr, "failed to embed asset: %s\n", asset.file);
-                return 1;
-            }
+            EMBEDF_ASSET(dst, asset.file, format, c);
         }
 
-        {
-            size_t n = fprintf(dst, "};\n");
-            if (n < 0) {
-                (void)fprintf(stderr, "failed to embed asset: %s\n", asset.file);
-                return 1;
-            }
-        }
+        EMBED_ASSET(dst, asset.file, "};\n");
     }
 
     if (fclose(dst) != 0) {
@@ -97,7 +87,7 @@ int main(void)
     return 0;
 }
 
-static char* read_file(char** const data, size_t* const len, const char* const file)
+static const char* read_file(char** const data, size_t* const len, const char* const file)
 {
     FILE* const src = fopen(file, "r");
     if (src == NULL) {

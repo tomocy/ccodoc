@@ -164,7 +164,7 @@ void drawfv(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t at
 
 void drawf(canvas_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const format, ...)
 {
-    va_list args;
+    va_list args = { 0 };
     va_start(args, format);
 
     drawfv(canvas, point, attr, format, args);
@@ -321,7 +321,7 @@ static unsigned int drawing_attr_flags(const drawing_attr_t attr)
     return flags;
 }
 
-#define WITH_ATTR_CURSES(attr, ...)                            \
+#define WITH_DRAWING_ATTR_CURSES(attr, ...)                    \
     {                                                          \
         const unsigned int flags = drawing_attr_flags((attr)); \
         attron(flags);                                         \
@@ -331,14 +331,14 @@ static unsigned int drawing_attr_flags(const drawing_attr_t attr)
 
 static void draw_curses(canvas_curses_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const s)
 {
-    WITH_ATTR_CURSES(attr, {
+    WITH_DRAWING_ATTR_CURSES(attr, {
         mvwprintw(canvas->window, (int)point.y, (int)point.x, s);
     });
 }
 
 static void drawfv_curses(canvas_curses_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const format, va_list args)
 {
-    WITH_ATTR_CURSES(attr, {
+    WITH_DRAWING_ATTR_CURSES(attr, {
         wmove(canvas->window, (int)point.y, (int)point.x);
         vw_printw(canvas->window, format, args);
     });

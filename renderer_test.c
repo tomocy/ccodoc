@@ -848,7 +848,7 @@ int test_renderer(void)
         }
     }
 
-    deinit_renderer(&renderer);
+    deinit_canvas(&canvas);
 
     return EXIT_SUCCESS;
 }

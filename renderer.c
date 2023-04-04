@@ -13,13 +13,8 @@ static void render_debug_info(
     duration_t delta, const ccodoc_t* ccodoc, const tick_timer_t* timer
 );
 
-static void draw_on_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s);
-static void drawf_on_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...);
-
-void deinit_renderer(renderer_t* const renderer)
-{
-    deinit_canvas(renderer->canvas);
-}
+static void draw_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s);
+static void drawf_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...);
 
 void render(
     renderer_t* const renderer,
@@ -104,7 +99,7 @@ static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, 
             const char_descriptor_t desc = decode_char_utf8(c);
             const bool has_water = str_equals_n(c, "━", desc.len);
 
-            drawf_on_canvas(
+            drawf_canvas(
                 renderer,
                 vec2d_add(ctx->current, (vec2d_t) { .x = i }),
                 (drawing_attr_t) {
@@ -203,7 +198,7 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
                 attr.color = color_yellow;
             }
 
-            drawf_on_canvas(
+            drawf_canvas(
                 renderer,
                 vec2d_add(origin, (vec2d_t) { .y = h, .x = i }),
                 attr,
@@ -250,7 +245,7 @@ static void render_hachi(renderer_t* const renderer, drawing_ctx_t* const ctx, c
             const char_descriptor_t desc = decode_char_utf8(c);
             const bool has_water = str_equals_n(c, "▬", desc.len);
 
-            drawf_on_canvas(
+            drawf_canvas(
                 renderer,
                 vec2d_add(ctx->current, (vec2d_t) { .x = i }),
                 (drawing_attr_t) {
@@ -269,7 +264,7 @@ static void render_hachi(renderer_t* const renderer, drawing_ctx_t* const ctx, c
 
 static void render_roji(renderer_t* const renderer, drawing_ctx_t* const ctx)
 {
-    draw_on_canvas(
+    draw_canvas(
         renderer,
         ctx->current,
         (drawing_attr_t) { .color = color_green, .dim = true },
@@ -277,7 +272,7 @@ static void render_roji(renderer_t* const renderer, drawing_ctx_t* const ctx)
     );
     ctx->current = vec2d_add(ctx->current, (vec2d_t) { .x = 6 });
 
-    draw_on_canvas(
+    draw_canvas(
         renderer,
         ctx->current,
         (drawing_attr_t) { .color = color_grey },
@@ -300,7 +295,7 @@ static void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, c
         const char* format = "%02dh%02dm";
 #endif
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             vec2d_add(ctx->current, (vec2d_t) { .x = 4 }),
             (drawing_attr_t) { .color = color_white },
@@ -339,7 +334,7 @@ static void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, c
                 art = remaining ? "─" : " ";
             }
 
-            draw_on_canvas(
+            draw_canvas(
                 renderer,
                 vec2d_add(ctx->current, (vec2d_t) { .x = i }),
                 attr,
@@ -371,15 +366,15 @@ static void render_debug_info(
     {
         drawing_attr_t attr = ctx.attr;
         attr.bold = true;
-        draw_on_canvas(renderer, ctx.current, attr, "DEBUG -------");
+        draw_canvas(renderer, ctx.current, attr, "DEBUG -------");
         wrap_drawing_lines(&ctx, 1);
     }
 
     {
-        draw_on_canvas(renderer, ctx.current, ctx.attr, "# rendering");
+        draw_canvas(renderer, ctx.current, ctx.attr, "# rendering");
         wrap_drawing_lines(&ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx.current,
             ctx.attr,
@@ -390,10 +385,10 @@ static void render_debug_info(
 
     {
         wrap_drawing_lines(&ctx, 1);
-        draw_on_canvas(renderer, ctx.current, ctx.attr, "# process");
+        draw_canvas(renderer, ctx.current, ctx.attr, "# process");
         wrap_drawing_lines(&ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx.current,
             ctx.attr,
@@ -413,14 +408,14 @@ static void render_debug_info(
 
 static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, const ccodoc_t* const ccodoc)
 {
-    draw_on_canvas(renderer, ctx->current, ctx->attr, "# ccodoc");
+    draw_canvas(renderer, ctx->current, ctx->attr, "# ccodoc");
     wrap_drawing_lines(ctx, 1);
 
     {
-        draw_on_canvas(renderer, ctx->current, ctx->attr, "## kakehi");
+        draw_canvas(renderer, ctx->current, ctx->attr, "## kakehi");
         wrap_drawing_lines(ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx->current,
             ctx->attr,
@@ -428,7 +423,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
         );
         wrap_drawing_lines(ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx->current,
             ctx->attr,
@@ -436,7 +431,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
         );
         wrap_drawing_lines(ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx->current,
             ctx->attr,
@@ -446,10 +441,10 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
     }
 
     {
-        draw_on_canvas(renderer, ctx->current, ctx->attr, "## tsutsu");
+        draw_canvas(renderer, ctx->current, ctx->attr, "## tsutsu");
         wrap_drawing_lines(ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx->current,
             ctx->attr,
@@ -457,7 +452,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
         );
         wrap_drawing_lines(ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx->current,
             ctx->attr,
@@ -465,7 +460,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
         );
         wrap_drawing_lines(ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx->current,
             ctx->attr,
@@ -475,10 +470,10 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
     }
 
     {
-        draw_on_canvas(renderer, ctx->current, ctx->attr, "## hachi");
+        draw_canvas(renderer, ctx->current, ctx->attr, "## hachi");
         wrap_drawing_lines(ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx->current,
             ctx->attr,
@@ -486,7 +481,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
         );
         wrap_drawing_lines(ctx, 1);
 
-        drawf_on_canvas(
+        drawf_canvas(
             renderer,
             ctx->current,
             ctx->attr,
@@ -498,11 +493,11 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
 
 static void render_debug_info_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer)
 {
-    draw_on_canvas(renderer, ctx->current, ctx->attr, "# timer");
+    draw_canvas(renderer, ctx->current, ctx->attr, "# timer");
     wrap_drawing_lines(ctx, 1);
 
     const moment_t m = moment_from_duration(remaining_time(timer), time_msec);
-    drawf_on_canvas(
+    drawf_canvas(
         renderer,
         ctx->current,
         ctx->attr,
@@ -510,7 +505,7 @@ static void render_debug_info_timer(renderer_t* renderer, drawing_ctx_t* ctx, co
     );
     wrap_drawing_lines(ctx, 1);
 
-    drawf_on_canvas(
+    drawf_canvas(
         renderer,
         ctx->current,
         ctx->attr,
@@ -529,13 +524,13 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
     }
 }
 
-static void draw_on_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s)
+static void draw_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s)
 {
     const drawing_attr_t attr_ = renderer->ornamental ? attr : (drawing_attr_t) { 0 };
     draw(renderer->canvas, point, attr_, s);
 }
 
-static void drawf_on_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...)
+static void drawf_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...)
 {
     const drawing_attr_t attr_ = renderer->ornamental ? attr : (drawing_attr_t) { 0 };
 
