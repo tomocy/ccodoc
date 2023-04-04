@@ -1,4 +1,8 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "string.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 #pragma clang diagnostic ignored "-Wgnu-binary-literal"
 
@@ -17,6 +21,24 @@ bool str_equals_n(const char* const str, const char* const other, const unsigned
 bool str_starts_with(const char* str, const char* prefix)
 {
     return str_equals_n(str, prefix, strlen(prefix));
+}
+
+char* format_str(const char* const format, ...)
+{
+    va_list args = { 0 };
+    va_start(args, format);
+
+    char* data = NULL;
+    size_t len = 0;
+    FILE* stream = open_memstream(&data, &len);
+
+    (void)vfprintf(stream, format, args);
+
+    (void)fclose(stream);
+
+    va_end(args);
+
+    return data;
 }
 
 char_descriptor_t encode_char_utf8(char* const dst, const uint32_t code)

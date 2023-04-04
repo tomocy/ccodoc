@@ -44,6 +44,7 @@ int main(const int argc, const char* const* const argv)
             help();
             printf("\n");
             (void)fprintf(stderr, "invalid options: %s\n", err);
+            free((void*)err);
             return EXIT_FAILURE;
         }
     }
@@ -74,20 +75,9 @@ int main(const int argc, const char* const* const argv)
     return EXIT_SUCCESS;
 }
 
-static const char* read_arg(unsigned int* const i, const char* const* const argv)
-{
-    const unsigned int next_i = *i + 1;
-    const char* next_arg = argv[next_i];
-    if (!next_arg) {
-        return NULL;
-    }
-
-    *i = next_i;
-    return next_arg;
-}
-
-#define CONFIG_ERR_NO_VALUE_SPECIFIED(label) label ": value must be specified"
-#define CONFIG_ERR_NO_FILE_FOUND(label) label ": file not found"
+static const char* read_arg(const char* const* argv, unsigned int* i);
+static const char* config_err_no_value_specified(const char* name);
+static const char* config_err_no_file_found(const char* name);
 
 #define READ_ARG_FILE(dst, argv, i, name)               \
     {                                                   \
@@ -95,12 +85,12 @@ static const char* read_arg(unsigned int* const i, const char* const* const argv
         const char* const* const argv_ = (argv);        \
         unsigned int* i_ = (i);                         \
                                                         \
-        const char* const file = read_arg(i_, argv_);   \
+        const char* const file = read_arg(argv_, i_);   \
         if (file == NULL) {                             \
-            return CONFIG_ERR_NO_VALUE_SPECIFIED(name); \
+            return config_err_no_value_specified(name); \
         }                                               \
         if (!has_file(file)) {                          \
-            return CONFIG_ERR_NO_FILE_FOUND(name);      \
+            return config_err_no_file_found(name);      \
         }                                               \
                                                         \
         *dst_ = file;                                   \
@@ -112,9 +102,9 @@ static const char* configure(config_t* const config, const unsigned int argc, co
         const char* const arg = argv[i];
 
         if (str_equals(arg, "--sabi")) {
-            const char* const raw = read_arg(&i, argv);
+            const char* const raw = read_arg(argv, &i);
             if (raw == NULL) {
-                return CONFIG_ERR_NO_VALUE_SPECIFIED("sabi");
+                return config_err_no_value_specified("sabi");
             }
 
             moment_t m = { 0 };
@@ -123,7 +113,7 @@ static const char* configure(config_t* const config, const unsigned int argc, co
 
             const duration_t d = duration_from_moment(m);
             if (d.msecs == 0) {
-                return "timer: duration format must be HH:mm";
+                return format_str("timer: duration format must be HH:mm");
             }
 
             config->mode.type = mode_sabi;
@@ -176,15 +166,29 @@ static const char* configure(config_t* const config, const unsigned int argc, co
     return NULL;
 }
 
-static void print_arg_help(const char* const arg, const char** const descs)
+static const char* read_arg(const char* const* const argv, unsigned int* const i)
 {
-    printf("%s\n", arg);
-
-    for (const char** desc = descs; *desc; desc++) {
-        printf("  %s\n", *desc);
+    const unsigned int next_i = *i + 1;
+    const char* next_arg = argv[next_i];
+    if (!next_arg) {
+        return NULL;
     }
-    printf("\n");
+
+    *i = next_i;
+    return next_arg;
 }
+
+static const char* config_err_no_value_specified(const char* const name)
+{
+    return format_str("%s: value must be specified", name);
+}
+
+static const char* config_err_no_file_found(const char* const name)
+{
+    return format_str("%s: file not found", name);
+}
+
+static void print_arg_help(const char* arg, const char* const* descs);
 
 static int help(void)
 {
@@ -245,6 +249,16 @@ static int help(void)
     print_arg_help("--license", (const char*[]) { "Print license.", NULL });
 
     return EXIT_SUCCESS;
+}
+
+static void print_arg_help(const char* const arg, const char* const* const descs)
+{
+    printf("%s\n", arg);
+
+    for (const char* const* desc = descs; *desc; desc++) {
+        printf("  %s\n", *desc);
+    }
+    printf("\n");
 }
 
 static int version(void)
