@@ -2,6 +2,7 @@
 
 #include "ccodoc.h"
 #include "platform.h"
+#include "renderer.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,25 +11,36 @@
 
 typedef bool (*mode_processor_t)(ccodoc_mode_t*, duration_t);
 
+typedef struct {
+    ccodoc_mode_t* mode;
+    duration_t delta;
+} rendering_ctx_t;
+
 static void run_mode(ccodoc_mode_t* mode, mode_processor_t processor);
+
 static bool process_mode_wabi(ccodoc_mode_t*, duration_t delta);
+static void render_wabi(rendering_ctx_t* ctx);
+
 static bool process_mode_sabi(ccodoc_mode_t*, duration_t delta);
+static void render_sabi(rendering_ctx_t* ctx);
 
 static void init_ccodoc(ccodoc_mode_t* mode);
 static void deinit_ccodoc(ccodoc_mode_t* mode);
 
-static void init_rendering_ctx(ccodoc_mode_t* mode);
-static void deinit_rendering_ctx(ccodoc_mode_t* mode);
+static void init_renderer(ccodoc_mode_t* mode);
+static void deinit_renderer(ccodoc_mode_t* mode);
 
-static void init_sound_ctx(ccodoc_mode_t* mode);
-static void deinit_sound_ctx(ccodoc_mode_t* mode);
+static void init_sound(ccodoc_mode_t* mode);
+static void deinit_sound(ccodoc_mode_t* mode);
+
+static drawing_ctx_t make_drawing_ctx_center(const canvas_t* canvas);
 
 static void play_sound(const char* file);
 
 void init_mode(ccodoc_mode_t* const mode)
 {
-    init_rendering_ctx(mode);
-    init_sound_ctx(mode);
+    init_renderer(mode);
+    init_sound(mode);
 
     init_ccodoc(mode);
 }
@@ -36,8 +48,8 @@ void init_mode(ccodoc_mode_t* const mode)
 void deinit_mode(ccodoc_mode_t* const mode)
 {
     deinit_ccodoc(mode);
-    deinit_rendering_ctx(mode);
-    deinit_sound_ctx(mode);
+    deinit_renderer(mode);
+    deinit_sound(mode);
 }
 
 void run_mode_wabi(ccodoc_mode_t* const mode)
@@ -82,9 +94,29 @@ static bool process_mode_wabi(ccodoc_mode_t* const mode, const duration_t delta)
 {
     tick_ccodoc(&mode->ccodoc, delta);
 
-    render(&mode->rendering.renderer, delta, &mode->ccodoc, NULL);
+    {
+        rendering_ctx_t ctx = { .mode = mode, .delta = delta };
+        render_with(
+            &mode->rendering.renderer,
+            (event_t) {
+                .listener = &ctx,
+                .listen = (event_listener_t)render_wabi,
+            }
+        );
+    }
 
     return true;
+}
+
+static void render_wabi(rendering_ctx_t* const ctx)
+{
+    drawing_ctx_t dctx = make_drawing_ctx_center(&ctx->mode->rendering.canvas.value);
+
+    render_ccodoc(&ctx->mode->rendering.renderer, &dctx, &ctx->mode->ccodoc);
+
+    if (ctx->mode->debug) {
+        render_debug_info(&ctx->mode->rendering.renderer, ctx->delta, &ctx->mode->ccodoc, NULL);
+    }
 }
 
 static bool process_mode_sabi(ccodoc_mode_t* const mode, const duration_t delta)
@@ -94,7 +126,16 @@ static bool process_mode_sabi(ccodoc_mode_t* const mode, const duration_t delta)
     tick_ccodoc(&mode->ccodoc, delta);
     tick_timer(&mode->timer, delta);
 
-    render(&mode->rendering.renderer, delta, &mode->ccodoc, &mode->timer);
+    {
+        rendering_ctx_t ctx = { .mode = mode, .delta = delta };
+        render_with(
+            &mode->rendering.renderer,
+            (event_t) {
+                .listener = &ctx,
+                .listen = (event_listener_t)render_sabi,
+            }
+        );
+    }
 
     if (!timer_expires(&mode->timer)) {
         return true;
@@ -113,6 +154,18 @@ static bool process_mode_sabi(ccodoc_mode_t* const mode, const duration_t delta)
     }
 
     return false;
+}
+
+static void render_sabi(rendering_ctx_t* const ctx)
+{
+    drawing_ctx_t dctx = make_drawing_ctx_center(&ctx->mode->rendering.canvas.value);
+
+    render_ccodoc(&ctx->mode->rendering.renderer, &dctx, &ctx->mode->ccodoc);
+    render_timer(&ctx->mode->rendering.renderer, &dctx, &ctx->mode->timer);
+
+    if (ctx->mode->debug) {
+        render_debug_info(&ctx->mode->rendering.renderer, ctx->delta, &ctx->mode->ccodoc, &ctx->mode->timer);
+    }
 }
 
 static void init_ccodoc(ccodoc_mode_t* const mode)
@@ -170,7 +223,7 @@ static void deinit_ccodoc(ccodoc_mode_t* const mode)
     mode->ccodoc.tsutsu.on_bumped = (event_t) { 0 };
 }
 
-static void init_rendering_ctx(ccodoc_mode_t* const mode)
+static void init_renderer(ccodoc_mode_t* const mode)
 {
     init_canvas_curses(&mode->rendering.canvas.delegate);
     init_canvas_proxy(&mode->rendering.canvas.proxy, &mode->rendering.canvas.delegate);
@@ -184,14 +237,14 @@ static void init_rendering_ctx(ccodoc_mode_t* const mode)
     };
 }
 
-static void deinit_rendering_ctx(ccodoc_mode_t* const mode)
+static void deinit_renderer(ccodoc_mode_t* const mode)
 {
     deinit_canvas(&mode->rendering.canvas.value);
 }
 
 static char* install_sound(const char* const name, const unsigned char* data, size_t len);
 
-static void init_sound_ctx(ccodoc_mode_t* mode)
+static void init_sound(ccodoc_mode_t* mode)
 {
     if (!mode->ornamental) {
         return;
@@ -210,7 +263,7 @@ static void init_sound_ctx(ccodoc_mode_t* mode)
         : format_str(mode->sound.uguisu_call);
 }
 
-static void deinit_sound_ctx(ccodoc_mode_t* mode)
+static void deinit_sound(ccodoc_mode_t* mode)
 {
     if (mode->sound.tsutsu_drip != NULL) {
         free((void*)mode->sound.tsutsu_drip);
@@ -223,6 +276,36 @@ static void deinit_sound_ctx(ccodoc_mode_t* mode)
     if (mode->sound.uguisu_call != NULL) {
         free((void*)mode->sound.uguisu_call);
     }
+}
+
+static drawing_ctx_t make_drawing_ctx_center(const canvas_t* const canvas)
+{
+    static const vec2d_t ccodoc_size = {
+        .x = 14,
+        .y = 6,
+    };
+
+    const vec2d_t canvas_size = get_canvas_size(canvas);
+
+    drawing_ctx_t ctx = {
+        .origin = {
+            .x = (canvas_size.x - ccodoc_size.x) / 2,
+            .y = (canvas_size.y - ccodoc_size.y) / 2,
+        },
+    };
+    ctx.current = ctx.origin;
+
+    return ctx;
+}
+
+static void play_sound(const char* const name)
+{
+#if PLATFORM != PLATFORM_MACOS
+    (void)name;
+    return;
+#endif
+
+    run_cmd("/usr/bin/afplay", (const char*[]) { "afplay", (char* const)name, NULL });
 }
 
 static char* install_sound(const char* const name, const unsigned char* const data, size_t len)
@@ -261,14 +344,4 @@ static char* install_sound(const char* const name, const unsigned char* const da
 
     return (char*)path;
 #endif
-}
-
-static void play_sound(const char* const name)
-{
-#if PLATFORM != PLATFORM_MACOS
-    (void)name;
-    return;
-#endif
-
-    run_cmd("/usr/bin/afplay", (const char*[]) { "afplay", (char* const)name, NULL });
 }

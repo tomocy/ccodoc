@@ -1,17 +1,11 @@
 #include "renderer.h"
 
 #include "canvas.h"
+#include "ccodoc.h"
 #include "math.h"
 #include "string.h"
 #include <assert.h>
 #include <math.h>
-
-static void render_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, const ccodoc_t* ccodoc);
-static void render_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer);
-static void render_debug_info(
-    renderer_t* renderer,
-    duration_t delta, const ccodoc_t* ccodoc, const tick_timer_t* timer
-);
 
 static void draw_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s);
 static void drawf_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...);
@@ -53,12 +47,19 @@ void render(
     flush_canvas(renderer->canvas);
 }
 
+void render_with(renderer_t* const renderer, const event_t render)
+{
+    clear_canvas(renderer->canvas);
+    notify_listener(&render);
+    flush_canvas(renderer->canvas);
+}
+
 static void render_kakehi(renderer_t* renderer, drawing_ctx_t* ctx, const kakehi_t* kakehi);
 static void render_tsutsu(renderer_t* renderer, drawing_ctx_t* ctx, const tsutsu_t* tsutsu);
 static void render_hachi(renderer_t* renderer, drawing_ctx_t* ctx, const hachi_t* hachi);
 static void render_roji(renderer_t* renderer, drawing_ctx_t* ctx);
 
-static void render_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const ccodoc_t* ccodoc)
+void render_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const ccodoc_t* ccodoc)
 {
     render_kakehi(renderer, ctx, &ccodoc->kakehi);
     render_tsutsu(renderer, ctx, &ccodoc->tsutsu);
@@ -282,7 +283,7 @@ static void render_roji(renderer_t* const renderer, drawing_ctx_t* const ctx)
     wrap_drawing_lines(ctx, 1);
 }
 
-static void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const tick_timer_t* const timer)
+void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const tick_timer_t* const timer)
 {
     ctx->current = vec2d_add(ctx->current, (vec2d_t) { .y = 4 });
 
@@ -350,7 +351,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
 static void render_debug_info_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer);
 static const char* water_flow_state_to_str(water_flow_state_t state);
 
-static void render_debug_info(
+void render_debug_info(
     renderer_t* const renderer,
     const duration_t delta,
     const ccodoc_t* const ccodoc,
