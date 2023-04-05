@@ -108,7 +108,7 @@ static bool process_mode_sabi(ccodoc_mode_t* const mode, const duration_t delta)
     }
 
     if (mode->ornamental && mode->sound.uguisu_call != NULL) {
-        sleep_for((duration_t) { .msecs = 2000 });
+        sleep_for((duration_t) { .msecs = 1750 });
         play_sound(mode->sound.uguisu_call);
     }
 
