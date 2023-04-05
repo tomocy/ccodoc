@@ -9,16 +9,15 @@ static void tick_kakehi(ccodoc_t* ccodoc, duration_t delta);
 static void tick_tsutsu(ccodoc_t* ccodoc, duration_t delta);
 static void tick_hachi(ccodoc_t* ccodoc, duration_t delta);
 
-static void hold_kakehi_water(ccodoc_t* ccodoc);
-static void release_kakehi_water(ccodoc_t* ccodoc);
-
+static void hold_water_kakehi(ccodoc_t* ccodoc);
+static void release_water_kakehi(ccodoc_t* ccodoc);
 static void carry_time_kakehi(ccodoc_t* ccodoc, const action_t* prev_action);
 
-static void hold_tsutsu_water(ccodoc_t* ccodoc);
-static void release_tsutsu_water(ccodoc_t* ccodoc);
+static void hold_water_tsutsu(ccodoc_t* ccodoc);
+static void release_water_tsutsu(ccodoc_t* ccodoc);
 
-static void hold_hachi_water(ccodoc_t* ccodoc);
-static void release_hachi_water(ccodoc_t* ccodoc);
+static void hold_water_hachi(ccodoc_t* ccodoc);
+static void release_water_hachi(ccodoc_t* ccodoc);
 
 static void drip_water_into_tsutsu(tsutsu_t* tsutsu, unsigned int amount);
 
@@ -46,7 +45,7 @@ static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
             return;
         }
 
-        release_kakehi_water(ccodoc);
+        release_water_kakehi(ccodoc);
 
         carry_time_kakehi(ccodoc, &kakehi->holding_water);
 
@@ -58,7 +57,7 @@ static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
             return;
         }
 
-        hold_kakehi_water(ccodoc);
+        hold_water_kakehi(ccodoc);
 
         carry_time_kakehi(ccodoc, &kakehi->releasing_water);
 
@@ -87,7 +86,7 @@ static void tick_tsutsu(ccodoc_t* const ccodoc, const duration_t delta)
             break;
         }
 
-        release_tsutsu_water(ccodoc);
+        release_water_tsutsu(ccodoc);
 
         break;
     case releasing_water: {
@@ -99,7 +98,7 @@ static void tick_tsutsu(ccodoc_t* const ccodoc, const duration_t delta)
 
         notify_listener(&tsutsu->on_bumped);
 
-        hold_tsutsu_water(ccodoc);
+        hold_water_tsutsu(ccodoc);
 
         break;
     }
@@ -120,13 +119,13 @@ static void tick_hachi(ccodoc_t* const ccodoc, const duration_t delta)
             break;
         }
 
-        hold_hachi_water(ccodoc);
+        hold_water_hachi(ccodoc);
 
         break;
     }
 }
 
-static void hold_kakehi_water(ccodoc_t* const ccodoc)
+static void hold_water_kakehi(ccodoc_t* const ccodoc)
 {
     kakehi_t* const kakehi = &ccodoc->kakehi;
 
@@ -139,7 +138,7 @@ static void hold_kakehi_water(ccodoc_t* const ccodoc)
     reset_action(&kakehi->holding_water);
 }
 
-static void release_kakehi_water(ccodoc_t* const ccodoc)
+static void release_water_kakehi(ccodoc_t* const ccodoc)
 {
     kakehi_t* const kakehi = &ccodoc->kakehi;
 
@@ -154,7 +153,7 @@ static void release_kakehi_water(ccodoc_t* const ccodoc)
     drip_water_into_tsutsu(&ccodoc->tsutsu, kakehi->release_water_amount);
 }
 
-static void hold_tsutsu_water(ccodoc_t* const ccodoc)
+static void hold_water_tsutsu(ccodoc_t* const ccodoc)
 {
     tsutsu_t* const tsutsu = &ccodoc->tsutsu;
 
@@ -167,7 +166,7 @@ static void hold_tsutsu_water(ccodoc_t* const ccodoc)
     tsutsu->water_amount = 0;
 }
 
-static void release_tsutsu_water(ccodoc_t* const ccodoc)
+static void release_water_tsutsu(ccodoc_t* const ccodoc)
 {
     tsutsu_t* const tsutsu = &ccodoc->tsutsu;
 
@@ -181,10 +180,10 @@ static void release_tsutsu_water(ccodoc_t* const ccodoc)
 
     tsutsu->water_amount = 0;
 
-    release_hachi_water(ccodoc);
+    release_water_hachi(ccodoc);
 }
 
-static void hold_hachi_water(ccodoc_t* const ccodoc)
+static void hold_water_hachi(ccodoc_t* const ccodoc)
 {
     hachi_t* const hachi = &ccodoc->hachi;
 
@@ -196,7 +195,7 @@ static void hold_hachi_water(ccodoc_t* const ccodoc)
     hachi->state = state;
 }
 
-static void release_hachi_water(ccodoc_t* const ccodoc)
+static void release_water_hachi(ccodoc_t* const ccodoc)
 {
     hachi_t* const hachi = &ccodoc->hachi;
 

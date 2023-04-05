@@ -16,14 +16,6 @@ typedef struct {
     duration_t delta;
 } rendering_ctx_t;
 
-static void run_mode(ccodoc_mode_t* mode, mode_processor_t processor);
-
-static bool process_mode_wabi(ccodoc_mode_t*, duration_t delta);
-static void render_wabi(rendering_ctx_t* ctx);
-
-static bool process_mode_sabi(ccodoc_mode_t*, duration_t delta);
-static void render_sabi(rendering_ctx_t* ctx);
-
 static void init_ccodoc(ccodoc_mode_t* mode);
 static void deinit_ccodoc(ccodoc_mode_t* mode);
 
@@ -32,6 +24,14 @@ static void deinit_renderer(ccodoc_mode_t* mode);
 
 static void init_sound(ccodoc_mode_t* mode);
 static void deinit_sound(ccodoc_mode_t* mode);
+
+static void run_mode(ccodoc_mode_t* mode, mode_processor_t processor);
+
+static bool process_mode_wabi(ccodoc_mode_t*, duration_t delta);
+static void render_wabi(rendering_ctx_t* ctx);
+
+static bool process_mode_sabi(ccodoc_mode_t*, duration_t delta);
+static void render_sabi(rendering_ctx_t* ctx);
 
 static drawing_ctx_t make_drawing_ctx_center(const canvas_t* canvas);
 
@@ -50,6 +50,116 @@ void deinit_mode(ccodoc_mode_t* const mode)
     deinit_ccodoc(mode);
     deinit_renderer(mode);
     deinit_sound(mode);
+}
+
+static void init_ccodoc(ccodoc_mode_t* const mode)
+{
+    mode->ccodoc = (ccodoc_t) {
+        .kakehi = {
+            .release_water_amount = 1,
+            .holding_water = {
+                .duration = { .msecs = 2200 },
+            },
+            .releasing_water = {
+                .duration = { .msecs = 800 },
+            },
+        },
+        .tsutsu = {
+            .water_capacity = 10,
+            .releasing_water = {
+                .duration = { .msecs = 1200 },
+            },
+        },
+        .hachi = {
+            .releasing_water = {
+                .duration = { .msecs = 1000 },
+            },
+        },
+    };
+
+    if (!mode->ornamental) {
+        return;
+    }
+
+    {
+        const char* file = mode->sound.tsutsu_drip;
+        if (file != NULL) {
+            mode->ccodoc.tsutsu.on_got_drip = (event_t) {
+                .listener = (void*)file,
+                .listen = (event_listener_t)play_sound,
+            };
+        }
+    }
+    {
+        const char* file = mode->sound.tsutsu_bump;
+        if (file != NULL) {
+            mode->ccodoc.tsutsu.on_bumped = (event_t) {
+                .listener = (void*)file,
+                .listen = (event_listener_t)play_sound,
+            };
+        }
+    }
+}
+
+static void deinit_ccodoc(ccodoc_mode_t* const mode)
+{
+    mode->ccodoc.tsutsu.on_got_drip = (event_t) { 0 };
+    mode->ccodoc.tsutsu.on_bumped = (event_t) { 0 };
+}
+
+static void init_renderer(ccodoc_mode_t* const mode)
+{
+    init_canvas_curses(&mode->rendering.canvas.delegate);
+    init_canvas_proxy(&mode->rendering.canvas.proxy, &mode->rendering.canvas.delegate);
+
+    mode->rendering.canvas.value = wrap_canvas_proxy(&mode->rendering.canvas.proxy);
+
+    mode->rendering.renderer = (renderer_t) {
+        .canvas = &mode->rendering.canvas.value,
+        .ornamental = mode->ornamental,
+        .debug = mode->debug,
+    };
+}
+
+static void deinit_renderer(ccodoc_mode_t* const mode)
+{
+    deinit_canvas(&mode->rendering.canvas.value);
+}
+
+static char* install_sound(const char* const name, const unsigned char* data, size_t len);
+
+static void init_sound(ccodoc_mode_t* mode)
+{
+    if (!mode->ornamental) {
+        return;
+    }
+
+    mode->sound.tsutsu_drip = mode->sound.tsutsu_drip == NULL
+        ? install_sound("tsutsu_drip.mp3", sound_tsutsu_drip, sizeof(sound_tsutsu_drip))
+        : format_str(mode->sound.tsutsu_drip);
+
+    mode->sound.tsutsu_bump = mode->sound.tsutsu_bump == NULL
+        ? install_sound("tsutsu_bump.mp3", sound_tsutsu_bump, sizeof(sound_tsutsu_bump))
+        : format_str(mode->sound.tsutsu_bump);
+
+    mode->sound.uguisu_call = mode->sound.uguisu_call == NULL
+        ? install_sound("uguisu_call.mp3", sound_uguisu_call, sizeof(sound_uguisu_call))
+        : format_str(mode->sound.uguisu_call);
+}
+
+static void deinit_sound(ccodoc_mode_t* mode)
+{
+    if (mode->sound.tsutsu_drip != NULL) {
+        free((void*)mode->sound.tsutsu_drip);
+    }
+
+    if (mode->sound.tsutsu_bump != NULL) {
+        free((void*)mode->sound.tsutsu_bump);
+    }
+
+    if (mode->sound.uguisu_call != NULL) {
+        free((void*)mode->sound.uguisu_call);
+    }
 }
 
 void run_mode_wabi(ccodoc_mode_t* const mode)
@@ -165,116 +275,6 @@ static void render_sabi(rendering_ctx_t* const ctx)
 
     if (ctx->mode->debug) {
         render_debug_info(&ctx->mode->rendering.renderer, ctx->delta, &ctx->mode->ccodoc, &ctx->mode->timer);
-    }
-}
-
-static void init_ccodoc(ccodoc_mode_t* const mode)
-{
-    mode->ccodoc = (ccodoc_t) {
-        .kakehi = {
-            .release_water_amount = 1,
-            .holding_water = {
-                .duration = { .msecs = 2200 },
-            },
-            .releasing_water = {
-                .duration = { .msecs = 800 },
-            },
-        },
-        .tsutsu = {
-            .water_capacity = 10,
-            .releasing_water = {
-                .duration = { .msecs = 1200 },
-            },
-        },
-        .hachi = {
-            .releasing_water = {
-                .duration = { .msecs = 1000 },
-            },
-        },
-    };
-
-    if (!mode->ornamental) {
-        return;
-    }
-
-    {
-        const char* file = mode->sound.tsutsu_drip;
-        if (file != NULL) {
-            mode->ccodoc.tsutsu.on_got_drip = (event_t) {
-                .listener = (void*)file,
-                .listen = (event_listener_t)play_sound,
-            };
-        }
-    }
-    {
-        const char* file = mode->sound.tsutsu_bump;
-        if (file != NULL) {
-            mode->ccodoc.tsutsu.on_bumped = (event_t) {
-                .listener = (void*)file,
-                .listen = (event_listener_t)play_sound,
-            };
-        }
-    }
-}
-
-static void deinit_ccodoc(ccodoc_mode_t* const mode)
-{
-    mode->ccodoc.tsutsu.on_got_drip = (event_t) { 0 };
-    mode->ccodoc.tsutsu.on_bumped = (event_t) { 0 };
-}
-
-static void init_renderer(ccodoc_mode_t* const mode)
-{
-    init_canvas_curses(&mode->rendering.canvas.delegate);
-    init_canvas_proxy(&mode->rendering.canvas.proxy, &mode->rendering.canvas.delegate);
-
-    mode->rendering.canvas.value = wrap_canvas_proxy(&mode->rendering.canvas.proxy);
-
-    mode->rendering.renderer = (renderer_t) {
-        .canvas = &mode->rendering.canvas.value,
-        .ornamental = mode->ornamental,
-        .debug = mode->debug,
-    };
-}
-
-static void deinit_renderer(ccodoc_mode_t* const mode)
-{
-    deinit_canvas(&mode->rendering.canvas.value);
-}
-
-static char* install_sound(const char* const name, const unsigned char* data, size_t len);
-
-static void init_sound(ccodoc_mode_t* mode)
-{
-    if (!mode->ornamental) {
-        return;
-    }
-
-    mode->sound.tsutsu_drip = mode->sound.tsutsu_drip == NULL
-        ? install_sound("tsutsu_drip.mp3", sound_tsutsu_drip, sizeof(sound_tsutsu_drip))
-        : format_str(mode->sound.tsutsu_drip);
-
-    mode->sound.tsutsu_bump = mode->sound.tsutsu_bump == NULL
-        ? install_sound("tsutsu_bump.mp3", sound_tsutsu_bump, sizeof(sound_tsutsu_bump))
-        : format_str(mode->sound.tsutsu_bump);
-
-    mode->sound.uguisu_call = mode->sound.uguisu_call == NULL
-        ? install_sound("uguisu_call.mp3", sound_uguisu_call, sizeof(sound_uguisu_call))
-        : format_str(mode->sound.uguisu_call);
-}
-
-static void deinit_sound(ccodoc_mode_t* mode)
-{
-    if (mode->sound.tsutsu_drip != NULL) {
-        free((void*)mode->sound.tsutsu_drip);
-    }
-
-    if (mode->sound.tsutsu_bump != NULL) {
-        free((void*)mode->sound.tsutsu_bump);
-    }
-
-    if (mode->sound.uguisu_call != NULL) {
-        free((void*)mode->sound.uguisu_call);
     }
 }
 

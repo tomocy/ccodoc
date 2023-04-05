@@ -31,9 +31,7 @@ float elapsed_time_ratio(const tick_timer_t* const timer)
 
 duration_t remaining_time(const tick_timer_t* const timer)
 {
-    return (duration_t) {
-        .msecs = timer->duration.msecs - MIN(timer->ticker.elapsed.msecs, timer->duration.msecs),
-    };
+    return duration_diff(timer->duration, timer->ticker.elapsed);
 }
 
 duration_t overflow_time(const tick_timer_t* const timer)

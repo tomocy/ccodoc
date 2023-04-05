@@ -11,12 +11,6 @@ typedef struct {
     bool debug;
 } renderer_t;
 
-extern void render(
-    renderer_t* renderer,
-    duration_t delta,
-    const ccodoc_t* ccodoc, const tick_timer_t* timer
-) __attribute__((deprecated("", "render_with")));
-
 extern void render_with(renderer_t* renderer, event_t render);
 
 extern void render_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, const ccodoc_t* ccodoc);

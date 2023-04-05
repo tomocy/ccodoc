@@ -10,43 +10,6 @@
 static void draw_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s);
 static void drawf_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...);
 
-void render(
-    renderer_t* const renderer,
-    const duration_t delta,
-    const ccodoc_t* const ccodoc,
-    const tick_timer_t* const timer
-)
-{
-    static const vec2d_t ccodoc_size = {
-        .x = 14,
-        .y = 6,
-    };
-
-    const vec2d_t canvas_size = get_canvas_size(renderer->canvas);
-
-    drawing_ctx_t dctx = {
-        .origin = {
-            .x = (canvas_size.x - ccodoc_size.x) / 2,
-            .y = (canvas_size.y - ccodoc_size.y) / 2,
-        },
-    };
-    dctx.current = dctx.origin;
-
-    clear_canvas(renderer->canvas);
-
-    render_ccodoc(renderer, &dctx, ccodoc);
-
-    if (timer != NULL) {
-        render_timer(renderer, &dctx, timer);
-    }
-
-    if (renderer->debug) {
-        render_debug_info(renderer, delta, ccodoc, timer);
-    }
-
-    flush_canvas(renderer->canvas);
-}
-
 void render_with(renderer_t* const renderer, const event_t render)
 {
     clear_canvas(renderer->canvas);
