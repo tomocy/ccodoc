@@ -10,10 +10,6 @@ static void ticker_reset(ticker_t* ticker);
 
 void tick_timer(tick_timer_t* const timer, const duration_t delta)
 {
-    if (timer_expires(timer)) {
-        return;
-    }
-
     ticker_tick(&timer->ticker, delta);
 }
 
@@ -38,6 +34,11 @@ duration_t remaining_time(const tick_timer_t* const timer)
     return (duration_t) {
         .msecs = timer->duration.msecs - MIN(timer->ticker.elapsed.msecs, timer->duration.msecs),
     };
+}
+
+duration_t overflow_time(const tick_timer_t* const timer)
+{
+    return duration_diff(timer->ticker.elapsed, timer->duration);
 }
 
 void sleep_for(const duration_t duration)

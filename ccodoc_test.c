@@ -80,7 +80,7 @@ int test_ccodoc(void)
     );
 
     EXPECT_TICK_CCODOC(
-        ((duration_t) { .msecs = 1000 }),
+        ((duration_t) { .msecs = 500 }),
         &ccodoc,
         ((struct ccodoc_state_t) {
             .kakehi = { .state = releasing_water, .holding_water_ratio = 1, .releasing_water_ratio = 0 },
@@ -110,17 +110,37 @@ int test_ccodoc(void)
     );
 
     EXPECT_TICK_CCODOC(
-        ((duration_t) { .msecs = 2500 }),
+        ((duration_t) { .msecs = 2000 }),
         &ccodoc,
         ((struct ccodoc_state_t) {
-            .kakehi = { .state = releasing_water, .holding_water_ratio = 1, .releasing_water_ratio = 0 },
-            .tsutsu = { .state = releasing_water, .water_amount_ratio = 0, .releasing_water_ratio = 0 },
-            .hachi = { .state = holding_water, .releasing_water_ratio = 1 },
+            .kakehi = { .state = holding_water, .holding_water_ratio = 0.8, .releasing_water_ratio = 1 },
+            .tsutsu = { .state = holding_water, .water_amount_ratio = 0.5, .releasing_water_ratio = 0 },
+            .hachi = { .state = holding_water, .releasing_water_ratio = 0 },
         })
     );
 
     EXPECT_TICK_CCODOC(
         ((duration_t) { .msecs = 500 }),
+        &ccodoc,
+        ((struct ccodoc_state_t) {
+            .kakehi = { .state = releasing_water, .holding_water_ratio = 1, .releasing_water_ratio = 0 },
+            .tsutsu = { .state = releasing_water, .water_amount_ratio = 0, .releasing_water_ratio = 0 },
+            .hachi = { .state = releasing_water, .releasing_water_ratio = 0.5 },
+        })
+    );
+
+    EXPECT_TICK_CCODOC(
+        ((duration_t) { .msecs = 250 }),
+        &ccodoc,
+        ((struct ccodoc_state_t) {
+            .kakehi = { .state = releasing_water, .holding_water_ratio = 1, .releasing_water_ratio = 0.5 },
+            .tsutsu = { .state = releasing_water, .water_amount_ratio = 0, .releasing_water_ratio = 1.0 / 6 },
+            .hachi = { .state = releasing_water, .releasing_water_ratio = 0.75 },
+        })
+    );
+
+    EXPECT_TICK_CCODOC(
+        ((duration_t) { .msecs = 250 }),
         &ccodoc,
         ((struct ccodoc_state_t) {
             .kakehi = { .state = holding_water, .holding_water_ratio = 0, .releasing_water_ratio = 1 },
