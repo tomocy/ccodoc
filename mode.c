@@ -3,6 +3,7 @@
 #include "ccodoc.h"
 #include "platform.h"
 #include "renderer.h"
+#include "time.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -231,9 +232,11 @@ static void render_wabi(rendering_ctx_t* const ctx)
 
 static bool process_mode_sabi(ccodoc_mode_t* const mode, const duration_t delta)
 {
-    const water_flow_state_t tsutsu_last_state = mode->ccodoc.tsutsu.state;
+    ccodoc_t* ccodoc = &mode->ccodoc;
 
-    tick_ccodoc(&mode->ccodoc, delta);
+    const water_flow_state_t tsutsu_last_state = ccodoc->tsutsu.state;
+
+    tick_ccodoc(ccodoc, delta);
     tick_timer(&mode->timer, delta);
 
     {
@@ -247,14 +250,16 @@ static bool process_mode_sabi(ccodoc_mode_t* const mode, const duration_t delta)
         );
     }
 
+    // Stop the water flow since kakehi has released last water drop to fill up tsutsu,
+    ccodoc->kakehi.disabled = remaining_time(&mode->timer).msecs <= ccodoc->kakehi.releasing_water.duration.msecs
+        && ccodoc->kakehi.state == releasing_water;
+
     if (!timer_expires(&mode->timer)) {
         return true;
     }
 
-    // Stop the water flow since kakehi has released last water drop to fill up tsutsu,
-    mode->ccodoc.kakehi.disabled = mode->ccodoc.kakehi.state == releasing_water;
     // and wait for tsutsu to have released water.
-    if (tsutsu_last_state != releasing_water || !action_has_finished(&mode->ccodoc.tsutsu.releasing_water)) {
+    if (tsutsu_last_state != releasing_water || !action_has_finished(&ccodoc->tsutsu.releasing_water)) {
         return true;
     }
 
