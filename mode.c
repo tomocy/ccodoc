@@ -29,10 +29,7 @@ static void deinit_sound(ccodoc_mode_t* mode);
 static void run_mode(ccodoc_mode_t* mode, process_mode_t process);
 
 static bool process_wabi(ccodoc_mode_t*, duration_t delta);
-static void render_wabi(rendering_ctx_t* ctx);
-
 static bool process_sabi(ccodoc_mode_t*, duration_t delta);
-static void render_sabi(rendering_ctx_t* ctx);
 
 static drawing_ctx_t make_drawing_ctx_center(const canvas_t* canvas);
 
@@ -205,29 +202,17 @@ static bool process_wabi(ccodoc_mode_t* const mode, const duration_t delta)
 {
     tick_ccodoc(&mode->ccodoc, delta);
 
-    {
-        rendering_ctx_t ctx = { .mode = mode, .delta = delta };
-        render_with(
-            &mode->rendering.renderer,
-            (event_t) {
-                .listener = &ctx,
-                .listen = (event_listener_t)render_wabi,
-            }
-        );
-    }
+    RENDER(&mode->rendering.renderer, {
+        drawing_ctx_t ctx = make_drawing_ctx_center(&mode->rendering.canvas.value);
+
+        render_ccodoc(&mode->rendering.renderer, &ctx, &mode->ccodoc);
+
+        if (mode->debug) {
+            render_debug_info(&mode->rendering.renderer, delta, &mode->ccodoc, NULL);
+        }
+    });
 
     return true;
-}
-
-static void render_wabi(rendering_ctx_t* const ctx)
-{
-    drawing_ctx_t dctx = make_drawing_ctx_center(&ctx->mode->rendering.canvas.value);
-
-    render_ccodoc(&ctx->mode->rendering.renderer, &dctx, &ctx->mode->ccodoc);
-
-    if (ctx->mode->debug) {
-        render_debug_info(&ctx->mode->rendering.renderer, ctx->delta, &ctx->mode->ccodoc, NULL);
-    }
 }
 
 static bool process_sabi(ccodoc_mode_t* const mode, const duration_t delta)
@@ -239,16 +224,18 @@ static bool process_sabi(ccodoc_mode_t* const mode, const duration_t delta)
     tick_ccodoc(ccodoc, delta);
     tick_timer(&mode->timer, delta);
 
-    {
-        rendering_ctx_t ctx = { .mode = mode, .delta = delta };
-        render_with(
-            &mode->rendering.renderer,
-            (event_t) {
-                .listener = &ctx,
-                .listen = (event_listener_t)render_sabi,
-            }
-        );
-    }
+    RENDER(&mode->rendering.renderer, {
+        drawing_ctx_t ctx = make_drawing_ctx_center(&mode->rendering.canvas.value);
+
+        render_ccodoc(&mode->rendering.renderer, &ctx, &mode->ccodoc);
+
+        ctx.current = vec2d_add(ctx.current, (vec2d_t) { .y = 4 });
+        render_timer(&mode->rendering.renderer, &ctx, &mode->timer);
+
+        if (mode->debug) {
+            render_debug_info(&mode->rendering.renderer, delta, &mode->ccodoc, &mode->timer);
+        }
+    });
 
     // Stop the water flow since kakehi has released last water drop to fill up tsutsu,
     ccodoc->kakehi.disabled = remaining_time(&mode->timer).msecs <= ccodoc->kakehi.releasing_water.duration.msecs
@@ -269,18 +256,6 @@ static bool process_sabi(ccodoc_mode_t* const mode, const duration_t delta)
     }
 
     return false;
-}
-
-static void render_sabi(rendering_ctx_t* const ctx)
-{
-    drawing_ctx_t dctx = make_drawing_ctx_center(&ctx->mode->rendering.canvas.value);
-
-    render_ccodoc(&ctx->mode->rendering.renderer, &dctx, &ctx->mode->ccodoc);
-    render_timer(&ctx->mode->rendering.renderer, &dctx, &ctx->mode->timer);
-
-    if (ctx->mode->debug) {
-        render_debug_info(&ctx->mode->rendering.renderer, ctx->delta, &ctx->mode->ccodoc, &ctx->mode->timer);
-    }
 }
 
 static drawing_ctx_t make_drawing_ctx_center(const canvas_t* const canvas)

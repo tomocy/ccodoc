@@ -6,837 +6,392 @@
 #include <assert.h>
 #include <stdio.h>
 
-static void tick(const duration_t delta, ccodoc_t* ccodoc, tick_timer_t* timer);
+static void tick_for(const duration_t delta, ccodoc_t* ccodoc, tick_timer_t* timer);
 
-static int expect_render(const char* file, int line, renderer_t* renderer, duration_t delta, ccodoc_t* ccodoc, tick_timer_t* timer, const char* expected);
-#define EXPECT_RENDER(delta, ccodoc, timer, renderer, expected) EXPECT_PASS(expect_render(__FILE__, __LINE__, renderer, delta, ccodoc, timer, expected))
+static int expect_canvas(const char* file, int line, const canvas_buffer_t* actual, const char* expected);
+#define EXPECT_CANVAS(actual, expected) EXPECT_PASS(expect_canvas(__FILE__, __LINE__, actual, expected))
 
 int test_renderer(void)
 {
-    canvas_buffer_t canvas_buffer = { 0 };
-    init_canvas_buffer(&canvas_buffer, (vec2d_t) { .x = 20, .y = 20 });
-
-    canvas_t canvas = wrap_canvas_buffer(&canvas_buffer);
-
-    renderer_t renderer = { .canvas = &canvas };
-
-    ccodoc_t ccodoc = {
-        .kakehi = {
-            .release_water_amount = 2,
-            .holding_water = {
-                .duration = { .msecs = 2100 },
-            },
-            .releasing_water = {
-                .duration = { .msecs = 900 },
-            },
-        },
-        .tsutsu = {
-            .water_capacity = 10,
-            .releasing_water = {
-                .duration = { .msecs = 1200 },
-            },
-        },
-        .hachi = {
-            .releasing_water = {
-                .duration = { .msecs = 1000 },
-            },
-        },
-    };
-
     {
-        tick_timer_t timer = { .duration = duration_from_moment((moment_t) { .mins = 5 }) };
+        printf("## ccodoc\n");
 
-        {
-            const duration_t delta = (duration_t) { .msecs = 0 };
+        canvas_buffer_t canvas_buffer = { 0 };
+        init_canvas_buffer(&canvas_buffer, (vec2d_t) { .x = 14 + 2, .y = 6 + 2 });
 
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
+        canvas_t canvas = wrap_canvas_buffer(&canvas_buffer);
+
+        renderer_t renderer = { .canvas = &canvas };
+
+        ccodoc_t ccodoc = {
+            .kakehi = {
+                .release_water_amount = 2,
+                .holding_water = {
+                    .duration = { .msecs = 2100 },
+                },
+                .releasing_water = {
+                    .duration = { .msecs = 900 },
+                },
+            },
+            .tsutsu = {
+                .water_capacity = 10,
+                .releasing_water = {
+                    .duration = { .msecs = 1200 },
+                },
+            },
+            .hachi = {
+                .releasing_water = {
+                    .duration = { .msecs = 1000 },
+                },
+            },
+        };
+
+        static struct test {
+            duration_t delta;
+            const char* expected;
+        } tests[] = {
+            (struct test) {
+                .delta = { .msecs = 0 },
+                .expected = "                "
+                            " ━══            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 350 },
+                .expected = "                "
+                            " ━══            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 350 },
+                .expected = "                "
+                            " ═━═            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 350 },
+                .expected = "                "
+                            " ═━═            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 350 },
+                .expected = "                "
+                            " ══━            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 350 },
+                .expected = "                "
+                            " ══━            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 350 },
+                .expected = "                "
+                            " ═══            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 450 },
+                .expected = "                "
+                            " ═══            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 450 },
+                .expected = "                "
+                            " ━══            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 700 },
+                .expected = "                "
+                            " ═━═            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 700 },
+                .expected = "                "
+                            " ══━            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 700 },
+                .expected = "                "
+                            " ═══            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 900 },
+                .expected = "                "
+                            " ━══            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 6000 },
+                .expected = "                "
+                            " ━══            "
+                            "                "
+                            "    ◢◤◢◤◢◤◢◤    "
+                            "      ▕         "
+                            "      ▕         "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 2100 },
+                .expected = "                "
+                            " ═══            "
+                            "          ◢◤    "
+                            "        ◢◤      "
+                            "      ◢◤        "
+                            "    ◢◤▕         "
+                            " ▭▬▬▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 150 },
+                .expected = "                "
+                            " ═══            "
+                            "          ◢◤    "
+                            "        ◢◤      "
+                            "      ◢◤        "
+                            "    ◢◤▕         "
+                            " ▭▬▬▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 150 },
+                .expected = "                "
+                            " ═══            "
+                            "          ◢◤    "
+                            "        ◢◤      "
+                            "      ◢◤        "
+                            "    ◢◤▕         "
+                            " ▬▭▭▬━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 150 },
+                .expected = "                "
+                            " ═══            "
+                            "          ◢◤    "
+                            "        ◢◤      "
+                            "      ◢◤        "
+                            "    ◢◤▕         "
+                            " ▬▭▭▬━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 150 },
+                .expected = "                "
+                            " ═══            "
+                            "          ◢◤    "
+                            "        ◢◤      "
+                            "      ◢◤        "
+                            "    ◢◤▕         "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 300 },
+                .expected = "                "
+                            " ━══            "
+                            "                "
+                            "    ◢◤◢◤◢◤◢◤    "
+                            "      ▕         "
+                            "      ▕         "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 300 },
+                .expected = "                "
+                            " ━══            "
+                            "    ◥◣          "
+                            "      ◥◣        "
+                            "      ▕ ◥◣      "
+                            "      ▕   ◥◣    "
+                            " ▭▭▭▭━━━━━━▨▨▨▨ "
+                            "                ",
+            },
+        };
+        static size_t tests_len = sizeof(tests) / sizeof(struct test);
+
+        for (size_t i = 0; i < tests_len; i++) {
+            struct test test = tests[i];
+
+            tick_for(test.delta, &ccodoc, NULL);
+
+            RENDER(&renderer, {
+                drawing_ctx_t ctx = {
+                    .origin = { .x = 1, .y = 1 }
+                };
+                ctx.current = ctx.origin;
+
+                render_ccodoc(&renderer, &ctx, &ccodoc);
+            });
+
+            EXPECT_CANVAS(renderer.canvas->delegate.buffer, test.expected);
         }
 
-        {
-            const duration_t delta = (duration_t) { .msecs = 350 };
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═━═              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═━═              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ══━              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ══━              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 350 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 450 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 450 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═━═              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ══━              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 700 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 900 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .secs = 6 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "                    "
-                "      ◢◤◢◤◢◤◢◤      "
-                "        ▕           "
-                "        ▕           "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 2100 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "            ◢◤      "
-                "          ◢◤        "
-                "        ◢◤          "
-                "      ◢◤▕           "
-                "   ▭▬▬▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "            ◢◤      "
-                "          ◢◤        "
-                "        ◢◤          "
-                "      ◢◤▕           "
-                "   ▭▬▬▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "            ◢◤      "
-                "          ◢◤        "
-                "        ◢◤          "
-                "      ◢◤▕           "
-                "   ▬▭▭▬━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "            ◢◤      "
-                "          ◢◤        "
-                "        ◢◤          "
-                "      ◢◤▕           "
-                "   ▬▭▭▬━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 150 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "            ◢◤      "
-                "          ◢◤        "
-                "        ◢◤          "
-                "      ◢◤▕           "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "                    "
-                "      ◢◤◢◤◢◤◢◤      "
-                "        ▕           "
-                "        ▕           "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 300 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ──────────────   "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .secs = 13, .msecs = 700 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ══━              "
-                "                    "
-                "      ◢◤◢◤◢◤◢◤      "
-                "        ▕           "
-                "        ▕           "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ─────────────    "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 100 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "            ◢◤      "
-                "          ◢◤        "
-                "        ◢◤          "
-                "      ◢◤▕           "
-                "   ▭▬▬▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ─────────────    "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 1200 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ05ᴹ       "
-                "   ─────────────    "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .mins = 3 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ02ᴹ       "
-                "   ─────            "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .mins = 1, .secs = 28, .msecs = 700 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ══━              "
-                "                    "
-                "      ◢◤◢◤◢◤◢◤      "
-                "        ▕           "
-                "        ▕           "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ01ᴹ       "
-                "   ─                "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 100 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ═══              "
-                "            ◢◤      "
-                "          ◢◤        "
-                "        ◢◤          "
-                "      ◢◤▕           "
-                "   ▭▬▬▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ01ᴹ       "
-                "   ─                "
-                "                    "
-            );
-        }
-
-        {
-            const duration_t delta = duration_from_moment((moment_t) { .msecs = 1200 });
-
-            EXPECT_RENDER(
-                delta, &ccodoc, &timer, &renderer,
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "   ━══              "
-                "      ◥◣            "
-                "        ◥◣          "
-                "        ▕ ◥◣        "
-                "        ▕   ◥◣      "
-                "   ▭▭▭▭━━━━━━▨▨▨▨   "
-                "                    "
-                "                    "
-                "                    "
-                "                    "
-                "       00ᴴ00ᴹ       "
-                "                    "
-                "                    "
-            );
-        }
+        deinit_canvas(&canvas);
     }
 
-    deinit_canvas(&canvas);
+    {
+        printf("\n## timer\n");
+
+        canvas_buffer_t canvas_buffer = { 0 };
+        init_canvas_buffer(&canvas_buffer, (vec2d_t) { .x = 14 + 2, .y = 2 + 2 });
+
+        canvas_t canvas = wrap_canvas_buffer(&canvas_buffer);
+
+        renderer_t renderer = { .canvas = &canvas };
+
+        tick_timer_t timer = {
+            .duration = duration_from_moment((moment_t) { .mins = 5 }),
+        };
+
+        static struct test {
+            duration_t delta;
+            const char* expected;
+        } tests[] = {
+            (struct test) {
+                .delta = { .msecs = 0 },
+                .expected = "                "
+                            "     00ᴴ05ᴹ     "
+                            " ────────────── "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = (long)30 * time_sec },
+                .expected = "                "
+                            "     00ᴴ05ᴹ     "
+                            " ─────────────  "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = (long)30 * time_sec },
+                .expected = "                "
+                            "     00ᴴ04ᴹ     "
+                            " ────────────   "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = (long)2 * time_min },
+                .expected = "                "
+                            "     00ᴴ02ᴹ     "
+                            " ──────         "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = (long)1 * time_min + (long)39 * time_sec },
+                .expected = "                "
+                            "     00ᴴ01ᴹ     "
+                            " ─              "
+                            "                ",
+            },
+            (struct test) {
+                .delta = { .msecs = 21000 },
+                .expected = "                "
+                            "     00ᴴ00ᴹ     "
+                            "                "
+                            "                ",
+            },
+        };
+
+        static size_t tests_len = sizeof(tests) / sizeof(struct test);
+
+        for (size_t i = 0; i < tests_len; i++) {
+            struct test test = tests[i];
+
+            tick_for(test.delta, NULL, &timer);
+
+            RENDER(&renderer, {
+                drawing_ctx_t ctx = {
+                    .origin = { .x = 1, .y = 1 }
+                };
+                ctx.current = ctx.origin;
+
+                render_timer(&renderer, &ctx, &timer);
+            });
+
+            EXPECT_CANVAS(renderer.canvas->delegate.buffer, test.expected);
+        }
+
+        deinit_canvas(&canvas);
+    }
 
     return EXIT_SUCCESS;
 }
 
-static void tick(const duration_t delta, ccodoc_t* const ccodoc, tick_timer_t* const timer)
+static void tick_for(const duration_t delta, ccodoc_t* const ccodoc, tick_timer_t* const timer)
 {
     static const duration_t min_delta = { .msecs = 100 };
 
@@ -845,56 +400,15 @@ static void tick(const duration_t delta, ccodoc_t* const ccodoc, tick_timer_t* c
             .msecs = MIN(delta.msecs - elapsed.msecs, min_delta.msecs),
         };
 
-        tick_ccodoc(ccodoc, d);
-        tick_timer(timer, d);
+        if (ccodoc != NULL) {
+            tick_ccodoc(ccodoc, d);
+        }
+        if (timer != NULL) {
+            tick_timer(timer, d);
+        }
 
         elapsed.msecs += d.msecs;
     }
-}
-
-static void print_canvas(const canvas_buffer_t* canvas);
-static int expect_canvas(const char* file, int line, const canvas_buffer_t* actual, const char* expected);
-
-static int expect_render(
-    const char* const file, const int line,
-    renderer_t* const renderer, const duration_t delta, ccodoc_t* const ccodoc, tick_timer_t* const timer,
-    const char* const expected
-)
-{
-    tick(delta, ccodoc, timer);
-
-    {
-        static const vec2d_t ccodoc_size = {
-            .x = 14,
-            .y = 6,
-        };
-
-        const vec2d_t canvas_size = get_canvas_size(renderer->canvas);
-
-        drawing_ctx_t dctx = {
-            .origin = {
-                .x = (canvas_size.x - ccodoc_size.x) / 2,
-                .y = (canvas_size.y - ccodoc_size.y) / 2,
-            },
-        };
-        dctx.current = dctx.origin;
-
-        clear_canvas(renderer->canvas);
-
-        render_ccodoc(renderer, &dctx, ccodoc);
-        render_timer(renderer, &dctx, timer);
-
-        flush_canvas(renderer->canvas);
-    }
-
-    {
-        const moment_t m = moment_from_duration(timer->ticker.elapsed, time_msec);
-        printf("- elapsed: %um%us%ums =>\n", m.mins, m.secs, m.msecs);
-    }
-
-    print_canvas(renderer->canvas->delegate.buffer);
-
-    return expect_canvas(file, line, renderer->canvas->delegate.buffer, expected);
 }
 
 static void print_canvas(const canvas_buffer_t* const canvas)
@@ -915,6 +429,8 @@ static void print_canvas(const canvas_buffer_t* const canvas)
 
 static int expect_canvas(const char* const file, const int line, const canvas_buffer_t* const actual, const char* const expected)
 {
+    print_canvas(actual);
+
     char_descriptor_t* const expected_chars = calloc((unsigned long)actual->size.x * actual->size.y, sizeof(char_descriptor_t));
     assert(expected_chars != NULL);
 

@@ -11,7 +11,13 @@ typedef struct {
     bool debug;
 } renderer_t;
 
-extern void render_with(renderer_t* renderer, event_t render);
+#define RENDER(renderer, ...)               \
+    {                                       \
+        renderer_t* renderer_ = (renderer); \
+        clear_canvas(renderer_->canvas);    \
+        __VA_ARGS__;                        \
+        flush_canvas(renderer_->canvas);    \
+    }
 
 extern void render_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, const ccodoc_t* ccodoc);
 extern void render_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer);

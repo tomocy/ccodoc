@@ -10,13 +10,6 @@
 static void draw_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s);
 static void drawf_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...);
 
-void render_with(renderer_t* const renderer, const event_t render)
-{
-    clear_canvas(renderer->canvas);
-    notify_listener(&render);
-    flush_canvas(renderer->canvas);
-}
-
 static void render_kakehi(renderer_t* renderer, drawing_ctx_t* ctx, const kakehi_t* kakehi);
 static void render_tsutsu(renderer_t* renderer, drawing_ctx_t* ctx, const tsutsu_t* tsutsu);
 static void render_hachi(renderer_t* renderer, drawing_ctx_t* ctx, const hachi_t* hachi);
@@ -25,8 +18,12 @@ static void render_roji(renderer_t* renderer, drawing_ctx_t* ctx);
 void render_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const ccodoc_t* ccodoc)
 {
     render_kakehi(renderer, ctx, &ccodoc->kakehi);
+
+    ctx->current = vec2d_add(ctx->current, (vec2d_t) { .x = 3 });
     render_tsutsu(renderer, ctx, &ccodoc->tsutsu);
+
     render_hachi(renderer, ctx, &ccodoc->hachi);
+
     render_roji(renderer, ctx);
 }
 
@@ -139,8 +136,6 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
 
     assert(art != NULL);
 
-    const vec2d_t origin = vec2d_add(ctx->current, (vec2d_t) { .x = 3 });
-
     for (size_t h = 0; h < art_height; h++) {
         int i = 0;
         const char* c = art[h];
@@ -164,7 +159,7 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
 
             drawf_canvas(
                 renderer,
-                vec2d_add(origin, (vec2d_t) { .y = h, .x = i }),
+                vec2d_add(ctx->current, (vec2d_t) { .y = h, .x = i }),
                 attr,
                 "%.*s", desc.len, c
             );
@@ -248,8 +243,6 @@ static void render_roji(renderer_t* const renderer, drawing_ctx_t* const ctx)
 
 void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const tick_timer_t* const timer)
 {
-    ctx->current = vec2d_add(ctx->current, (vec2d_t) { .y = 4 });
-
     {
         const moment_t moment = moment_from_duration(remaining_time(timer), time_min);
 
