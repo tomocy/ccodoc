@@ -11,7 +11,6 @@ static void tick_hachi(ccodoc_t* ccodoc, duration_t delta);
 
 static void hold_water_kakehi(ccodoc_t* ccodoc);
 static void release_water_kakehi(ccodoc_t* ccodoc);
-static void carry_time_kakehi(ccodoc_t* ccodoc, const action_t* prev_action);
 
 static void hold_water_tsutsu(ccodoc_t* ccodoc);
 static void release_water_tsutsu(ccodoc_t* ccodoc);
@@ -28,14 +27,18 @@ void tick_ccodoc(ccodoc_t* const ccodoc, const duration_t delta)
     tick_hachi(ccodoc, delta);
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
-static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
+static void tick_kakehi(ccodoc_t* const ccodoc, duration_t delta)
 {
     if (ccodoc->kakehi.disabled) {
         return;
     }
 
     kakehi_t* const kakehi = &ccodoc->kakehi;
+
+    static duration_t carried_delta = { 0 };
+
+    delta.msecs += carried_delta.msecs;
+    carried_delta.msecs = 0;
 
     switch (kakehi->state) {
     case holding_water:
@@ -47,7 +50,7 @@ static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
 
         release_water_kakehi(ccodoc);
 
-        carry_time_kakehi(ccodoc, &kakehi->holding_water);
+        carried_delta = overflow_time(&kakehi->holding_water);
 
         break;
     case releasing_water:
@@ -59,21 +62,10 @@ static void tick_kakehi(ccodoc_t* const ccodoc, const duration_t delta)
 
         hold_water_kakehi(ccodoc);
 
-        carry_time_kakehi(ccodoc, &kakehi->releasing_water);
+        carried_delta = overflow_time(&kakehi->releasing_water);
 
         break;
     }
-}
-
-// NOLINTNEXTLINE(misc-no-recursion)
-static void carry_time_kakehi(ccodoc_t* const ccodoc, const action_t* const prev_action)
-{
-    const duration_t overflowed = overflow_time(prev_action);
-    if (overflowed.msecs == 0) {
-        return;
-    }
-
-    tick_kakehi(ccodoc, overflowed);
 }
 
 static void tick_tsutsu(ccodoc_t* const ccodoc, const duration_t delta)
