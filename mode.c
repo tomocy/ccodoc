@@ -10,7 +10,7 @@
 
 #include "assets/sounds/sounds.h"
 
-typedef bool (*mode_processor_t)(ccodoc_mode_t*, duration_t);
+typedef bool (*process_mode_t)(ccodoc_mode_t*, duration_t);
 
 typedef struct {
     ccodoc_mode_t* mode;
@@ -26,12 +26,12 @@ static void deinit_renderer(ccodoc_mode_t* mode);
 static void init_sound(ccodoc_mode_t* mode);
 static void deinit_sound(ccodoc_mode_t* mode);
 
-static void run_mode(ccodoc_mode_t* mode, mode_processor_t processor);
+static void run_mode(ccodoc_mode_t* mode, process_mode_t process);
 
-static bool process_mode_wabi(ccodoc_mode_t*, duration_t delta);
+static bool process_wabi(ccodoc_mode_t*, duration_t delta);
 static void render_wabi(rendering_ctx_t* ctx);
 
-static bool process_mode_sabi(ccodoc_mode_t*, duration_t delta);
+static bool process_sabi(ccodoc_mode_t*, duration_t delta);
 static void render_sabi(rendering_ctx_t* ctx);
 
 static drawing_ctx_t make_drawing_ctx_center(const canvas_t* canvas);
@@ -165,15 +165,15 @@ static void deinit_sound(ccodoc_mode_t* mode)
 
 void run_mode_wabi(ccodoc_mode_t* const mode)
 {
-    run_mode(mode, process_mode_wabi);
+    run_mode(mode, process_wabi);
 }
 
 void run_mode_sabi(ccodoc_mode_t* const mode)
 {
-    run_mode(mode, process_mode_sabi);
+    run_mode(mode, process_sabi);
 }
 
-static void run_mode(ccodoc_mode_t* const mode, const mode_processor_t processor)
+static void run_mode(ccodoc_mode_t* const mode, const process_mode_t process)
 {
     static const duration_t min_delta = { .msecs = 1000 / 24 };
 
@@ -185,7 +185,7 @@ static void run_mode(ccodoc_mode_t* const mode, const mode_processor_t processor
         const duration_t delta = duration_diff(time, last_time);
         last_time = time;
 
-        const bool continues = processor(mode, delta);
+        const bool continues = process(mode, delta);
         if (!continues) {
             break;
         }
@@ -201,7 +201,7 @@ static void run_mode(ccodoc_mode_t* const mode, const mode_processor_t processor
     sigsuspend(&sigs);
 }
 
-static bool process_mode_wabi(ccodoc_mode_t* const mode, const duration_t delta)
+static bool process_wabi(ccodoc_mode_t* const mode, const duration_t delta)
 {
     tick_ccodoc(&mode->ccodoc, delta);
 
@@ -230,7 +230,7 @@ static void render_wabi(rendering_ctx_t* const ctx)
     }
 }
 
-static bool process_mode_sabi(ccodoc_mode_t* const mode, const duration_t delta)
+static bool process_sabi(ccodoc_mode_t* const mode, const duration_t delta)
 {
     ccodoc_t* ccodoc = &mode->ccodoc;
 
