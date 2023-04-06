@@ -28,10 +28,10 @@ COMPILE_FLAGS := compile_flags_macos.txt
 endif
 
 ccodoc: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 test.exe: $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $^
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 assets/sounds/sounds.h: tool/build/embed_sounds.exe assets/sounds/*.mp3
 	./$<
