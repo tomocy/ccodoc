@@ -20,21 +20,21 @@ void reset_timer(tick_timer_t* const timer)
 
 bool timer_expires(const tick_timer_t* const timer)
 {
-    return elapsed_time_ratio(timer) >= 1;
+    return get_elapsed_time_ratio(timer) >= 1;
 }
 
-float elapsed_time_ratio(const tick_timer_t* const timer)
+float get_elapsed_time_ratio(const tick_timer_t* const timer)
 {
     assert(timer->duration.msecs != 0);
     return CLAMP(0, 1, (float)((double)timer->ticker.elapsed.msecs / (double)timer->duration.msecs));
 }
 
-duration_t remaining_time(const tick_timer_t* const timer)
+duration_t get_remaining_time(const tick_timer_t* const timer)
 {
     return duration_diff(timer->duration, timer->ticker.elapsed);
 }
 
-duration_t overflow_time(const tick_timer_t* const timer)
+duration_t get_overflow_time(const tick_timer_t* const timer)
 {
     return duration_diff(timer->ticker.elapsed, timer->duration);
 }
@@ -123,7 +123,7 @@ duration_t duration_diff(const duration_t duration, const duration_t other)
     };
 }
 
-duration_t monotonic_time(void)
+duration_t get_monotonic_time(void)
 {
     struct timespec time = { 0 };
     clock_gettime(CLOCK_MONOTONIC, &time);

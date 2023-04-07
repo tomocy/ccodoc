@@ -174,10 +174,10 @@ static void run_mode(ccodoc_mode_t* const mode, const process_mode_t process)
 {
     static const duration_t min_delta = { .msecs = 1000 / 24 };
 
-    duration_t last_time = monotonic_time();
+    duration_t last_time = get_monotonic_time();
 
     while (1) {
-        const duration_t time = monotonic_time();
+        const duration_t time = get_monotonic_time();
 
         const duration_t delta = duration_diff(time, last_time);
         last_time = time;
@@ -187,7 +187,7 @@ static void run_mode(ccodoc_mode_t* const mode, const process_mode_t process)
             break;
         }
 
-        const duration_t process_time = duration_diff(monotonic_time(), time);
+        const duration_t process_time = duration_diff(get_monotonic_time(), time);
 
         sleep_for(duration_diff(min_delta, process_time));
     }
@@ -238,7 +238,7 @@ static bool process_sabi(ccodoc_mode_t* const mode, const duration_t delta)
     });
 
     // Stop the water flow since kakehi has released last water drop to fill up tsutsu,
-    ccodoc->kakehi.disabled = remaining_time(&mode->timer).msecs <= ccodoc->kakehi.releasing_water.duration.msecs
+    ccodoc->kakehi.disabled = get_remaining_time(&mode->timer).msecs <= ccodoc->kakehi.releasing_water.duration.msecs
         && ccodoc->kakehi.state == releasing_water;
 
     if (!timer_expires(&mode->timer)) {
@@ -291,9 +291,9 @@ static void play_sound(const char* const name)
 static char* install_sound(const char* const name, const unsigned char* const data, size_t len)
 {
 #if PLATFORM == PLATFORM_LINUX
-    const char* path = join_paths((const char*[]) { user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
+    const char* path = join_paths((const char*[]) { get_user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
 #elif PLATFORM == PLATFORM_MACOS
-    const char* path = join_paths((const char*[]) { user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
+    const char* path = join_paths((const char*[]) { get_user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
 #else
     (void)name;
     (void)data;
@@ -308,9 +308,9 @@ static char* install_sound(const char* const name, const unsigned char* const da
 
     if (!has_file(path)) {
         {
-            const char* d = dir(path);
-            const char* err = make_dir(d);
-            free((void*)d);
+            const char* dir = get_dir(path);
+            const char* err = make_dir(dir);
+            free((void*)dir);
             if (err != NULL) {
                 return NULL;
             }

@@ -34,9 +34,9 @@ typedef struct {
 extern void tick_timer(tick_timer_t* timer, const duration_t delta);
 extern void reset_timer(tick_timer_t* timer);
 extern bool timer_expires(const tick_timer_t* timer);
-extern float elapsed_time_ratio(const tick_timer_t* timer);
-extern duration_t remaining_time(const tick_timer_t* timer);
-extern duration_t overflow_time(const tick_timer_t* timer);
+extern float get_elapsed_time_ratio(const tick_timer_t* timer);
+extern duration_t get_remaining_time(const tick_timer_t* timer);
+extern duration_t get_overflow_time(const tick_timer_t* timer);
 
 // - sleep
 extern void sleep_for(const duration_t duration);
@@ -47,4 +47,4 @@ extern moment_t moment_from_duration(const duration_t duration, time_precision_t
 // - duration
 extern duration_t duration_from_moment(const moment_t moment);
 extern duration_t duration_diff(const duration_t duration, const duration_t other);
-extern duration_t monotonic_time(void);
+extern duration_t get_monotonic_time(void);

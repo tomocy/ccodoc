@@ -3,8 +3,8 @@
 #include "test.h"
 
 struct timer_state_t {
-    float elapsed_time_ratio;
-    duration_t remaining_time;
+    float get_elapsed_time_ratio;
+    duration_t get_remaining_time;
 };
 static int expect_timer(const char* file, int line, const char* label, tick_timer_t* timer, struct timer_state_t expected);
 #define EXPECT_TIMER(label, timer, expected) EXPECT_PASS(expect_timer(__FILE__, __LINE__, label, timer, expected))
@@ -26,8 +26,8 @@ int test_time(void)
             "inital",
             &timer,
             ((struct timer_state_t) {
-                .elapsed_time_ratio = 0,
-                .remaining_time = { .msecs = 1000 },
+                .get_elapsed_time_ratio = 0,
+                .get_remaining_time = { .msecs = 1000 },
             })
         );
 
@@ -36,8 +36,8 @@ int test_time(void)
             "tick 200 msecs",
             &timer,
             ((struct timer_state_t) {
-                .elapsed_time_ratio = 0.2,
-                .remaining_time = { .msecs = 800 },
+                .get_elapsed_time_ratio = 0.2,
+                .get_remaining_time = { .msecs = 800 },
             })
         );
 
@@ -46,8 +46,8 @@ int test_time(void)
             "tick 400 msecs",
             &timer,
             ((struct timer_state_t) {
-                .elapsed_time_ratio = 0.6,
-                .remaining_time = { .msecs = 400 },
+                .get_elapsed_time_ratio = 0.6,
+                .get_remaining_time = { .msecs = 400 },
             })
         );
 
@@ -56,8 +56,8 @@ int test_time(void)
             "tick 600 msecs",
             &timer,
             ((struct timer_state_t) {
-                .elapsed_time_ratio = 1,
-                .remaining_time = { .msecs = 0 },
+                .get_elapsed_time_ratio = 1,
+                .get_remaining_time = { .msecs = 0 },
             })
         );
 
@@ -66,8 +66,8 @@ int test_time(void)
             "reset",
             &timer,
             ((struct timer_state_t) {
-                .elapsed_time_ratio = 0,
-                .remaining_time = { .msecs = 1000 },
+                .get_elapsed_time_ratio = 0,
+                .get_remaining_time = { .msecs = 1000 },
             })
         );
     }
@@ -126,26 +126,26 @@ int test_time(void)
 static int expect_timer(const char* const file, int line, const char* const label, tick_timer_t* timer, struct timer_state_t expected)
 {
     struct timer_state_t actual = {
-        .elapsed_time_ratio = elapsed_time_ratio(timer),
-        .remaining_time = remaining_time(timer),
+        .get_elapsed_time_ratio = get_elapsed_time_ratio(timer),
+        .get_remaining_time = get_remaining_time(timer),
     };
 
     char actual_label[1 << 8] = { 0 };
     (void)snprintf(
         actual_label, sizeof(actual_label),
-        "elapsed_time_ratio: %f, remaining_time: %ld msecs",
-        actual.elapsed_time_ratio, actual.remaining_time.msecs
+        "get_elapsed_time_ratio: %f, get_remaining_time: %ld msecs",
+        actual.get_elapsed_time_ratio, actual.get_remaining_time.msecs
     );
 
     char expected_label[1 << 8] = { 0 };
     (void)snprintf(
         expected_label, sizeof(expected_label),
-        "elapsed_time_ratio: %f, remaining_time: %ld msecs",
-        expected.elapsed_time_ratio, expected.remaining_time.msecs
+        "get_elapsed_time_ratio: %f, get_remaining_time: %ld msecs",
+        expected.get_elapsed_time_ratio, expected.get_remaining_time.msecs
     );
 
-    const bool passes = actual.elapsed_time_ratio == expected.elapsed_time_ratio
-        && actual.remaining_time.msecs == expected.remaining_time.msecs;
+    const bool passes = actual.get_elapsed_time_ratio == expected.get_elapsed_time_ratio
+        && actual.get_remaining_time.msecs == expected.get_remaining_time.msecs;
 
     report_status(file, line, passes, label, actual_label, expected_label);
 

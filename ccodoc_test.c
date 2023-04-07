@@ -196,8 +196,8 @@ static int expect_kakehi(const char* file, const int line, kakehi_t* kakehi, con
 {
     struct kakehi_state_t actual = {
         .state = kakehi->state,
-        .holding_water_ratio = action_progress_ratio(&kakehi->holding_water),
-        .releasing_water_ratio = action_progress_ratio(&kakehi->releasing_water),
+        .holding_water_ratio = get_action_progress_ratio(&kakehi->holding_water),
+        .releasing_water_ratio = get_action_progress_ratio(&kakehi->releasing_water),
     };
 
     char actual_label[1 << 8] = { 0 };
@@ -227,8 +227,8 @@ static int expect_tsutsu(const char* file, const int line, tsutsu_t* tsutsu, con
 {
     struct tsutsu_state_t actual = {
         .state = tsutsu->state,
-        .water_amount_ratio = tsutsu_water_amount_ratio(tsutsu),
-        .releasing_water_ratio = action_progress_ratio(&tsutsu->releasing_water),
+        .water_amount_ratio = get_tsutsu_water_amount_ratio(tsutsu),
+        .releasing_water_ratio = get_action_progress_ratio(&tsutsu->releasing_water),
     };
 
     char actual_label[1 << 8] = { 0 };
@@ -258,7 +258,7 @@ static int expect_hachi(const char* file, const int line, hachi_t* hachi, const 
 {
     struct hachi_state_t actual = {
         .state = hachi->state,
-        .releasing_water_ratio = action_progress_ratio(&hachi->releasing_water),
+        .releasing_water_ratio = get_action_progress_ratio(&hachi->releasing_water),
     };
 
     char actual_label[1 << 8] = { 0 };

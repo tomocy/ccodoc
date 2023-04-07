@@ -9,7 +9,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-const char* user_home_dir(void)
+const char* get_user_home_dir(void)
 {
 #if PLATFORM == PLATFORM_LINUX || PLATFORM == PLATFORM_MACOS
     return getenv("HOME");
@@ -18,7 +18,7 @@ const char* user_home_dir(void)
 #endif
 }
 
-const char* user_cache_dir(void)
+const char* get_user_cache_dir(void)
 {
 #if PLATFORM == PLATFORM_LINUX
     const char* const dir = getenv("XDG_CACHE_HOME");
@@ -26,15 +26,15 @@ const char* user_cache_dir(void)
         return (char*)dir;
     }
 
-    return join_paths((const char*[]) { user_home_dir(), ".cache", NULL });
+    return join_paths((const char*[]) { get_user_home_dir(), ".cache", NULL });
 #elif PLATFORM == PLATFORM_MACOS
-    return join_paths((const char*[]) { user_home_dir(), "Library/Caches", NULL });
+    return join_paths((const char*[]) { get_user_home_dir(), "Library/Caches", NULL });
 #else
     return NULL;
 #endif
 }
 
-const char* dir(const char* path)
+const char* get_dir(const char* path)
 {
     char* path2 = copy_str(path);
     const char* dir = dirname(path2);
@@ -60,11 +60,11 @@ const char* make_dir(const char* name)
         return NULL;
     }
 
-    const char* d = dir(name);
-    if (!str_equals(name, d)) {
-        const char* err = make_dir(d);
+    const char* dir = get_dir(name);
+    if (!str_equals(name, dir)) {
+        const char* err = make_dir(dir);
         if (err != NULL) {
-            free((void*)d);
+            free((void*)dir);
             return err;
         }
     }
@@ -74,7 +74,7 @@ const char* make_dir(const char* name)
         return format_str("%s", name);
     }
 
-    free((void*)d);
+    free((void*)dir);
 
     return NULL;
 }

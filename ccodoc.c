@@ -50,7 +50,7 @@ static void tick_kakehi(ccodoc_t* const ccodoc, duration_t delta)
 
         release_water_kakehi(ccodoc);
 
-        carried_delta = overflow_time(&kakehi->holding_water);
+        carried_delta = get_overflow_time(&kakehi->holding_water);
 
         break;
     case releasing_water:
@@ -62,7 +62,7 @@ static void tick_kakehi(ccodoc_t* const ccodoc, duration_t delta)
 
         hold_water_kakehi(ccodoc);
 
-        carried_delta = overflow_time(&kakehi->releasing_water);
+        carried_delta = get_overflow_time(&kakehi->releasing_water);
 
         break;
     }
@@ -74,7 +74,7 @@ static void tick_tsutsu(ccodoc_t* const ccodoc, const duration_t delta)
 
     switch (ccodoc->tsutsu.state) {
     case holding_water:
-        if (tsutsu_water_amount_ratio(tsutsu) < 1) {
+        if (get_tsutsu_water_amount_ratio(tsutsu) < 1) {
             break;
         }
 
@@ -206,7 +206,7 @@ static void drip_water_into_tsutsu(tsutsu_t* const tsutsu, const unsigned int am
     notify_listener(&tsutsu->on_got_drip);
 }
 
-float tsutsu_water_amount_ratio(const tsutsu_t* const tsutsu)
+float get_tsutsu_water_amount_ratio(const tsutsu_t* const tsutsu)
 {
     assert(tsutsu->water_capacity != 0);
     return (float)tsutsu->water_amount / (float)tsutsu->water_capacity;
@@ -222,9 +222,9 @@ void reset_action(action_t* const action)
     reset_timer(action);
 }
 
-float action_progress_ratio(const action_t* const action)
+float get_action_progress_ratio(const action_t* const action)
 {
-    return elapsed_time_ratio(action);
+    return get_elapsed_time_ratio(action);
 }
 
 bool action_has_finished(const action_t* const action)

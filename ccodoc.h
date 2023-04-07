@@ -56,11 +56,11 @@ typedef struct {
 
 extern void tick_ccodoc(ccodoc_t* ccodoc, duration_t delta);
 
-extern float tsutsu_water_amount_ratio(const tsutsu_t* tsutsu);
+extern float get_tsutsu_water_amount_ratio(const tsutsu_t* tsutsu);
 
 extern void tick_action(action_t* action, duration_t delta);
 extern void reset_action(action_t* action);
-extern float action_progress_ratio(const action_t* action);
+extern float get_action_progress_ratio(const action_t* action);
 extern bool action_has_finished(const action_t* action);
 
 extern void notify_listener(const event_t* event);

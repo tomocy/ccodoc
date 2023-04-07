@@ -35,7 +35,7 @@ static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, 
         static const float holding_ratio_1 = 1.0f / 3 * 1;
         static const float holding_ratio_2 = 1.0f / 3 * 2;
 
-        const float ratio = action_progress_ratio(&kakehi->holding_water);
+        const float ratio = get_action_progress_ratio(&kakehi->holding_water);
 
         if (0 <= ratio && ratio < holding_ratio_1) {
             art = "━══";
@@ -105,7 +105,7 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
         "◢◤▕",
     };
 
-    const float water_amount_ratio = tsutsu_water_amount_ratio(tsutsu);
+    const float water_amount_ratio = get_tsutsu_water_amount_ratio(tsutsu);
     const char* const* art = NULL;
 
     switch (tsutsu->state) {
@@ -120,7 +120,7 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
 
         break;
     case releasing_water: {
-        const float ratio = action_progress_ratio(&tsutsu->releasing_water);
+        const float ratio = get_action_progress_ratio(&tsutsu->releasing_water);
 
         if (ratio < 0.55) {
             art = art_kyu;
@@ -183,7 +183,7 @@ static void render_hachi(renderer_t* const renderer, drawing_ctx_t* const ctx, c
         art = "▭▭▭▭";
         break;
     case releasing_water: {
-        float ratio = action_progress_ratio(&hachi->releasing_water);
+        float ratio = get_action_progress_ratio(&hachi->releasing_water);
 
         if (ratio < 0.35) {
             art = "▭▬▬▭";
@@ -244,7 +244,7 @@ static void render_roji(renderer_t* const renderer, drawing_ctx_t* const ctx)
 void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const tick_timer_t* const timer)
 {
     {
-        const moment_t moment = moment_from_duration(remaining_time(timer), time_min);
+        const moment_t moment = moment_from_duration(get_remaining_time(timer), time_min);
 
 #if PLATFORM == PLATFORM_LINUX
         const char* format = "%02dᴴ%02dᴹ";
@@ -269,7 +269,7 @@ void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const ti
 
         drawing_attr_t attr = { 0 };
 
-        const float remaining_ratio = 1 - elapsed_time_ratio(timer);
+        const float remaining_ratio = 1 - get_elapsed_time_ratio(timer);
 
         const size_t remaining_index = (size_t)((float)progress_bar_width * remaining_ratio);
         if (remaining_index <= progress_bar_index_timeout_away_1) {
@@ -384,7 +384,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
             renderer,
             ctx->current,
             ctx->attr,
-            "holding_water_ratio: %f", action_progress_ratio(&ccodoc->kakehi.holding_water)
+            "holding_water_ratio: %f", get_action_progress_ratio(&ccodoc->kakehi.holding_water)
         );
         wrap_drawing_lines(ctx, 1);
 
@@ -392,7 +392,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
             renderer,
             ctx->current,
             ctx->attr,
-            "releasing_water_ratio: %f", action_progress_ratio(&ccodoc->kakehi.releasing_water)
+            "releasing_water_ratio: %f", get_action_progress_ratio(&ccodoc->kakehi.releasing_water)
         );
         wrap_drawing_lines(ctx, 1);
     }
@@ -413,7 +413,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
             renderer,
             ctx->current,
             ctx->attr,
-            "water_amount_ratio: %f", tsutsu_water_amount_ratio(&ccodoc->tsutsu)
+            "water_amount_ratio: %f", get_tsutsu_water_amount_ratio(&ccodoc->tsutsu)
         );
         wrap_drawing_lines(ctx, 1);
 
@@ -421,7 +421,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
             renderer,
             ctx->current,
             ctx->attr,
-            "releasing_water_ratio: %f", action_progress_ratio(&ccodoc->tsutsu.releasing_water)
+            "releasing_water_ratio: %f", get_action_progress_ratio(&ccodoc->tsutsu.releasing_water)
         );
         wrap_drawing_lines(ctx, 1);
     }
@@ -442,7 +442,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
             renderer,
             ctx->current,
             ctx->attr,
-            "releasing_water_ratio: %f", action_progress_ratio(&ccodoc->hachi.releasing_water)
+            "releasing_water_ratio: %f", get_action_progress_ratio(&ccodoc->hachi.releasing_water)
         );
         wrap_drawing_lines(ctx, 1);
     }
@@ -453,7 +453,7 @@ static void render_debug_info_timer(renderer_t* renderer, drawing_ctx_t* ctx, co
     draw_canvas(renderer, ctx->current, ctx->attr, "# timer");
     wrap_drawing_lines(ctx, 1);
 
-    const moment_t m = moment_from_duration(remaining_time(timer), time_msec);
+    const moment_t m = moment_from_duration(get_remaining_time(timer), time_msec);
     drawf_canvas(
         renderer,
         ctx->current,
@@ -466,7 +466,7 @@ static void render_debug_info_timer(renderer_t* renderer, drawing_ctx_t* ctx, co
         renderer,
         ctx->current,
         ctx->attr,
-        "elapsed time ratio: %f", elapsed_time_ratio(timer)
+        "elapsed time ratio: %f", get_elapsed_time_ratio(timer)
     );
     wrap_drawing_lines(ctx, 1);
 }
