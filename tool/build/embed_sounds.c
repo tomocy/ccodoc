@@ -46,7 +46,7 @@ int main(void)
         const char* license;
     } assets[] = {
         (struct asset) { .name = "sound_tsutsu_drip", "./assets/sounds/tsutsu_drip.mp3", .license = "CC0 1.0" },
-        (struct asset) { .name = "sound_tsutsu_bump", "./assets/sounds/tsutsu_bump.mp3", .license = "CC0 1.0" },
+        (struct asset) { .name = "sound_tsutsu_bump", "./assets/sounds/tsutsu_bump.mp3", .license = "ＮＨＫクリエイティブ･ライブラリー" },
         (struct asset) { .name = "sound_uguisu_call", "./assets/sounds/uguisu_call.mp3", .license = "ＮＨＫクリエイティブ･ライブラリー" },
     };
     static const size_t assets_len = sizeof(assets) / sizeof(struct asset);

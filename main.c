@@ -251,10 +251,10 @@ static int lisence(void)
 
     printf("- CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/deed.en)\n");
     printf("  - tsutsu_drip sound\n");
-    printf("  - tsutsu_bump sound\n");
     printf("\n");
 
     printf("- ＮＨＫクリエイティブ･ライブラリー（https://www.nhk.or.jp/archives/creative/rule.html）by NHK\n");
+    printf("  - tsutsu_bump sound\n");
     printf("  - uguisu_call sound\n");
     printf("\n");
 
