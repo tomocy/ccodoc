@@ -36,8 +36,8 @@ test.exe: $(TEST_OBJS)
 assets/sounds/sounds.h: tool/build/embed_sounds.exe assets/sounds/*.mp3
 	./$<
 
+mode.o: mode.h mode.c assets/sounds/sounds.h
 %.o: %.h %.c
-	$(CC) $(CFLAGS) -c -o $@ $*.c
 
 %.exe: %.c
 	$(CC) $(CFLAGS) -o $@ $*.c
