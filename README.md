@@ -3,7 +3,7 @@
 ccodoc（鹿威し）simulated（造）in your terminal（庭）
 
 <div align="center">
-  <img src="./assets/ccodoc.png" alt="ccodoc" align="center" width="640"/>
+  <img src="./assets/ccodoc.gif" alt="ccodoc" align="center" width="640"/>
 </div>
 
 ## options
