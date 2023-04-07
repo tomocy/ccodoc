@@ -21,7 +21,7 @@ const char* user_cache_dir(void)
 {
 #if PLATFORM == PLATFORM_LINUX
     const char* const dir = getenv("XDG_CACHE_HOME");
-    if (!str_equals(dir, "")) {
+    if (dir != NULL && !str_equals(dir, "")) {
         return (char*)dir;
     }
 

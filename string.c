@@ -8,12 +8,12 @@
 
 bool str_equals(const char* const str, const char* const other)
 {
-    return str != NULL && other != NULL && strcmp(str, other) == 0;
+    return strcmp(str, other) == 0;
 }
 
 bool str_equals_n(const char* const str, const char* const other, const unsigned int n)
 {
-    return str != NULL && other != NULL && strncmp(str, other, n) == 0;
+    return strncmp(str, other, n) == 0;
 }
 
 bool str_starts_with(const char* str, const char* prefix)
