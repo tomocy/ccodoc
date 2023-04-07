@@ -307,6 +307,15 @@ static char* install_sound(const char* const name, const unsigned char* const da
     }
 
     if (!has_file(path)) {
+        {
+            const char* d = dir(path);
+            const char* err = make_dir(d);
+            free((void*)d);
+            if (err != NULL) {
+                return NULL;
+            }
+        }
+
         FILE* file = fopen(path, "w");
         if (file == NULL) {
             free((void*)path);

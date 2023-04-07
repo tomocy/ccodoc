@@ -12,6 +12,7 @@ typedef struct {
 extern bool str_equals(const char* str, const char* other);
 extern bool str_equals_n(const char* str, const char* other, unsigned int n);
 extern bool str_starts_with(const char* str, const char* prefix);
+extern char* copy_str(const char* str);
 
 extern char* format_str(const char* format, ...);
 

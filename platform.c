@@ -1,6 +1,7 @@
 #include "platform.h"
 
 #include "string.h"
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,51 @@ const char* user_cache_dir(void)
 #else
     return NULL;
 #endif
+}
+
+const char* dir(const char* path)
+{
+    char* path2 = copy_str(path);
+    const char* dir = dirname(path2);
+    if ((void*)dir == (void*)path2) {
+        return path2;
+    }
+
+    // Some platform such as MacOS (https://opensource.apple.com/source/Libc/Libc-391/gen/FreeBSD/dirname.c)
+    // returns the directory name using the same address instead of the given one.
+    // This causes the next dirname call to overwrite the previous result, which is error-prune.
+    // To avoid this, copy the result to the different address and return it.
+
+    const char* dir2 = copy_str(dir);
+    free((void*)path2);
+
+    return dir2;
+}
+
+// NOLINTNEXTLINE(misc-no-recursion)
+const char* make_dir(const char* name)
+{
+    if (has_file(name)) {
+        return NULL;
+    }
+
+    const char* d = dir(name);
+    if (!str_equals(name, d)) {
+        const char* err = make_dir(d);
+        if (err != NULL) {
+            free((void*)d);
+            return err;
+        }
+    }
+
+    int status = mkdir(name, 0755);
+    if (status != 0) {
+        return format_str("%s", name);
+    }
+
+    free((void*)d);
+
+    return NULL;
 }
 
 const char* join_paths(const char* const* const paths)

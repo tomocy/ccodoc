@@ -4,6 +4,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 bool str_equals(const char* const str, const char* const other)
@@ -19,6 +20,14 @@ bool str_equals_n(const char* const str, const char* const other, const unsigned
 bool str_starts_with(const char* str, const char* prefix)
 {
     return str_equals_n(str, prefix, strlen(prefix));
+}
+
+char* copy_str(const char* str)
+{
+    size_t len = strlen(str);
+    char* dst = calloc(len + 1, sizeof(char));
+    strncpy(dst, str, len);
+    return dst;
 }
 
 char* format_str(const char* const format, ...)
