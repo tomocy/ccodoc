@@ -5,8 +5,8 @@
 #include "renderer.h"
 #include "string.h"
 #include "time.h"
+#include <signal.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 
 typedef struct {
     struct {
@@ -20,6 +20,7 @@ typedef struct {
 } config_t;
 
 static const char* configure(config_t* config, unsigned int argc, const char* const* argv);
+static void run(ccodoc_mode_type_t type, ccodoc_mode_t* mode);
 
 static int help(void);
 static int version(void);
@@ -62,14 +63,7 @@ int main(const int argc, const char* const* const argv)
 
     init_mode(&mode);
 
-    switch (config.mode.type) {
-    case mode_wabi:
-        run_mode_wabi(&mode);
-        break;
-    case mode_sabi:
-        run_mode_sabi(&mode);
-        break;
-    }
+    run(config.mode.type, &mode);
 
     deinit_mode(&mode);
 
@@ -172,6 +166,25 @@ static const char* configure(config_t* const config, const unsigned int argc, co
     }
 
     return NULL;
+}
+
+static void run(ccodoc_mode_type_t type, ccodoc_mode_t* mode)
+{
+    sig_handler_t sig_handler = { 0 };
+    watch_sigs(&sig_handler, (unsigned int[]) { SIGINT, SIGTERM }, 2);
+
+    mode_ctx_t ctx = {
+        .sig_handler = &sig_handler,
+    };
+
+    switch (type) {
+    case mode_wabi:
+        run_mode_wabi(&ctx, mode);
+        break;
+    case mode_sabi:
+        run_mode_sabi(&ctx, mode);
+        break;
+    }
 }
 
 static void print_arg_help(const char* arg, const char* const* descs);

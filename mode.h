@@ -1,8 +1,13 @@
 #pragma once
 
 #include "ccodoc.h"
+#include "platform.h"
 #include "renderer.h"
 #include "time.h"
+
+typedef struct {
+    sig_handler_t* sig_handler;
+} mode_ctx_t;
 
 typedef enum {
     mode_wabi,
@@ -35,5 +40,5 @@ typedef struct {
 extern void init_mode(ccodoc_mode_t* mode);
 extern void deinit_mode(ccodoc_mode_t* mode);
 
-extern void run_mode_wabi(ccodoc_mode_t* mode);
-extern void run_mode_sabi(ccodoc_mode_t* mode);
+extern void run_mode_wabi(const mode_ctx_t* ctx, ccodoc_mode_t* mode);
+extern void run_mode_sabi(const mode_ctx_t* ctx, ccodoc_mode_t* mode);

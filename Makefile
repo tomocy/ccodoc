@@ -1,7 +1,7 @@
 CC := clang
 CFLAGS := -std=c17 -Wall -Wextra -pedantic
 LDFLAGS :=
-LDLIBS := -lm -lncursesw
+LDLIBS := -lm -lpthread -lncursesw
 
 LIB_SRCS := ccodoc.c renderer.c canvas.c time.c memory.c string.c math.c platform.c
 SRCS := main.c mode.c $(LIB_SRCS)

@@ -21,7 +21,7 @@ static void deinit_renderer(ccodoc_mode_t* mode);
 static void init_sound(ccodoc_mode_t* mode);
 static void deinit_sound(ccodoc_mode_t* mode);
 
-static void run_mode(ccodoc_mode_t* mode, process_mode_t process);
+static void run_mode(const mode_ctx_t* ctx, ccodoc_mode_t* mode, process_mode_t process);
 
 static bool process_wabi(ccodoc_mode_t*, duration_t delta);
 static bool process_sabi(ccodoc_mode_t*, duration_t delta);
@@ -155,23 +155,37 @@ static void deinit_sound(ccodoc_mode_t* mode)
     }
 }
 
-void run_mode_wabi(ccodoc_mode_t* const mode)
+void run_mode_wabi(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode)
 {
-    run_mode(mode, process_wabi);
+    run_mode(ctx, mode, process_wabi);
 }
 
-void run_mode_sabi(ccodoc_mode_t* const mode)
+void run_mode_sabi(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode)
 {
-    run_mode(mode, process_sabi);
+    run_mode(ctx, mode, process_sabi);
 }
 
-static void run_mode(ccodoc_mode_t* const mode, const process_mode_t process)
+static void run_mode(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode, const process_mode_t process)
 {
     static const duration_t min_delta = { .msecs = 1000 / 24 };
 
     duration_t last_time = get_monotonic_time();
 
     while (true) {
+        {
+            unsigned int sig = { 0 };
+            bool caught = false;
+            const char* const err = catch_sig(ctx->sig_handler, &sig, &caught);
+            if (err != NULL) {
+                // Discard the error as signal handling is less critical than ccodoc or the main functionality,
+                // and ccodoc works fine even without it at worst.
+                free((void*)err);
+            }
+            if (caught) {
+                return;
+            }
+        }
+
         const duration_t time = get_monotonic_time();
 
         const duration_t delta = duration_diff(time, last_time);
