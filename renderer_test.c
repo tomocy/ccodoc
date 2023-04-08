@@ -285,7 +285,7 @@ int test_renderer(void)
         static size_t tests_len = sizeof(tests) / sizeof(struct test);
 
         for (size_t i = 0; i < tests_len; i++) {
-            struct test test = tests[i];
+            const struct test test = tests[i];
 
             tick_for(test.delta, &ccodoc, NULL);
 
@@ -369,7 +369,7 @@ int test_renderer(void)
         static size_t tests_len = sizeof(tests) / sizeof(struct test);
 
         for (size_t i = 0; i < tests_len; i++) {
-            struct test test = tests[i];
+            const struct test test = tests[i];
 
             tick_for(test.delta, NULL, &timer);
 

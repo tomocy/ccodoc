@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
+#include <stdlib.h>
 
 static const char* read_file(char** data, size_t* len, const char* file);
 
@@ -9,7 +10,7 @@ static const char* read_file(char** data, size_t* len, const char* file);
         size_t n = fprintf((dst), s);                                     \
         if (n < 0) {                                                      \
             (void)fprintf(stderr, "failed to embed asset: %s\n", (file)); \
-            return 1;                                                     \
+            return EXIT_FAILURE;                                          \
         }                                                                 \
     }
 
@@ -18,7 +19,7 @@ static const char* read_file(char** data, size_t* len, const char* file);
         size_t n = fprintf((dst), (format), __VA_ARGS__);                 \
         if (n < 0) {                                                      \
             (void)fprintf(stderr, "failed to embed asset: %s\n", (file)); \
-            return 1;                                                     \
+            return EXIT_FAILURE;                                          \
         }                                                                 \
     }
 
@@ -27,7 +28,7 @@ int main(void)
     FILE* const dst = fopen("./assets/sounds/sounds.h", "w");
     if (dst == NULL) {
         (void)fprintf(stderr, "failed to open destination file\n");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     {
@@ -36,7 +37,7 @@ int main(void)
         const size_t n = fwrite(data, sizeof(char), len, dst);
         if (n != len) {
             (void)fprintf(stderr, "failed to embed assets\n");
-            return 1;
+            return EXIT_FAILURE;
         }
     }
 
@@ -60,7 +61,7 @@ int main(void)
             const char* const err = read_file(&data, &len, asset.file);
             if (err != NULL) {
                 (void)fprintf(stderr, "failed to read asset: %s: %s\n", asset.file, err);
-                return 1;
+                return EXIT_FAILURE;
             }
         }
 
@@ -79,9 +80,12 @@ int main(void)
         EMBED_ASSET(dst, asset.file, "};\n");
     }
 
-    if (fclose(dst) != 0) {
-        (void)fprintf(stderr, "failed to close destination file\n");
-        return 1;
+    {
+        int status = fclose(dst);
+        if (status != 0) {
+            (void)fprintf(stderr, "failed to close destination file\n");
+            return EXIT_FAILURE;
+        }
     }
 
     return 0;
@@ -112,11 +116,17 @@ static const char* read_file(char** const data, size_t* const len, const char* c
         }
     }
 
-    if (fclose(stream) != 0) {
-        return "failed to close buffer";
+    {
+        int status = fclose(stream);
+        if (status != 0) {
+            return "failed to close buffer";
+        }
     }
-    if (fclose(src) != 0) {
-        return "failed to close file";
+    {
+        int status = fclose(src);
+        if (status != 0) {
+            return "failed to close file";
+        }
     }
 
     return NULL;

@@ -21,45 +21,51 @@ int test_time(void)
             .duration = { .msecs = 1000 },
         };
 
-        tick_timer(&timer, (duration_t) { .msecs = 0 });
-        EXPECT_TIMER(
-            "inital",
-            &timer,
-            ((struct timer_state_t) {
-                .get_elapsed_time_ratio = 0,
-                .get_remaining_time = { .msecs = 1000 },
-            })
-        );
+        static const struct test {
+            const char* label;
+            duration_t delta;
+            struct timer_state_t expected;
+        } tests[] = {
+            (struct test) {
+                .label = "initial",
+                .delta = (duration_t) { .msecs = 0 },
+                .expected = (struct timer_state_t) {
+                    .get_elapsed_time_ratio = 0,
+                    .get_remaining_time = { .msecs = 1000 },
+                },
+            },
+            (struct test) {
+                .label = "tick 200 msecs",
+                .delta = (duration_t) { .msecs = 200 },
+                .expected = (struct timer_state_t) {
+                    .get_elapsed_time_ratio = 0.2f,
+                    .get_remaining_time = { .msecs = 800 },
+                },
+            },
+            (struct test) {
+                .label = "tick 400 msecs",
+                .delta = (duration_t) { .msecs = 400 },
+                .expected = (struct timer_state_t) {
+                    .get_elapsed_time_ratio = 0.6f,
+                    .get_remaining_time = { .msecs = 400 },
+                },
+            },
+            (struct test) {
+                .label = "tick 600 msecs",
+                .delta = (duration_t) { .msecs = 600 },
+                .expected = (struct timer_state_t) {
+                    .get_elapsed_time_ratio = 1,
+                    .get_remaining_time = { .msecs = 0 },
+                },
+            },
+        };
+        static const size_t test_len = sizeof(tests) / sizeof(struct test);
 
-        tick_timer(&timer, (duration_t) { .msecs = 200 });
-        EXPECT_TIMER(
-            "tick 200 msecs",
-            &timer,
-            ((struct timer_state_t) {
-                .get_elapsed_time_ratio = 0.2,
-                .get_remaining_time = { .msecs = 800 },
-            })
-        );
-
-        tick_timer(&timer, (duration_t) { .msecs = 400 });
-        EXPECT_TIMER(
-            "tick 400 msecs",
-            &timer,
-            ((struct timer_state_t) {
-                .get_elapsed_time_ratio = 0.6,
-                .get_remaining_time = { .msecs = 400 },
-            })
-        );
-
-        tick_timer(&timer, (duration_t) { .msecs = 600 });
-        EXPECT_TIMER(
-            "tick 600 msecs",
-            &timer,
-            ((struct timer_state_t) {
-                .get_elapsed_time_ratio = 1,
-                .get_remaining_time = { .msecs = 0 },
-            })
-        );
+        for (size_t i = 0; i < test_len; i++) {
+            const struct test test = tests[i];
+            tick_timer(&timer, test.delta);
+            EXPECT_TIMER(test.label, &timer, test.expected);
+        }
 
         reset_timer(&timer);
         EXPECT_TIMER(

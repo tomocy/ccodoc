@@ -32,14 +32,14 @@ static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, 
     const char* art = NULL;
     switch (kakehi->state) {
     case holding_water: {
-        static const float holding_ratio_1 = 1.0f / 3 * 1;
-        static const float holding_ratio_2 = 1.0f / 3 * 2;
+        static const float holding_ratio1 = 1.0f / 3 * 1;
+        static const float holding_ratio2 = 1.0f / 3 * 2;
 
         const float ratio = get_action_progress_ratio(&kakehi->holding_water);
 
-        if (0 <= ratio && ratio < holding_ratio_1) {
+        if (0 <= ratio && ratio < holding_ratio1) {
             art = "━══";
-        } else if (holding_ratio_1 <= ratio && ratio < holding_ratio_2) {
+        } else if (holding_ratio1 <= ratio && ratio < holding_ratio2) {
             art = "═━═";
         } else {
             art = "══━";
@@ -246,9 +246,11 @@ void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const ti
     {
         const moment_t moment = moment_from_duration(get_remaining_time(timer), time_min);
 
-#if PLATFORM == PLATFORM_LINUX
+#if PLATFORM != PLATFORM_MACOS
         const char* format = "%02dᴴ%02dᴹ";
 #else
+        // Curses available in MacOS fails to handle some multibyte characters including 'ᴴ' and 'ᴹ',
+        // requiring us to use alternative ones for them.
         const char* format = "%02dh%02dm";
 #endif
 
@@ -264,17 +266,17 @@ void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const ti
 
     {
         static const size_t progress_bar_width = 14;
-        static const size_t progress_bar_index_timeout_away_1 = (size_t)((float)progress_bar_width * 0.2f);
-        static const size_t progress_bar_index_timeout_away_2 = (size_t)((float)progress_bar_width * 0.4f);
+        static const size_t progress_bar_index_timeout_away1 = (size_t)((float)progress_bar_width * 0.2f);
+        static const size_t progress_bar_index_timeout_away2 = (size_t)((float)progress_bar_width * 0.4f);
 
         drawing_attr_t attr = { 0 };
 
         const float remaining_ratio = 1 - get_elapsed_time_ratio(timer);
 
         const size_t remaining_index = (size_t)((float)progress_bar_width * remaining_ratio);
-        if (remaining_index <= progress_bar_index_timeout_away_1) {
+        if (remaining_index <= progress_bar_index_timeout_away1) {
             attr.color = color_red;
-        } else if (remaining_index <= progress_bar_index_timeout_away_2) {
+        } else if (remaining_index <= progress_bar_index_timeout_away2) {
             attr.color = color_yellow;
         } else {
             attr.color = color_green;
@@ -328,19 +330,6 @@ void render_debug_info(
     }
 
     {
-        draw_canvas(renderer, ctx.current, ctx.attr, "# rendering");
-        wrap_drawing_lines(&ctx, 1);
-
-        drawf_canvas(
-            renderer,
-            ctx.current,
-            ctx.attr,
-            "ornamental: %s", renderer->ornamental ? "yes" : "no"
-        );
-        wrap_drawing_lines(&ctx, 1);
-    }
-
-    {
         wrap_drawing_lines(&ctx, 1);
         draw_canvas(renderer, ctx.current, ctx.attr, "# process");
         wrap_drawing_lines(&ctx, 1);
@@ -354,6 +343,19 @@ void render_debug_info(
         wrap_drawing_lines(&ctx, 1);
     }
 
+    {
+        draw_canvas(renderer, ctx.current, ctx.attr, "# rendering");
+        wrap_drawing_lines(&ctx, 1);
+
+        drawf_canvas(
+            renderer,
+            ctx.current,
+            ctx.attr,
+            "ornamental: %s", renderer->ornamental ? "yes" : "no"
+        );
+        wrap_drawing_lines(&ctx, 1);
+    }
+
     wrap_drawing_lines(&ctx, 1);
     render_debug_info_ccodoc(renderer, &ctx, ccodoc);
 
@@ -363,7 +365,7 @@ void render_debug_info(
     }
 }
 
-static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, const ccodoc_t* const ccodoc)
+static void render_debug_info_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const ccodoc_t* const ccodoc)
 {
     draw_canvas(renderer, ctx->current, ctx->attr, "# ccodoc");
     wrap_drawing_lines(ctx, 1);
@@ -448,7 +450,7 @@ static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, c
     }
 }
 
-static void render_debug_info_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer)
+static void render_debug_info_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const tick_timer_t* const timer)
 {
     draw_canvas(renderer, ctx->current, ctx->attr, "# timer");
     wrap_drawing_lines(ctx, 1);
@@ -481,20 +483,20 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
     }
 }
 
-static void draw_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s)
+static void draw_canvas(renderer_t* const renderer, const vec2d_t point, const drawing_attr_t attr, const char* const s)
 {
     const drawing_attr_t attr_ = renderer->ornamental ? attr : (drawing_attr_t) { 0 };
     draw(renderer->canvas, point, attr_, s);
 }
 
-static void drawf_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...)
+static void drawf_canvas(renderer_t* const renderer, const vec2d_t point, const drawing_attr_t attr, const char* const format, ...)
 {
-    const drawing_attr_t attr_ = renderer->ornamental ? attr : (drawing_attr_t) { 0 };
+    const drawing_attr_t attr2 = renderer->ornamental ? attr : (drawing_attr_t) { 0 };
 
     va_list args = { 0 };
     va_start(args, format);
 
-    drawfv(renderer->canvas, point, attr_, format, args);
+    drawfv(renderer->canvas, point, attr2, format, args);
 
     va_end(args);
 }

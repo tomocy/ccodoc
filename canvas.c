@@ -42,7 +42,7 @@ canvas_t wrap_canvas_curses(canvas_curses_t* const canvas)
     };
 }
 
-canvas_t wrap_canvas_proxy(canvas_proxy_t* canvas)
+canvas_t wrap_canvas_proxy(canvas_proxy_t* const canvas)
 {
     return (canvas_t) {
         .type = canvas_proxy,
@@ -195,7 +195,7 @@ void init_canvas_buffer(canvas_buffer_t* const canvas, const vec2d_t size)
 {
     canvas->size = size;
     canvas->data = calloc(
-        (unsigned long)size.x * size.y,
+        (long)size.x * size.y,
         sizeof(canvas_datum_t)
     );
 }
@@ -332,7 +332,7 @@ static unsigned int drawing_attr_flags(const drawing_attr_t attr)
 static void draw_curses(canvas_curses_t* const canvas, const vec2d_t point, const drawing_attr_t attr, const char* const s)
 {
     WITH_DRAWING_ATTR_CURSES(attr, {
-        mvwprintw(canvas->window, (int)point.y, (int)point.x, s);
+        mvwprintw(canvas->window, (int)point.y, (int)point.x, "%s", s);
     });
 }
 
@@ -445,7 +445,7 @@ static canvas_buffer_t* serve_current_canvas_buffer(canvas_proxy_t* const canvas
 
 static canvas_buffer_t* serve_prev_canvas_buffer(canvas_proxy_t* const canvas)
 {
-    unsigned int i = (canvas->active_buffer_index + CANVAS_PROXY_BUFFER_BUCKET_SIZE - 1) % CANVAS_PROXY_BUFFER_BUCKET_SIZE;
+    const unsigned int i = (canvas->active_buffer_index + CANVAS_PROXY_BUFFER_BUCKET_SIZE - 1) % CANVAS_PROXY_BUFFER_BUCKET_SIZE;
     return &canvas->buffers[i];
 }
 

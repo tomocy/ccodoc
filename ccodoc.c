@@ -29,11 +29,11 @@ void tick_ccodoc(ccodoc_t* const ccodoc, const duration_t delta)
 
 static void tick_kakehi(ccodoc_t* const ccodoc, duration_t delta)
 {
-    if (ccodoc->kakehi.disabled) {
+    kakehi_t* const kakehi = &ccodoc->kakehi;
+
+    if (kakehi->disabled) {
         return;
     }
-
-    kakehi_t* const kakehi = &ccodoc->kakehi;
 
     static duration_t carried_delta = { 0 };
 
@@ -72,7 +72,7 @@ static void tick_tsutsu(ccodoc_t* const ccodoc, const duration_t delta)
 {
     tsutsu_t* const tsutsu = &ccodoc->tsutsu;
 
-    switch (ccodoc->tsutsu.state) {
+    switch (tsutsu->state) {
     case holding_water:
         if (get_tsutsu_water_amount_ratio(tsutsu) < 1) {
             break;
@@ -101,7 +101,7 @@ static void tick_hachi(ccodoc_t* const ccodoc, const duration_t delta)
 {
     hachi_t* const hachi = &ccodoc->hachi;
 
-    switch (ccodoc->hachi.state) {
+    switch (hachi->state) {
     case holding_water:
         break;
     case releasing_water:

@@ -12,11 +12,6 @@
 
 typedef bool (*process_mode_t)(ccodoc_mode_t*, duration_t);
 
-typedef struct {
-    ccodoc_mode_t* mode;
-    duration_t delta;
-} rendering_ctx_t;
-
 static void init_ccodoc(ccodoc_mode_t* mode);
 static void deinit_ccodoc(ccodoc_mode_t* mode);
 
@@ -176,7 +171,7 @@ static void run_mode(ccodoc_mode_t* const mode, const process_mode_t process)
 
     duration_t last_time = get_monotonic_time();
 
-    while (1) {
+    while (true) {
         const duration_t time = get_monotonic_time();
 
         const duration_t delta = duration_diff(time, last_time);
@@ -301,7 +296,6 @@ static char* install_sound(const char* const name, const unsigned char* const da
     return NULL;
 #endif
 
-#if PLATFORM == PLATFORM_LINUX || PLATFORM == PLATFORM_MACOS
     if (path == NULL) {
         return NULL;
     }
@@ -332,5 +326,4 @@ static char* install_sound(const char* const name, const unsigned char* const da
     }
 
     return (char*)path;
-#endif
 }

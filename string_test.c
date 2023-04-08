@@ -35,7 +35,7 @@ int test_str(void)
         static const size_t test_len = sizeof(tests) / sizeof(struct test);
 
         for (size_t i = 0; i < test_len; i++) {
-            struct test test = tests[i];
+            const struct test test = tests[i];
             EXPECT_STR_EQUALS(test.str, test.other, test.expected);
         }
     }
@@ -57,7 +57,7 @@ int test_str(void)
         static const size_t test_len = sizeof(tests) / sizeof(struct test);
 
         for (size_t i = 0; i < test_len; i++) {
-            struct test test = tests[i];
+            const struct test test = tests[i];
             EXPECT_STR_EQUALS_N(test.str, test.other, test.n, test.expected);
         }
     }
@@ -79,7 +79,7 @@ int test_str(void)
         static const size_t test_len = sizeof(tests) / sizeof(struct test);
 
         for (size_t i = 0; i < test_len; i++) {
-            struct test test = tests[i];
+            const struct test test = tests[i];
             EXPECT_STR_STARTS_WITH(test.str, test.prefix, test.expected);
         }
     }
@@ -99,7 +99,7 @@ int test_str(void)
         const size_t tests_len = sizeof(tests) / sizeof(struct test);
 
         for (size_t i = 0; i < tests_len; i++) {
-            struct test test = tests[i];
+            const struct test test = tests[i];
             EXPECT_ENCODE_CHAR_UTF8(test.code, test.expected);
         }
     }
@@ -139,7 +139,7 @@ int test_str(void)
         static size_t tests_len = sizeof(tests) / sizeof(struct test);
 
         for (size_t i = 0; i < tests_len; i++) {
-            struct test test = tests[i];
+            const struct test test = tests[i];
             EXPECT_DECODE_CHAR_UTF8(test.src, test.expected);
         }
     }

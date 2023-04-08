@@ -1,7 +1,5 @@
 #include "test.h"
 
-#pragma clang diagnostic ignored "-Wempty-translation-unit"
-
 int main(void)
 {
     printf("# ccodoc\n");
