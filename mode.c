@@ -275,12 +275,14 @@ static drawing_ctx_t make_drawing_ctx_center(const canvas_t* const canvas)
 
 static void play_sound(const char* const name)
 {
-#if PLATFORM != PLATFORM_MACOS
+#if PLATFORM == PLATFORM_LINUX
+    run_cmd("/usr/bin/mpg123", (const char*[]) { "mpg123", "--quiet", (char* const)name, NULL });
+#elif PLATFORM == PLATFORM_MACOS
+    run_cmd("/usr/bin/afplay", (const char*[]) { "afplay", (char* const)name, NULL });
+#else
     (void)name;
     return;
 #endif
-
-    run_cmd("/usr/bin/afplay", (const char*[]) { "afplay", (char* const)name, NULL });
 }
 
 static char* install_sound(const char* const name, const unsigned char* const data, size_t len)
