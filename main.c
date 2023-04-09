@@ -72,24 +72,6 @@ int main(const int argc, const char* const* const argv)
 
 static const char* read_arg(const char* const* argv, unsigned int* i);
 static const char* config_err_no_value_specified(const char* name);
-static const char* config_err_no_file_found(const char* name);
-
-#define READ_ARG_FILE(dst, argv, i, name)               \
-    {                                                   \
-        const char** dst_ = (dst);                      \
-        const char* const* const argv_ = (argv);        \
-        unsigned int* i_ = (i);                         \
-                                                        \
-        const char* const file = read_arg(argv_, i_);   \
-        if (file == NULL) {                             \
-            return config_err_no_value_specified(name); \
-        }                                               \
-        if (!has_file(file)) {                          \
-            return config_err_no_file_found(name);      \
-        }                                               \
-                                                        \
-        *dst_ = file;                                   \
-    }
 
 static const char* configure(config_t* const config, const unsigned int argc, const char* const* const argv)
 {
@@ -124,21 +106,6 @@ static const char* configure(config_t* const config, const unsigned int argc, co
 
         if (str_equals(arg, "--satori")) {
             config->mode.value->ornamental = false;
-            continue;
-        }
-
-        if (str_equals(arg, "--sound-tsutsu-drip")) {
-            READ_ARG_FILE(&config->mode.value->sound.tsutsu_drip, argv, &i, "sound-tsutsu-drip");
-            continue;
-        }
-
-        if (str_equals(arg, "--sound-tsutsu-bump")) {
-            READ_ARG_FILE(&config->mode.value->sound.tsutsu_bump, argv, &i, "sound-tsutsu-bump");
-            continue;
-        }
-
-        if (str_equals(arg, "--sound-uguisu-call")) {
-            READ_ARG_FILE(&config->mode.value->sound.uguisu_call, argv, &i, "sound-uguisu-call");
             continue;
         }
 
@@ -226,23 +193,6 @@ static int help(void)
         }
     );
 
-    print_arg_help(
-        "--sound-tsutsu-drip file",
-        (const char*[]) { "Play this sound when water drips from kakehi（筧）into tsutsu（筒）.", NULL }
-    );
-    print_arg_help(
-        "--sound-tsutsu-bump file",
-        (const char*[]) { "Play this sound when tsutsu（筒）bumps.", NULL }
-    );
-    print_arg_help(
-        "--sound-uguisu-call file",
-        (const char*[]) {
-            "Play this sound when uguisu（鶯）calls.",
-            "Uguisu calls when the timer expires in sabi mode, etc.",
-            NULL,
-        }
-    );
-
     print_arg_help("--help", (const char*[]) { "Print help.", NULL });
     print_arg_help("--version", (const char*[]) { "Print version.", NULL });
     print_arg_help("--license", (const char*[]) { "Print license.", NULL });
@@ -289,11 +239,6 @@ static const char* read_arg(const char* const* const argv, unsigned int* const i
 static const char* config_err_no_value_specified(const char* const name)
 {
     return format_str("%s: value must be specified", name);
-}
-
-static const char* config_err_no_file_found(const char* const name)
-{
-    return format_str("%s: file not found", name);
 }
 
 static void print_arg_help(const char* const arg, const char* const* const descs)

@@ -30,20 +30,6 @@ ccodoc（鹿威し）simulated（造）in your terminal（庭）
 
     Neither color nor sound is needed as they already lie within you.（悟り）
 
-- `--sound-tsutsu-drip file`
-
-    Play this sound when water drips from kakehi（筧）into tsutsu（筒）.
-
-- `--sound-tsutsu-bump file`
-
-    Play this sound when tsutsu（筒）bumps.
-
-- `--sound-uguisu-call file`
-
-    Play this sound when uguisu（鶯）calls.
-
-    Uguisu calls when the timer expires in sabi mode, etc.
-
 ## license
 
 - [MIT License](./LICENSE)

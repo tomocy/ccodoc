@@ -127,17 +127,9 @@ static void init_sound(ccodoc_mode_t* const mode)
         return;
     }
 
-    mode->sound.tsutsu_drip = mode->sound.tsutsu_drip == NULL
-        ? install_sound("tsutsu_drip.mp3", sound_tsutsu_drip, sizeof(sound_tsutsu_drip))
-        : format_str(mode->sound.tsutsu_drip);
-
-    mode->sound.tsutsu_bump = mode->sound.tsutsu_bump == NULL
-        ? install_sound("tsutsu_bump.mp3", sound_tsutsu_bump, sizeof(sound_tsutsu_bump))
-        : format_str(mode->sound.tsutsu_bump);
-
-    mode->sound.uguisu_call = mode->sound.uguisu_call == NULL
-        ? install_sound("uguisu_call.mp3", sound_uguisu_call, sizeof(sound_uguisu_call))
-        : format_str(mode->sound.uguisu_call);
+    mode->sound.tsutsu_drip = install_sound("tsutsu_drip.mp3", sound_tsutsu_drip, sizeof(sound_tsutsu_drip));
+    mode->sound.tsutsu_bump = install_sound("tsutsu_bump.mp3", sound_tsutsu_bump, sizeof(sound_tsutsu_bump));
+    mode->sound.uguisu_call = install_sound("uguisu_call.mp3", sound_uguisu_call, sizeof(sound_uguisu_call));
 }
 
 static void deinit_sound(ccodoc_mode_t* const mode)
