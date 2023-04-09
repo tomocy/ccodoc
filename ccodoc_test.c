@@ -172,9 +172,9 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
     }
 }
 
-static int expect_kakehi(const char* file, const int line, kakehi_t* kakehi, const struct kakehi_state_t expected);
-static int expect_tsutsu(const char* file, const int line, tsutsu_t* tsutsu, const struct tsutsu_state_t expected);
-static int expect_hachi(const char* file, const int line, hachi_t* hachi, const struct hachi_state_t expected);
+static int expect_kakehi(const char* file, int line, const kakehi_t* kakehi, struct kakehi_state_t expected);
+static int expect_tsutsu(const char* file, int line, const tsutsu_t* tsutsu, struct tsutsu_state_t expected);
+static int expect_hachi(const char* file, int line, const hachi_t* hachi, struct hachi_state_t expected);
 
 static int expect_tick_ccodoc(
     const char* const file, const int line,
@@ -192,9 +192,9 @@ static int expect_tick_ccodoc(
     return EXIT_SUCCESS;
 }
 
-static int expect_kakehi(const char* file, const int line, kakehi_t* kakehi, const struct kakehi_state_t expected)
+static int expect_kakehi(const char* const file, const int line, const kakehi_t* const kakehi, const struct kakehi_state_t expected)
 {
-    struct kakehi_state_t actual = {
+    const struct kakehi_state_t actual = {
         .state = kakehi->state,
         .holding_water_ratio = get_action_progress_ratio(&kakehi->holding_water),
         .releasing_water_ratio = get_action_progress_ratio(&kakehi->releasing_water),
@@ -223,9 +223,9 @@ static int expect_kakehi(const char* file, const int line, kakehi_t* kakehi, con
     return passes ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static int expect_tsutsu(const char* file, const int line, tsutsu_t* tsutsu, const struct tsutsu_state_t expected)
+static int expect_tsutsu(const char* const file, const int line, const tsutsu_t* const tsutsu, const struct tsutsu_state_t expected)
 {
-    struct tsutsu_state_t actual = {
+    const struct tsutsu_state_t actual = {
         .state = tsutsu->state,
         .water_amount_ratio = get_tsutsu_water_amount_ratio(tsutsu),
         .releasing_water_ratio = get_action_progress_ratio(&tsutsu->releasing_water),
@@ -254,9 +254,9 @@ static int expect_tsutsu(const char* file, const int line, tsutsu_t* tsutsu, con
     return passes ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static int expect_hachi(const char* file, const int line, hachi_t* hachi, const struct hachi_state_t expected)
+static int expect_hachi(const char* const file, const int line, const hachi_t* const hachi, const struct hachi_state_t expected)
 {
-    struct hachi_state_t actual = {
+    const struct hachi_state_t actual = {
         .state = hachi->state,
         .releasing_water_ratio = get_action_progress_ratio(&hachi->releasing_water),
     };

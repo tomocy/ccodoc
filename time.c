@@ -5,7 +5,7 @@
 #include <math.h>
 #include <time.h>
 
-static void ticker_tick(ticker_t* ticker, const duration_t delta);
+static void ticker_tick(ticker_t* ticker, duration_t delta);
 static void ticker_reset(ticker_t* ticker);
 
 void tick_timer(tick_timer_t* const timer, const duration_t delta)
@@ -45,7 +45,7 @@ void sleep_for(const duration_t duration)
         return;
     }
 
-    struct timespec time_spec;
+    struct timespec time_spec = { 0 };
     time_spec.tv_sec = (time_t)duration.msecs / 1000;
     time_spec.tv_nsec = (time_t)duration.msecs % 1000 * 1000000;
 

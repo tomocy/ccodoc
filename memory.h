@@ -2,4 +2,4 @@
 
 #include <stdbool.h>
 
-extern bool mem_equals_n(void* mem, void* other, unsigned int n);
+extern bool mem_equals_n(const void* mem, const void* other, unsigned int n);

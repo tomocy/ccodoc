@@ -44,8 +44,8 @@ const char* get_user_cache_dir(void)
 
 const char* get_dir(const char* path)
 {
-    char* path2 = copy_str(path);
-    const char* dir = dirname(path2);
+    char* const path2 = copy_str(path);
+    const char* const dir = dirname(path2);
     if ((void*)dir == (void*)path2) {
         return path2;
     }
@@ -55,7 +55,7 @@ const char* get_dir(const char* path)
     // This causes the next dirname call to overwrite the previous result, which is error-prune.
     // To avoid this, copy the result to the different address and return it.
 
-    const char* dir2 = copy_str(dir);
+    const char* const dir2 = copy_str(dir);
     free((void*)path2);
 
     return dir2;
@@ -68,16 +68,16 @@ const char* make_dir(const char* name)
         return NULL;
     }
 
-    const char* dir = get_dir(name);
+    const char* const dir = get_dir(name);
     if (!str_equals(name, dir)) {
-        const char* err = make_dir(dir);
+        const char* const err = make_dir(dir);
         if (err != NULL) {
             free((void*)dir);
             return err;
         }
     }
 
-    int status = mkdir(name, 0755);
+    const int status = mkdir(name, 0755);
     if (status != 0) {
         return format_str("%s", name);
     }
@@ -98,7 +98,7 @@ const char* join_paths(const char* const* const paths)
         int i = 0;
         const char* const* path = paths;
         while (*path != NULL) {
-            size_t n = fprintf(buf, i != 0 ? "/%s" : "%s", *path);
+            const size_t n = fprintf(buf, i != 0 ? "/%s" : "%s", *path);
             if (n < 0) {
                 return NULL;
             }
@@ -190,7 +190,7 @@ const char* watch_sigs(sig_handler_t* const handler, unsigned int* const sigs, c
     {
         errno = 0;
 #if PLATFORM != PLATFORM_MACOS
-        int status = pipe2(handler->pipe, O_CLOEXEC);
+        const int status = pipe2(handler->pipe, O_CLOEXEC);
         if (status != 0) {
             return format_str("failed to init pipe: %d", errno);
         }
@@ -302,10 +302,10 @@ static const char* prepare_sig_set(sigset_t* const sig_set, unsigned int* const 
         }
     }
     for (size_t i = 0; i < len; i++) {
-        const int sig = (int)sigs[i];
+        const unsigned int sig = sigs[i];
 
         errno = 0;
-        const int status = sigaddset(sig_set, sig);
+        const int status = sigaddset(sig_set, (int)sig);
         if (status != 0) {
             return format_str("failed to set target signal: %d: %d", sig, errno);
         }
@@ -343,11 +343,7 @@ static void* wait_sigs(const sig_handler_t* const handler)
         errno = 0;
         const int status = sigwait(&sig_set, (int*)&sig);
         if (status < 0) {
-            if (errno == EINTR || errno == EAGAIN) {
-                continue;
-            }
-
-            break;
+            continue;
         }
 
         if (!watches_sig(handler, sig)) {

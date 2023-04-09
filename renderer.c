@@ -15,7 +15,7 @@ static void render_tsutsu(renderer_t* renderer, drawing_ctx_t* ctx, const tsutsu
 static void render_hachi(renderer_t* renderer, drawing_ctx_t* ctx, const hachi_t* hachi);
 static void render_roji(renderer_t* renderer, drawing_ctx_t* ctx);
 
-void render_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const ccodoc_t* ccodoc)
+void render_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const ccodoc_t* const ccodoc)
 {
     render_kakehi(renderer, ctx, &ccodoc->kakehi);
 
@@ -105,20 +105,22 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
         "◢◤▕",
     };
 
-    const float water_amount_ratio = get_tsutsu_water_amount_ratio(tsutsu);
     const char* const* art = NULL;
 
     switch (tsutsu->state) {
-    case holding_water:
-        if (water_amount_ratio < 0.8) {
+    case holding_water: {
+        const float ratio = get_tsutsu_water_amount_ratio(tsutsu);
+
+        if (ratio < 0.8) {
             art = art_jo;
-        } else if (water_amount_ratio < 1) {
+        } else if (ratio < 1) {
             art = art_ha;
         } else {
             art = art_kyu;
         }
 
         break;
+    }
     case releasing_water: {
         const float ratio = get_action_progress_ratio(&tsutsu->releasing_water);
 
@@ -247,11 +249,11 @@ void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const ti
         const moment_t moment = moment_from_duration(get_remaining_time(timer), time_min);
 
 #if PLATFORM != PLATFORM_MACOS
-        const char* format = "%02dᴴ%02dᴹ";
+        const char* const format = "%02dᴴ%02dᴹ";
 #else
         // Curses available in MacOS fails to handle some multibyte characters including 'ᴴ' and 'ᴹ',
         // requiring us to use alternative ones for them.
-        const char* format = "%02dh%02dm";
+        const char* const format = "%02dh%02dm";
 #endif
 
         drawf_canvas(
@@ -485,8 +487,8 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
 
 static void draw_canvas(renderer_t* const renderer, const vec2d_t point, const drawing_attr_t attr, const char* const s)
 {
-    const drawing_attr_t attr_ = renderer->ornamental ? attr : (drawing_attr_t) { 0 };
-    draw(renderer->canvas, point, attr_, s);
+    const drawing_attr_t attr2 = renderer->ornamental ? attr : (drawing_attr_t) { 0 };
+    draw(renderer->canvas, point, attr2, s);
 }
 
 static void drawf_canvas(renderer_t* const renderer, const vec2d_t point, const drawing_attr_t attr, const char* const format, ...)

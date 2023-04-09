@@ -3,7 +3,7 @@
 #include "string.h"
 #include "test.h"
 
-static int expect_join_paths(const char* file, int line, const char** paths, const char* expected);
+static int expect_join_paths(const char* file, int line, const char* const* paths, const char* expected);
 #define EXPECT_JOIN_PATHS(paths, expected) EXPECT_PASS(expect_join_paths(__FILE__, __LINE__, paths, expected))
 
 int test_platform(void)
@@ -23,14 +23,14 @@ int test_platform(void)
     return EXIT_SUCCESS;
 }
 
-static int expect_join_paths(const char* file, int line, const char** paths, const char* expected)
+static int expect_join_paths(const char* const file, const int line, const char* const* const paths, const char* const expected)
 {
     const char* const actual = join_paths(paths);
 
     char label[1 << 5] = { 0 };
     {
         int i = 0;
-        const char** path = paths;
+        const char* const* path = paths;
         int n = 0;
         while (*path) {
             if (i != 0) {

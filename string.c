@@ -17,15 +17,15 @@ bool str_equals_n(const char* const str, const char* const other, const unsigned
     return strncmp(str, other, n) == 0;
 }
 
-bool str_starts_with(const char* str, const char* prefix)
+bool str_starts_with(const char* const str, const char* const prefix)
 {
     return str_equals_n(str, prefix, strlen(prefix));
 }
 
-char* copy_str(const char* str)
+char* copy_str(const char* const str)
 {
-    size_t len = strlen(str);
-    char* dst = calloc(len + 1, sizeof(char));
+    const size_t len = strlen(str);
+    char* const dst = calloc(len + 1, sizeof(char));
     strncpy(dst, str, len);
     return dst;
 }

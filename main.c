@@ -168,7 +168,7 @@ static const char* configure(config_t* const config, const unsigned int argc, co
     return NULL;
 }
 
-static void run(ccodoc_mode_type_t type, ccodoc_mode_t* mode)
+static void run(ccodoc_mode_type_t type, ccodoc_mode_t* const mode)
 {
     sig_handler_t sig_handler = { 0 };
     watch_sigs(&sig_handler, (unsigned int[]) { SIGINT, SIGTERM }, 2);

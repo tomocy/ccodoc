@@ -121,7 +121,7 @@ static void deinit_renderer(ccodoc_mode_t* const mode)
 
 static char* install_sound(const char* const name, const unsigned char* data, size_t len);
 
-static void init_sound(ccodoc_mode_t* mode)
+static void init_sound(ccodoc_mode_t* const mode)
 {
     if (!mode->ornamental) {
         return;
@@ -140,7 +140,7 @@ static void init_sound(ccodoc_mode_t* mode)
         : format_str(mode->sound.uguisu_call);
 }
 
-static void deinit_sound(ccodoc_mode_t* mode)
+static void deinit_sound(ccodoc_mode_t* const mode)
 {
     if (mode->sound.tsutsu_drip != NULL) {
         free((void*)mode->sound.tsutsu_drip);
@@ -173,7 +173,7 @@ static void run_mode(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode, con
 
     while (true) {
         {
-            unsigned int sig = { 0 };
+            unsigned int sig = 0;
             bool caught = false;
             const char* const err = catch_sig(ctx->sig_handler, &sig, &caught);
             if (err != NULL) {
@@ -246,7 +246,7 @@ static bool process_sabi(ccodoc_mode_t* const mode, const duration_t delta)
         }
     });
 
-    // Stop the water flow since kakehi has released last water drop to fill up tsutsu,
+    // Stop the water flow since the kakehi has released the last drop of water to fill up the tsutsu,
     ccodoc->kakehi.disabled = get_remaining_time(&mode->timer).msecs <= ccodoc->kakehi.releasing_water.duration.msecs
         && ccodoc->kakehi.state == releasing_water;
 
@@ -254,7 +254,7 @@ static bool process_sabi(ccodoc_mode_t* const mode, const duration_t delta)
         return true;
     }
 
-    // and wait for tsutsu to have released water.
+    // and wait for the tsutsu to release the water.
     if (tsutsu_last_state != releasing_water || !action_has_finished(&ccodoc->tsutsu.releasing_water)) {
         return true;
     }
@@ -290,21 +290,21 @@ static drawing_ctx_t make_drawing_ctx_center(const canvas_t* const canvas)
 static void play_sound(const char* const name)
 {
 #if PLATFORM == PLATFORM_LINUX
-    run_cmd("/usr/bin/mpg123", (const char*[]) { "mpg123", "--quiet", (char* const)name, NULL });
+    run_cmd("/usr/bin/mpg123", (const char*[]) { "mpg123", "--quiet", name, NULL });
 #elif PLATFORM == PLATFORM_MACOS
-    run_cmd("/usr/bin/afplay", (const char*[]) { "afplay", (char* const)name, NULL });
+    run_cmd("/usr/bin/afplay", (const char*[]) { "afplay", name, NULL });
 #else
     (void)name;
     return;
 #endif
 }
 
-static char* install_sound(const char* const name, const unsigned char* const data, size_t len)
+static char* install_sound(const char* const name, const unsigned char* const data, const size_t len)
 {
 #if PLATFORM == PLATFORM_LINUX
-    const char* path = join_paths((const char*[]) { get_user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
+    const char* const path = join_paths((const char*[]) { get_user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
 #elif PLATFORM == PLATFORM_MACOS
-    const char* path = join_paths((const char*[]) { get_user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
+    const char* const path = join_paths((const char*[]) { get_user_cache_dir(), "ccodoc/assets/sounds", name, NULL });
 #else
     (void)name;
     (void)data;
@@ -318,8 +318,8 @@ static char* install_sound(const char* const name, const unsigned char* const da
 
     if (!has_file(path)) {
         {
-            const char* dir = get_dir(path);
-            const char* err = make_dir(dir);
+            const char* const dir = get_dir(path);
+            const char* const err = make_dir(dir);
             free((void*)dir);
             if (err != NULL) {
                 return NULL;
@@ -332,7 +332,7 @@ static char* install_sound(const char* const name, const unsigned char* const da
             return NULL;
         }
 
-        size_t n = fwrite(data, sizeof(unsigned char), len, file);
+        const size_t n = fwrite(data, sizeof(unsigned char), len, file);
         if (n < len) {
             free((void*)path);
             return NULL;

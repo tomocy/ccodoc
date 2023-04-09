@@ -129,9 +129,13 @@ int test_time(void)
     return EXIT_SUCCESS;
 }
 
-static int expect_timer(const char* const file, int line, const char* const label, tick_timer_t* timer, struct timer_state_t expected)
+static int expect_timer(
+    const char* const file, const int line,
+    const char* const label,
+    tick_timer_t* const timer, const struct timer_state_t expected
+)
 {
-    struct timer_state_t actual = {
+    const struct timer_state_t actual = {
         .get_elapsed_time_ratio = get_elapsed_time_ratio(timer),
         .get_remaining_time = get_remaining_time(timer),
     };
@@ -158,7 +162,7 @@ static int expect_timer(const char* const file, int line, const char* const labe
     return passes ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static const char* time_precision_to_str(time_precision_t precision)
+static const char* time_precision_to_str(const time_precision_t precision)
 {
     switch (precision) {
     case time_hour:

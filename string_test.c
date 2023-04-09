@@ -87,7 +87,7 @@ int test_str(void)
     {
         printf("## encode_char_utf8\n");
 
-        const struct test {
+        static const struct test {
             uint32_t code;
             const char* expected;
         } tests[] = {
@@ -96,7 +96,7 @@ int test_str(void)
             (struct test) { .code = 0x3066, .expected = "て" },
             (struct test) { .code = 0x306A, .expected = "な" },
         };
-        const size_t tests_len = sizeof(tests) / sizeof(struct test);
+        static const size_t tests_len = sizeof(tests) / sizeof(struct test);
 
         for (size_t i = 0; i < tests_len; i++) {
             const struct test test = tests[i];
@@ -136,7 +136,7 @@ int test_str(void)
                 .expected = { .code = 0x1F361, .len = 4 },
             },
         };
-        static size_t tests_len = sizeof(tests) / sizeof(struct test);
+        static const size_t tests_len = sizeof(tests) / sizeof(struct test);
 
         for (size_t i = 0; i < tests_len; i++) {
             const struct test test = tests[i];

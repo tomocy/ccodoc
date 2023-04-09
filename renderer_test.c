@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-static void tick_for(const duration_t delta, ccodoc_t* ccodoc, tick_timer_t* timer);
+static void tick_for(duration_t delta, ccodoc_t* ccodoc, tick_timer_t* timer);
 
 static int expect_canvas(const char* file, int line, const canvas_buffer_t* actual, const char* expected);
 #define EXPECT_CANVAS(actual, expected) EXPECT_PASS(expect_canvas(__FILE__, __LINE__, actual, expected))
