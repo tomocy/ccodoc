@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: build
       run: |
-        make
+        make ADD_LDFLAGS='-static -O2 -Wl,-strip-all' ADD_LDLIBS='-ltinfo'
         tar cavf ccodoc-linux.tar.gz ccodoc
     - name: upload ccodoc
       uses: actions/upload-artifact@v3
@@ -33,7 +33,7 @@ jobs:
       run: brew install ncurses
     - name: build
       run: |
-        make LDFLAGS=-L/usr/local/opt/ncurses/lib
+        make ADD_LDFLAGS='-L/usr/local/opt/ncurses/lib -O2'
         tar cavf ccodoc-macos.tar.gz ccodoc
     - name: upload ccodoc
       uses: actions/upload-artifact@v3

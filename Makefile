@@ -1,7 +1,7 @@
 CC := clang
-CFLAGS := -std=c17 -Wall -Wextra -pedantic
-LDFLAGS :=
-LDLIBS := -lm -lpthread -lncursesw
+CFLAGS := -std=c17 -Wall -Wextra -pedantic $(ADD_CFLAGS)
+LDFLAGS := $(ADD_LDFLAGS)
+LDLIBS := -lm -lpthread -lncursesw $(ADD_LDLIBS)
 
 LIB_SRCS := ccodoc.c renderer.c canvas.c time.c memory.c string.c math.c platform.c
 SRCS := main.c mode.c $(LIB_SRCS)
@@ -28,10 +28,10 @@ COMPILE_FLAGS := compile_flags_macos.txt
 endif
 
 ccodoc: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 test.exe: $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 assets/sounds/sounds.h: tool/build/embed_sounds.exe assets/sounds/*.mp3
 	./$<
