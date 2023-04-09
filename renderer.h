@@ -8,7 +8,6 @@ typedef struct {
     canvas_t* canvas;
 
     bool ornamental;
-    bool debug;
 } renderer_t;
 
 #define RENDER(renderer, ...)               \

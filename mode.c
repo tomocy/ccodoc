@@ -110,7 +110,6 @@ static void init_renderer(ccodoc_mode_t* const mode)
     mode->rendering.renderer = (renderer_t) {
         .canvas = &mode->rendering.canvas.value,
         .ornamental = mode->ornamental,
-        .debug = mode->debug,
     };
 }
 
