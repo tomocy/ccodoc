@@ -14,12 +14,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: build
-      run: make
+      run: |
+        make
+        tar cavf ccodoc-linux.tar.gz ccodoc
     - name: upload ccodoc
       uses: actions/upload-artifact@v3
       with:
-        name: ccodoc-${{ github.ref_name }}-linux
-        path: ccodoc
+        name: ccodoc-linux.tar.gz
+        path: ccodoc-linux.tar.gz
         if-no-files-found: error
 
   build-macos:
@@ -30,12 +32,14 @@ jobs:
     - name: install dependencies
       run: brew install ncurses
     - name: build
-      run: make LDFLAGS=-L/usr/local/opt/ncurses/lib
+      run: |
+        make LDFLAGS=-L/usr/local/opt/ncurses/lib
+        tar cavf ccodoc-macos.tar.gz ccodoc
     - name: upload ccodoc
       uses: actions/upload-artifact@v3
       with:
-        name: ccodoc-${{ github.ref_name }}-macos
-        path: ccodoc
+        name: ccodoc-macos.tar.gz
+        path: ccodoc-macos.tar.gz
         if-no-files-found: error
 
   release:
@@ -48,16 +52,16 @@ jobs:
     - name: download ccodoc/linux
       uses: actions/download-artifact@v3
       with:
-        name: ccodoc-${{ github.ref_name }}-linux
-        path: ./ccodoc-${{ github.ref_name }}-linux
+        name: ccodoc-linux.tar.gz
     - name: download ccodoc/macos
       uses: actions/download-artifact@v3
       with:
-        name: ccodoc-${{ github.ref_name }}-macos
-        path: ./ccodoc-${{ github.ref_name }}-macos
-    - name: draft-release
+        name: ccodoc-macos.tar.gz
+    - name: release
       uses: softprops/action-gh-release@v1
       with:
-        files: ./ccodoc-${{ github.ref_name }}-linux ./ccodoc-${{ github.ref_name }}-macos
+        files: |
+          ccodoc-linux.tar.gz
+          ccodoc-macos.tar.gz
         draft: true
         tag_name: ${{ github.ref_name }}
