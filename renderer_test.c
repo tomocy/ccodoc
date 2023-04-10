@@ -397,7 +397,7 @@ static void tick_for(const struct duration delta, struct ccodoc* const ccodoc, s
 
     for (struct duration elapsed = { 0 }; elapsed.msecs < delta.msecs;) {
         const struct duration d = {
-            .msecs = MIN(delta.msecs - elapsed.msecs, min_delta.msecs),
+            .msecs = MIN(min_delta.msecs, delta.msecs - elapsed.msecs),
         };
 
         if (ccodoc != NULL) {

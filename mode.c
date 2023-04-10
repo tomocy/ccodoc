@@ -156,9 +156,11 @@ void run_mode_sabi(const struct mode_ctx* const ctx, struct mode* const mode)
     run_mode(ctx, mode, process_sabi);
 }
 
+static bool process_for(struct mode* mode, const process_mode_t process, struct duration min_delta, struct duration duration);
+
 static void run_mode(const struct mode_ctx* const ctx, struct mode* const mode, const process_mode_t process)
 {
-    static const struct duration min_delta = { .msecs = 1000 / 24 };
+    static const struct duration min_delta = { .msecs = 1000 / 25 };
 
     struct duration last_time = get_monotonic_time();
 
@@ -182,7 +184,7 @@ static void run_mode(const struct mode_ctx* const ctx, struct mode* const mode, 
         const struct duration delta = duration_diff(time, last_time);
         last_time = time;
 
-        const bool continues = process(mode, delta);
+        const bool continues = process_for(mode, process, min_delta, delta);
         if (!continues) {
             break;
         }
@@ -196,6 +198,27 @@ static void run_mode(const struct mode_ctx* const ctx, struct mode* const mode, 
     sigemptyset(&sigs);
 
     sigsuspend(&sigs);
+}
+
+static bool process_for(
+    struct mode* const mode, const process_mode_t process,
+    const struct duration min_delta, const struct duration duration
+)
+{
+    for (struct duration elapsed = { 0 }; elapsed.msecs < duration.msecs;) {
+        const struct duration delta = (struct duration) {
+            .msecs = MIN(min_delta.msecs, duration.msecs - elapsed.msecs),
+        };
+
+        const bool continues = process(mode, delta);
+        if (!continues) {
+            return false;
+        }
+
+        elapsed.msecs += delta.msecs;
+    }
+
+    return true;
 }
 
 static bool process_wabi(struct mode* const mode, const struct duration delta)
