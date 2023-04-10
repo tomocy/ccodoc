@@ -9,7 +9,7 @@ static int expect_join_paths(const char* file, int line, const char* const* path
 int test_platform(void)
 {
     {
-        printf("- join_paths\n");
+        printf("## join_paths\n");
 
         EXPECT_JOIN_PATHS(((const char*[]) { NULL }), "");
         EXPECT_JOIN_PATHS(((const char*[]) { "", NULL }), "");

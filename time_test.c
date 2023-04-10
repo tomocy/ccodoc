@@ -6,6 +6,7 @@ struct timer_state {
     float get_elapsed_time_ratio;
     struct duration get_remaining_time;
 };
+
 static int expect_timer(const char* file, int line, const char* label, struct timer* timer, struct timer_state expected);
 #define EXPECT_TIMER(label, timer, expected) EXPECT_PASS(expect_timer(__FILE__, __LINE__, label, timer, expected))
 
