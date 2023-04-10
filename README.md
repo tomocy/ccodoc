@@ -30,6 +30,15 @@ ccodoc（鹿威し）simulated（造）in your terminal（庭）
 
     Neither color nor sound is needed as they already lie within you.（悟り）
 
+## dependencies
+
+- Linux
+  - `mpg123`: to play sounds
+
+- MacOS
+  - `afplay`: to play sounds
+  - `libncursesw.dylib`: to draw multibyte characters with attributes
+
 ## license
 
 - [MIT License](./LICENSE)
