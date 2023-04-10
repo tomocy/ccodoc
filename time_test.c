@@ -2,14 +2,14 @@
 
 #include "test.h"
 
-struct timer_state_t {
+struct timer_state {
     float get_elapsed_time_ratio;
-    duration_t get_remaining_time;
+    struct duration get_remaining_time;
 };
-static int expect_timer(const char* file, int line, const char* label, tick_timer_t* timer, struct timer_state_t expected);
+static int expect_timer(const char* file, int line, const char* label, struct timer* timer, struct timer_state expected);
 #define EXPECT_TIMER(label, timer, expected) EXPECT_PASS(expect_timer(__FILE__, __LINE__, label, timer, expected))
 
-static int expect_moment_from_duration(const char* file, int line, duration_t duration, time_precision_t precision, moment_t expected);
+static int expect_moment_from_duration(const char* file, int line, struct duration duration, enum time_precision precision, struct moment expected);
 #define EXPECT_MOMENT_FROM_DURATION(duration, precision, expected) EXPECT_PASS(expect_moment_from_duration(__FILE__, __LINE__, duration, precision, expected))
 
 int test_time(void)
@@ -17,43 +17,43 @@ int test_time(void)
     {
         printf("## timer (duration: 00:00:01:00)\n");
 
-        tick_timer_t timer = {
+        struct timer timer = {
             .duration = { .msecs = 1000 },
         };
 
         static const struct test {
             const char* label;
-            duration_t delta;
-            struct timer_state_t expected;
+            struct duration delta;
+            struct timer_state expected;
         } tests[] = {
             (struct test) {
                 .label = "initial",
-                .delta = (duration_t) { .msecs = 0 },
-                .expected = (struct timer_state_t) {
+                .delta = (struct duration) { .msecs = 0 },
+                .expected = (struct timer_state) {
                     .get_elapsed_time_ratio = 0,
                     .get_remaining_time = { .msecs = 1000 },
                 },
             },
             (struct test) {
                 .label = "tick 200 msecs",
-                .delta = (duration_t) { .msecs = 200 },
-                .expected = (struct timer_state_t) {
+                .delta = (struct duration) { .msecs = 200 },
+                .expected = (struct timer_state) {
                     .get_elapsed_time_ratio = 0.2f,
                     .get_remaining_time = { .msecs = 800 },
                 },
             },
             (struct test) {
                 .label = "tick 400 msecs",
-                .delta = (duration_t) { .msecs = 400 },
-                .expected = (struct timer_state_t) {
+                .delta = (struct duration) { .msecs = 400 },
+                .expected = (struct timer_state) {
                     .get_elapsed_time_ratio = 0.6f,
                     .get_remaining_time = { .msecs = 400 },
                 },
             },
             (struct test) {
                 .label = "tick 600 msecs",
-                .delta = (duration_t) { .msecs = 600 },
-                .expected = (struct timer_state_t) {
+                .delta = (struct duration) { .msecs = 600 },
+                .expected = (struct timer_state) {
                     .get_elapsed_time_ratio = 1,
                     .get_remaining_time = { .msecs = 0 },
                 },
@@ -71,7 +71,7 @@ int test_time(void)
         EXPECT_TIMER(
             "reset",
             &timer,
-            ((struct timer_state_t) {
+            ((struct timer_state) {
                 .get_elapsed_time_ratio = 0,
                 .get_remaining_time = { .msecs = 1000 },
             })
@@ -84,45 +84,45 @@ int test_time(void)
         {
             printf("- 02:45:20:500\n");
 
-            const duration_t duration = duration_from_moment((moment_t) {
+            const struct duration duration = duration_from_moment((struct moment) {
                 .hours = 2,
                 .mins = 45,
                 .secs = 20,
                 .msecs = 500,
             });
 
-            EXPECT_MOMENT_FROM_DURATION(duration, time_hour, ((moment_t) { .hours = 3 }));
-            EXPECT_MOMENT_FROM_DURATION(duration, time_min, ((moment_t) { .hours = 2, .mins = 46 }));
-            EXPECT_MOMENT_FROM_DURATION(duration, time_sec, ((moment_t) { .hours = 2, .mins = 45, .secs = 21 }));
-            EXPECT_MOMENT_FROM_DURATION(duration, time_msec, ((moment_t) { .hours = 2, .mins = 45, .secs = 20, .msecs = 500 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_hour, ((struct moment) { .hours = 3 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_min, ((struct moment) { .hours = 2, .mins = 46 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_sec, ((struct moment) { .hours = 2, .mins = 45, .secs = 21 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_msec, ((struct moment) { .hours = 2, .mins = 45, .secs = 20, .msecs = 500 }));
         }
 
         {
             printf("- 01:00:00:000\n");
 
-            const duration_t duration = duration_from_moment((moment_t) {
+            const struct duration duration = duration_from_moment((struct moment) {
                 .hours = 1,
             });
 
-            EXPECT_MOMENT_FROM_DURATION(duration, time_hour, ((moment_t) { .hours = 1 }));
-            EXPECT_MOMENT_FROM_DURATION(duration, time_min, ((moment_t) { .hours = 1 }));
-            EXPECT_MOMENT_FROM_DURATION(duration, time_sec, ((moment_t) { .hours = 1 }));
-            EXPECT_MOMENT_FROM_DURATION(duration, time_msec, ((moment_t) { .hours = 1 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_hour, ((struct moment) { .hours = 1 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_min, ((struct moment) { .hours = 1 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_sec, ((struct moment) { .hours = 1 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_msec, ((struct moment) { .hours = 1 }));
         }
 
         {
             printf("- 00:59:59:999\n");
 
-            const duration_t duration = duration_from_moment((moment_t) {
+            const struct duration duration = duration_from_moment((struct moment) {
                 .mins = 59,
                 .secs = 59,
                 .msecs = 999,
             });
 
-            EXPECT_MOMENT_FROM_DURATION(duration, time_hour, ((moment_t) { .hours = 1 }));
-            EXPECT_MOMENT_FROM_DURATION(duration, time_min, ((moment_t) { .mins = 59 }));
-            EXPECT_MOMENT_FROM_DURATION(duration, time_sec, ((moment_t) { .mins = 59, .secs = 59 }));
-            EXPECT_MOMENT_FROM_DURATION(duration, time_msec, ((moment_t) { .mins = 59, .secs = 59, .msecs = 999 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_hour, ((struct moment) { .hours = 1 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_min, ((struct moment) { .mins = 59 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_sec, ((struct moment) { .mins = 59, .secs = 59 }));
+            EXPECT_MOMENT_FROM_DURATION(duration, time_msec, ((struct moment) { .mins = 59, .secs = 59, .msecs = 999 }));
         }
     }
 
@@ -132,10 +132,10 @@ int test_time(void)
 static int expect_timer(
     const char* const file, const int line,
     const char* const label,
-    tick_timer_t* const timer, const struct timer_state_t expected
+    struct timer* const timer, const struct timer_state expected
 )
 {
-    const struct timer_state_t actual = {
+    const struct timer_state actual = {
         .get_elapsed_time_ratio = get_elapsed_time_ratio(timer),
         .get_remaining_time = get_remaining_time(timer),
     };
@@ -162,7 +162,7 @@ static int expect_timer(
     return passes ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static const char* time_precision_to_str(const time_precision_t precision)
+static const char* time_precision_to_str(const enum time_precision precision)
 {
     switch (precision) {
     case time_hour:
@@ -178,11 +178,11 @@ static const char* time_precision_to_str(const time_precision_t precision)
 
 static int expect_moment_from_duration(
     const char* const file, const int line,
-    const duration_t duration, const time_precision_t precision,
-    const moment_t expected
+    const struct duration duration, const enum time_precision precision,
+    const struct moment expected
 )
 {
-    const moment_t actual = moment_from_duration(duration, precision);
+    const struct moment actual = moment_from_duration(duration, precision);
 
     char label[1 << 5] = { 0 };
     (void)snprintf(label, sizeof(label), "%ld msecs in %s", duration.msecs, time_precision_to_str(precision));

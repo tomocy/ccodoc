@@ -7,19 +7,19 @@
 #include <assert.h>
 #include <math.h>
 
-static void draw_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* s);
-static void drawf_canvas(renderer_t* renderer, vec2d_t point, drawing_attr_t attr, const char* format, ...);
+static void draw_canvas(struct renderer* renderer, struct vec2d point, struct drawing_attr attr, const char* s);
+static void drawf_canvas(struct renderer* renderer, struct vec2d point, struct drawing_attr attr, const char* format, ...);
 
-static void render_kakehi(renderer_t* renderer, drawing_ctx_t* ctx, const kakehi_t* kakehi);
-static void render_tsutsu(renderer_t* renderer, drawing_ctx_t* ctx, const tsutsu_t* tsutsu);
-static void render_hachi(renderer_t* renderer, drawing_ctx_t* ctx, const hachi_t* hachi);
-static void render_roji(renderer_t* renderer, drawing_ctx_t* ctx);
+static void render_kakehi(struct renderer* renderer, struct drawing_ctx* ctx, const struct kakehi* kakehi);
+static void render_tsutsu(struct renderer* renderer, struct drawing_ctx* ctx, const struct tsutsu* tsutsu);
+static void render_hachi(struct renderer* renderer, struct drawing_ctx* ctx, const struct hachi* hachi);
+static void render_roji(struct renderer* renderer, struct drawing_ctx* ctx);
 
-void render_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const ccodoc_t* const ccodoc)
+void render_ccodoc(struct renderer* const renderer, struct drawing_ctx* const ctx, const struct ccodoc* const ccodoc)
 {
     render_kakehi(renderer, ctx, &ccodoc->kakehi);
 
-    ctx->current = vec2d_add(ctx->current, (vec2d_t) { .x = 3 });
+    ctx->current = vec2d_add(ctx->current, (struct vec2d) { .x = 3 });
     render_tsutsu(renderer, ctx, &ccodoc->tsutsu);
 
     render_hachi(renderer, ctx, &ccodoc->hachi);
@@ -27,7 +27,7 @@ void render_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const c
     render_roji(renderer, ctx);
 }
 
-static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, const kakehi_t* const kakehi)
+static void render_kakehi(struct renderer* const renderer, struct drawing_ctx* const ctx, const struct kakehi* const kakehi)
 {
     const char* art = NULL;
     switch (kakehi->state) {
@@ -57,13 +57,13 @@ static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, 
     {
         int i = 0;
         for (const char* c = art; *c;) {
-            const char_descriptor_t desc = decode_char_utf8(c);
+            const struct char_descriptor desc = decode_char_utf8(c);
             const bool has_water = str_equals_n(c, "━", desc.len);
 
             drawf_canvas(
                 renderer,
-                vec2d_add(ctx->current, (vec2d_t) { .x = i }),
-                (drawing_attr_t) {
+                vec2d_add(ctx->current, (struct vec2d) { .x = i }),
+                (struct drawing_attr) {
                     .color = has_water ? color_blue : color_yellow,
                 },
                 "%.*s", desc.len, c
@@ -77,7 +77,7 @@ static void render_kakehi(renderer_t* const renderer, drawing_ctx_t* const ctx, 
     wrap_drawing_lines(ctx, 1);
 }
 
-static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, const tsutsu_t* const tsutsu)
+static void render_tsutsu(struct renderer* const renderer, struct drawing_ctx* const ctx, const struct tsutsu* const tsutsu)
 {
     static const size_t art_height = 4;
 
@@ -142,9 +142,9 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
         int i = 0;
         const char* c = art[h];
         while (*c) {
-            const char_descriptor_t desc = decode_char_utf8(c);
+            const struct char_descriptor desc = decode_char_utf8(c);
 
-            drawing_attr_t attr = (drawing_attr_t) { .color = color_white };
+            struct drawing_attr attr = (struct drawing_attr) { .color = color_white };
 
             if (
                 str_equals_n(c, "◥", desc.len)
@@ -161,7 +161,7 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
 
             drawf_canvas(
                 renderer,
-                vec2d_add(ctx->current, (vec2d_t) { .y = h, .x = i }),
+                vec2d_add(ctx->current, (struct vec2d) { .y = h, .x = i }),
                 attr,
                 "%.*s", desc.len, c
             );
@@ -174,7 +174,7 @@ static void render_tsutsu(renderer_t* const renderer, drawing_ctx_t* const ctx, 
     wrap_drawing_lines(ctx, art_height);
 }
 
-static void render_hachi(renderer_t* const renderer, drawing_ctx_t* const ctx, const hachi_t* const hachi)
+static void render_hachi(struct renderer* const renderer, struct drawing_ctx* const ctx, const struct hachi* const hachi)
 {
     static const unsigned int art_width = 4;
 
@@ -203,13 +203,13 @@ static void render_hachi(renderer_t* const renderer, drawing_ctx_t* const ctx, c
         int i = 0;
         const char* c = art;
         while (*c) {
-            const char_descriptor_t desc = decode_char_utf8(c);
+            const struct char_descriptor desc = decode_char_utf8(c);
             const bool has_water = str_equals_n(c, "▬", desc.len);
 
             drawf_canvas(
                 renderer,
-                vec2d_add(ctx->current, (vec2d_t) { .x = i }),
-                (drawing_attr_t) {
+                vec2d_add(ctx->current, (struct vec2d) { .x = i }),
+                (struct drawing_attr) {
                     .color = has_water ? color_blue : color_grey,
                 },
                 "%.*s", desc.len, c
@@ -220,33 +220,33 @@ static void render_hachi(renderer_t* const renderer, drawing_ctx_t* const ctx, c
         }
     }
 
-    ctx->current = vec2d_add(ctx->current, (vec2d_t) { .x = art_width });
+    ctx->current = vec2d_add(ctx->current, (struct vec2d) { .x = art_width });
 }
 
-static void render_roji(renderer_t* const renderer, drawing_ctx_t* const ctx)
+static void render_roji(struct renderer* const renderer, struct drawing_ctx* const ctx)
 {
     draw_canvas(
         renderer,
         ctx->current,
-        (drawing_attr_t) { .color = color_green, .dim = true },
+        (struct drawing_attr) { .color = color_green, .dim = true },
         "━━━━━━"
     );
-    ctx->current = vec2d_add(ctx->current, (vec2d_t) { .x = 6 });
+    ctx->current = vec2d_add(ctx->current, (struct vec2d) { .x = 6 });
 
     draw_canvas(
         renderer,
         ctx->current,
-        (drawing_attr_t) { .color = color_grey },
+        (struct drawing_attr) { .color = color_grey },
         "▨▨▨▨"
     );
 
     wrap_drawing_lines(ctx, 1);
 }
 
-void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const tick_timer_t* const timer)
+void render_timer(struct renderer* const renderer, struct drawing_ctx* const ctx, const struct timer* const timer)
 {
     {
-        const moment_t moment = moment_from_duration(get_remaining_time(timer), time_min);
+        const struct moment moment = moment_from_duration(get_remaining_time(timer), time_min);
 
 #if PLATFORM != PLATFORM_MACOS
         const char* const format = "%02dᴴ%02dᴹ";
@@ -258,8 +258,8 @@ void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const ti
 
         drawf_canvas(
             renderer,
-            vec2d_add(ctx->current, (vec2d_t) { .x = 4 }),
-            (drawing_attr_t) { .color = color_white },
+            vec2d_add(ctx->current, (struct vec2d) { .x = 4 }),
+            (struct drawing_attr) { .color = color_white },
             format, moment.hours, moment.mins
         );
 
@@ -271,7 +271,7 @@ void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const ti
         static const size_t progress_bar_index_timeout_away1 = (size_t)((float)progress_bar_width * 0.2f);
         static const size_t progress_bar_index_timeout_away2 = (size_t)((float)progress_bar_width * 0.4f);
 
-        drawing_attr_t attr = { 0 };
+        struct drawing_attr attr = { 0 };
 
         const float remaining_ratio = 1 - get_elapsed_time_ratio(timer);
 
@@ -297,7 +297,7 @@ void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const ti
 
             draw_canvas(
                 renderer,
-                vec2d_add(ctx->current, (vec2d_t) { .x = i }),
+                vec2d_add(ctx->current, (struct vec2d) { .x = i }),
                 attr,
                 art
             );
@@ -307,25 +307,25 @@ void render_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const ti
     }
 }
 
-static void render_debug_info_ccodoc(renderer_t* renderer, drawing_ctx_t* ctx, const ccodoc_t* ccodoc);
-static void render_debug_info_timer(renderer_t* renderer, drawing_ctx_t* ctx, const tick_timer_t* timer);
-static const char* water_flow_state_to_str(water_flow_state_t state);
+static void render_debug_info_ccodoc(struct renderer* renderer, struct drawing_ctx* ctx, const struct ccodoc* ccodoc);
+static void render_debug_info_timer(struct renderer* renderer, struct drawing_ctx* ctx, const struct timer* timer);
+static const char* water_flow_state_to_str(enum water_flow_state state);
 
 void render_debug_info(
-    renderer_t* const renderer,
-    const duration_t delta,
-    const ccodoc_t* const ccodoc,
-    const tick_timer_t* const timer
+    struct renderer* const renderer,
+    const struct duration delta,
+    const struct ccodoc* const ccodoc,
+    const struct timer* const timer
 )
 {
-    drawing_ctx_t ctx = {
+    struct drawing_ctx ctx = {
         .attr = { .color = color_white },
         .origin = { .x = 0, .y = 0 },
     };
     ctx.current = ctx.origin;
 
     {
-        drawing_attr_t attr = ctx.attr;
+        struct drawing_attr attr = ctx.attr;
         attr.bold = true;
         draw_canvas(renderer, ctx.current, attr, "DEBUG -------");
         wrap_drawing_lines(&ctx, 1);
@@ -367,7 +367,7 @@ void render_debug_info(
     }
 }
 
-static void render_debug_info_ccodoc(renderer_t* const renderer, drawing_ctx_t* const ctx, const ccodoc_t* const ccodoc)
+static void render_debug_info_ccodoc(struct renderer* const renderer, struct drawing_ctx* const ctx, const struct ccodoc* const ccodoc)
 {
     draw_canvas(renderer, ctx->current, ctx->attr, "# ccodoc");
     wrap_drawing_lines(ctx, 1);
@@ -452,12 +452,12 @@ static void render_debug_info_ccodoc(renderer_t* const renderer, drawing_ctx_t* 
     }
 }
 
-static void render_debug_info_timer(renderer_t* const renderer, drawing_ctx_t* const ctx, const tick_timer_t* const timer)
+static void render_debug_info_timer(struct renderer* const renderer, struct drawing_ctx* const ctx, const struct timer* const timer)
 {
     draw_canvas(renderer, ctx->current, ctx->attr, "# timer");
     wrap_drawing_lines(ctx, 1);
 
-    const moment_t m = moment_from_duration(get_remaining_time(timer), time_msec);
+    const struct moment m = moment_from_duration(get_remaining_time(timer), time_msec);
     drawf_canvas(
         renderer,
         ctx->current,
@@ -475,7 +475,7 @@ static void render_debug_info_timer(renderer_t* const renderer, drawing_ctx_t* c
     wrap_drawing_lines(ctx, 1);
 }
 
-static const char* water_flow_state_to_str(water_flow_state_t state)
+static const char* water_flow_state_to_str(enum water_flow_state state)
 {
     switch (state) {
     case holding_water:
@@ -485,15 +485,15 @@ static const char* water_flow_state_to_str(water_flow_state_t state)
     }
 }
 
-static void draw_canvas(renderer_t* const renderer, const vec2d_t point, const drawing_attr_t attr, const char* const s)
+static void draw_canvas(struct renderer* const renderer, const struct vec2d point, const struct drawing_attr attr, const char* const s)
 {
-    const drawing_attr_t attr2 = renderer->ornamental ? attr : (drawing_attr_t) { 0 };
+    const struct drawing_attr attr2 = renderer->ornamental ? attr : (struct drawing_attr) { 0 };
     draw(renderer->canvas, point, attr2, s);
 }
 
-static void drawf_canvas(renderer_t* const renderer, const vec2d_t point, const drawing_attr_t attr, const char* const format, ...)
+static void drawf_canvas(struct renderer* const renderer, const struct vec2d point, const struct drawing_attr attr, const char* const format, ...)
 {
-    const drawing_attr_t attr2 = renderer->ornamental ? attr : (drawing_attr_t) { 0 };
+    const struct drawing_attr attr2 = renderer->ornamental ? attr : (struct drawing_attr) { 0 };
 
     va_list args = { 0 };
     va_start(args, format);

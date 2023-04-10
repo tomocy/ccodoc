@@ -48,9 +48,9 @@ char* format_str(const char* const format, ...)
     return data;
 }
 
-char_descriptor_t encode_char_utf8(char* const dst, const uint32_t code)
+struct char_descriptor encode_char_utf8(char* const dst, const uint32_t code)
 {
-    char_descriptor_t desc = { .code = code };
+    struct char_descriptor desc = { .code = code };
 
     // 0xxxxxxx
     if (code <= 0x7f) {
@@ -93,9 +93,9 @@ char_descriptor_t encode_char_utf8(char* const dst, const uint32_t code)
     return desc;
 }
 
-char_descriptor_t decode_char_utf8(const char* const src)
+struct char_descriptor decode_char_utf8(const char* const src)
 {
-    char_descriptor_t desc = { 0 };
+    struct char_descriptor desc = { 0 };
 
     const unsigned char* const c = (unsigned char*)src;
 
@@ -123,13 +123,13 @@ char_descriptor_t decode_char_utf8(const char* const src)
     return desc;
 }
 
-void decode_str_utf8(char_descriptor_t* const descs, const char* const src)
+void decode_str_utf8(struct char_descriptor* const descs, const char* const src)
 {
     int i = 0;
     const char* c = src;
 
     while (*c) {
-        const char_descriptor_t desc = decode_char_utf8(c);
+        const struct char_descriptor desc = decode_char_utf8(c);
         descs[i] = desc;
 
         i++;

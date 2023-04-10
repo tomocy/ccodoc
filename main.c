@@ -8,19 +8,19 @@
 #include <signal.h>
 #include <stdlib.h>
 
-typedef struct {
+struct config {
     struct {
-        ccodoc_mode_type_t type;
-        ccodoc_mode_t* value;
+        enum mode_type type;
+        struct mode* value;
     } mode;
 
     bool help;
     bool version;
     bool license;
-} config_t;
+};
 
-static const char* configure(config_t* config, unsigned int argc, const char* const* argv);
-static void run(ccodoc_mode_type_t type, ccodoc_mode_t* mode);
+static const char* configure(struct config* config, unsigned int argc, const char* const* argv);
+static void run(enum mode_type type, struct mode* mode);
 
 static int help(void);
 static int version(void);
@@ -28,12 +28,12 @@ static int lisence(void);
 
 int main(const int argc, const char* const* const argv)
 {
-    ccodoc_mode_t mode = {
+    struct mode mode = {
         .ornamental = true,
         .debug = false,
     };
 
-    config_t config = {
+    struct config config = {
         .mode = {
             .type = mode_wabi,
             .value = &mode,
@@ -73,7 +73,7 @@ int main(const int argc, const char* const* const argv)
 static const char* read_arg(const char* const* argv, unsigned int* i);
 static const char* config_err_no_value_specified(const char* name);
 
-static const char* configure(config_t* const config, const unsigned int argc, const char* const* const argv)
+static const char* configure(struct config* const config, const unsigned int argc, const char* const* const argv)
 {
     for (unsigned int i = 1; i < argc; i++) {
         const char* const arg = argv[i];
@@ -89,11 +89,11 @@ static const char* configure(config_t* const config, const unsigned int argc, co
                 return config_err_no_value_specified("sabi");
             }
 
-            moment_t m = { 0 };
+            struct moment m = { 0 };
             // NOLINTNEXTLINE(cert-err34-c)
             (void)sscanf(raw, "%d:%d", &m.hours, &m.mins);
 
-            const duration_t d = duration_from_moment(m);
+            const struct duration d = duration_from_moment(m);
             if (d.msecs == 0) {
                 return format_str("timer: duration format must be HH:mm");
             }
@@ -135,12 +135,12 @@ static const char* configure(config_t* const config, const unsigned int argc, co
     return NULL;
 }
 
-static void run(ccodoc_mode_type_t type, ccodoc_mode_t* const mode)
+static void run(enum mode_type type, struct mode* const mode)
 {
-    sig_handler_t sig_handler = { 0 };
+    struct sig_handler sig_handler = { 0 };
     watch_sigs(&sig_handler, (unsigned int[]) { SIGINT, SIGTERM }, 2);
 
-    mode_ctx_t ctx = {
+    struct mode_ctx ctx = {
         .sig_handler = &sig_handler,
     };
 

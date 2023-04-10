@@ -1,8 +1,8 @@
 #include "math.h"
 
-vec2d_t vec2d_add(const vec2d_t vec, const vec2d_t other)
+struct vec2d vec2d_add(const struct vec2d vec, const struct vec2d other)
 {
-    return (vec2d_t) {
+    return (struct vec2d) {
         .x = vec.x + other.x,
         .y = vec.y + other.y,
     };

@@ -10,27 +10,27 @@
 
 #include "assets/sounds/sounds.h"
 
-typedef bool (*process_mode_t)(ccodoc_mode_t*, duration_t);
+typedef bool (*process_mode_t)(struct mode*, struct duration);
 
-static void init_ccodoc(ccodoc_mode_t* mode);
-static void deinit_ccodoc(ccodoc_mode_t* mode);
+static void init_ccodoc(struct mode* mode);
+static void deinit_ccodoc(struct mode* mode);
 
-static void init_renderer(ccodoc_mode_t* mode);
-static void deinit_renderer(ccodoc_mode_t* mode);
+static void init_renderer(struct mode* mode);
+static void deinit_renderer(struct mode* mode);
 
-static void init_sound(ccodoc_mode_t* mode);
-static void deinit_sound(ccodoc_mode_t* mode);
+static void init_sound(struct mode* mode);
+static void deinit_sound(struct mode* mode);
 
-static void run_mode(const mode_ctx_t* ctx, ccodoc_mode_t* mode, process_mode_t process);
+static void run_mode(const struct mode_ctx* ctx, struct mode* mode, process_mode_t process);
 
-static bool process_wabi(ccodoc_mode_t*, duration_t delta);
-static bool process_sabi(ccodoc_mode_t*, duration_t delta);
+static bool process_wabi(struct mode*, struct duration delta);
+static bool process_sabi(struct mode*, struct duration delta);
 
-static drawing_ctx_t make_drawing_ctx_center(const canvas_t* canvas);
+static struct drawing_ctx make_drawing_ctx_center(const struct canvas* canvas);
 
 static void play_sound(const char* file);
 
-void init_mode(ccodoc_mode_t* const mode)
+void init_mode(struct mode* const mode)
 {
     init_renderer(mode);
     init_sound(mode);
@@ -38,16 +38,16 @@ void init_mode(ccodoc_mode_t* const mode)
     init_ccodoc(mode);
 }
 
-void deinit_mode(ccodoc_mode_t* const mode)
+void deinit_mode(struct mode* const mode)
 {
     deinit_ccodoc(mode);
     deinit_renderer(mode);
     deinit_sound(mode);
 }
 
-static void init_ccodoc(ccodoc_mode_t* const mode)
+static void init_ccodoc(struct mode* const mode)
 {
-    mode->ccodoc = (ccodoc_t) {
+    mode->ccodoc = (struct ccodoc) {
         .kakehi = {
             .release_water_amount = 1,
             .holding_water = {
@@ -77,7 +77,7 @@ static void init_ccodoc(ccodoc_mode_t* const mode)
     {
         const char* file = mode->sound.tsutsu_drip;
         if (file != NULL) {
-            mode->ccodoc.tsutsu.on_got_drip = (event_t) {
+            mode->ccodoc.tsutsu.on_got_drip = (struct event) {
                 .listener = (void*)file,
                 .listen = (event_listener_t)play_sound,
             };
@@ -86,7 +86,7 @@ static void init_ccodoc(ccodoc_mode_t* const mode)
     {
         const char* file = mode->sound.tsutsu_bump;
         if (file != NULL) {
-            mode->ccodoc.tsutsu.on_bumped = (event_t) {
+            mode->ccodoc.tsutsu.on_bumped = (struct event) {
                 .listener = (void*)file,
                 .listen = (event_listener_t)play_sound,
             };
@@ -94,33 +94,33 @@ static void init_ccodoc(ccodoc_mode_t* const mode)
     }
 }
 
-static void deinit_ccodoc(ccodoc_mode_t* const mode)
+static void deinit_ccodoc(struct mode* const mode)
 {
-    mode->ccodoc.tsutsu.on_got_drip = (event_t) { 0 };
-    mode->ccodoc.tsutsu.on_bumped = (event_t) { 0 };
+    mode->ccodoc.tsutsu.on_got_drip = (struct event) { 0 };
+    mode->ccodoc.tsutsu.on_bumped = (struct event) { 0 };
 }
 
-static void init_renderer(ccodoc_mode_t* const mode)
+static void init_renderer(struct mode* const mode)
 {
     init_canvas_curses(&mode->rendering.canvas.delegate);
     init_canvas_proxy(&mode->rendering.canvas.proxy, &mode->rendering.canvas.delegate);
 
     mode->rendering.canvas.value = wrap_canvas_proxy(&mode->rendering.canvas.proxy);
 
-    mode->rendering.renderer = (renderer_t) {
+    mode->rendering.renderer = (struct renderer) {
         .canvas = &mode->rendering.canvas.value,
         .ornamental = mode->ornamental,
     };
 }
 
-static void deinit_renderer(ccodoc_mode_t* const mode)
+static void deinit_renderer(struct mode* const mode)
 {
     deinit_canvas(&mode->rendering.canvas.value);
 }
 
 static char* install_sound(const char* const name, const unsigned char* data, size_t len);
 
-static void init_sound(ccodoc_mode_t* const mode)
+static void init_sound(struct mode* const mode)
 {
     if (!mode->ornamental) {
         return;
@@ -131,7 +131,7 @@ static void init_sound(ccodoc_mode_t* const mode)
     mode->sound.uguisu_call = install_sound("uguisu_call.mp3", sound_uguisu_call, sizeof(sound_uguisu_call));
 }
 
-static void deinit_sound(ccodoc_mode_t* const mode)
+static void deinit_sound(struct mode* const mode)
 {
     if (mode->sound.tsutsu_drip != NULL) {
         free((void*)mode->sound.tsutsu_drip);
@@ -146,21 +146,21 @@ static void deinit_sound(ccodoc_mode_t* const mode)
     }
 }
 
-void run_mode_wabi(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode)
+void run_mode_wabi(const struct mode_ctx* const ctx, struct mode* const mode)
 {
     run_mode(ctx, mode, process_wabi);
 }
 
-void run_mode_sabi(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode)
+void run_mode_sabi(const struct mode_ctx* const ctx, struct mode* const mode)
 {
     run_mode(ctx, mode, process_sabi);
 }
 
-static void run_mode(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode, const process_mode_t process)
+static void run_mode(const struct mode_ctx* const ctx, struct mode* const mode, const process_mode_t process)
 {
-    static const duration_t min_delta = { .msecs = 1000 / 24 };
+    static const struct duration min_delta = { .msecs = 1000 / 24 };
 
-    duration_t last_time = get_monotonic_time();
+    struct duration last_time = get_monotonic_time();
 
     while (true) {
         {
@@ -177,9 +177,9 @@ static void run_mode(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode, con
             }
         }
 
-        const duration_t time = get_monotonic_time();
+        const struct duration time = get_monotonic_time();
 
-        const duration_t delta = duration_diff(time, last_time);
+        const struct duration delta = duration_diff(time, last_time);
         last_time = time;
 
         const bool continues = process(mode, delta);
@@ -187,7 +187,7 @@ static void run_mode(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode, con
             break;
         }
 
-        const duration_t process_time = duration_diff(get_monotonic_time(), time);
+        const struct duration process_time = duration_diff(get_monotonic_time(), time);
 
         sleep_for(duration_diff(min_delta, process_time));
     }
@@ -198,12 +198,12 @@ static void run_mode(const mode_ctx_t* const ctx, ccodoc_mode_t* const mode, con
     sigsuspend(&sigs);
 }
 
-static bool process_wabi(ccodoc_mode_t* const mode, const duration_t delta)
+static bool process_wabi(struct mode* const mode, const struct duration delta)
 {
     tick_ccodoc(&mode->ccodoc, delta);
 
     RENDER(&mode->rendering.renderer, {
-        drawing_ctx_t ctx = make_drawing_ctx_center(&mode->rendering.canvas.value);
+        struct drawing_ctx ctx = make_drawing_ctx_center(&mode->rendering.canvas.value);
 
         render_ccodoc(&mode->rendering.renderer, &ctx, &mode->ccodoc);
 
@@ -215,21 +215,21 @@ static bool process_wabi(ccodoc_mode_t* const mode, const duration_t delta)
     return true;
 }
 
-static bool process_sabi(ccodoc_mode_t* const mode, const duration_t delta)
+static bool process_sabi(struct mode* const mode, const struct duration delta)
 {
-    ccodoc_t* ccodoc = &mode->ccodoc;
+    struct ccodoc* ccodoc = &mode->ccodoc;
 
-    const water_flow_state_t tsutsu_last_state = ccodoc->tsutsu.state;
+    const enum water_flow_state tsutsu_last_state = ccodoc->tsutsu.state;
 
     tick_ccodoc(ccodoc, delta);
     tick_timer(&mode->timer, delta);
 
     RENDER(&mode->rendering.renderer, {
-        drawing_ctx_t ctx = make_drawing_ctx_center(&mode->rendering.canvas.value);
+        struct drawing_ctx ctx = make_drawing_ctx_center(&mode->rendering.canvas.value);
 
         render_ccodoc(&mode->rendering.renderer, &ctx, &mode->ccodoc);
 
-        ctx.current = vec2d_add(ctx.current, (vec2d_t) { .y = 4 });
+        ctx.current = vec2d_add(ctx.current, (struct vec2d) { .y = 4 });
         render_timer(&mode->rendering.renderer, &ctx, &mode->timer);
 
         if (mode->debug) {
@@ -251,23 +251,23 @@ static bool process_sabi(ccodoc_mode_t* const mode, const duration_t delta)
     }
 
     if (mode->ornamental && mode->sound.uguisu_call != NULL) {
-        sleep_for((duration_t) { .msecs = 1750 });
+        sleep_for((struct duration) { .msecs = 1750 });
         play_sound(mode->sound.uguisu_call);
     }
 
     return false;
 }
 
-static drawing_ctx_t make_drawing_ctx_center(const canvas_t* const canvas)
+static struct drawing_ctx make_drawing_ctx_center(const struct canvas* const canvas)
 {
-    static const vec2d_t ccodoc_size = {
+    static const struct vec2d ccodoc_size = {
         .x = 14,
         .y = 6,
     };
 
-    const vec2d_t canvas_size = get_canvas_size(canvas);
+    const struct vec2d canvas_size = get_canvas_size(canvas);
 
-    drawing_ctx_t ctx = {
+    struct drawing_ctx ctx = {
         .origin = {
             .x = (canvas_size.x - ccodoc_size.x) / 2,
             .y = (canvas_size.y - ccodoc_size.y) / 2,

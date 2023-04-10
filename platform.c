@@ -174,15 +174,15 @@ void run_cmd(const char* const path, const char* const* const args)
 }
 
 static const char* prepare_sig_set(sigset_t* sig_set, unsigned int* sigs, size_t len);
-static bool watches_sig(const sig_handler_t* const handler, unsigned int sig);
-static void* wait_sigs(const sig_handler_t* const handler);
+static bool watches_sig(const struct sig_handler* const handler, unsigned int sig);
+static void* wait_sigs(const struct sig_handler* const handler);
 
-static const char* read_sig(const sig_handler_t* const handler, unsigned int* const sig);
-static const char* write_sig(const sig_handler_t* const handler, const unsigned int* const sig);
-static int sig_pipe_read(const sig_handler_t* handler);
-static int sig_pipe_write(const sig_handler_t* handler);
+static const char* read_sig(const struct sig_handler* const handler, unsigned int* const sig);
+static const char* write_sig(const struct sig_handler* const handler, const unsigned int* const sig);
+static int sig_pipe_read(const struct sig_handler* handler);
+static int sig_pipe_write(const struct sig_handler* handler);
 
-const char* watch_sigs(sig_handler_t* const handler, unsigned int* const sigs, const size_t len)
+const char* watch_sigs(struct sig_handler* const handler, unsigned int* const sigs, const size_t len)
 {
     handler->sigs.values = sigs;
     handler->sigs.len = len;
@@ -245,7 +245,7 @@ const char* watch_sigs(sig_handler_t* const handler, unsigned int* const sigs, c
     return NULL;
 }
 
-const char* catch_sig(const sig_handler_t* const handler, unsigned int* const sig, bool* const caught)
+const char* catch_sig(const struct sig_handler* const handler, unsigned int* const sig, bool* const caught)
 {
     fd_set fds = { 0 };
     FD_ZERO(&fds);
@@ -321,7 +321,7 @@ static const char* prepare_sig_set(sigset_t* const sig_set, unsigned int* const 
     return NULL;
 }
 
-static bool watches_sig(const sig_handler_t* const handler, const unsigned int sig)
+static bool watches_sig(const struct sig_handler* const handler, const unsigned int sig)
 {
     for (size_t i = 0; i < handler->sigs.len; i++) {
         if (sig == handler->sigs.values[i]) {
@@ -332,7 +332,7 @@ static bool watches_sig(const sig_handler_t* const handler, const unsigned int s
     return false;
 }
 
-static void* wait_sigs(const sig_handler_t* const handler)
+static void* wait_sigs(const struct sig_handler* const handler)
 {
     sigset_t sig_set = { 0 };
     prepare_sig_set(&sig_set, handler->sigs.values, handler->sigs.len);
@@ -356,7 +356,7 @@ static void* wait_sigs(const sig_handler_t* const handler)
     return NULL;
 }
 
-static const char* read_sig(const sig_handler_t* const handler, unsigned int* const sig)
+static const char* read_sig(const struct sig_handler* const handler, unsigned int* const sig)
 {
     static const size_t len = sizeof(unsigned int);
     unsigned int n_read = 0;
@@ -383,7 +383,7 @@ static const char* read_sig(const sig_handler_t* const handler, unsigned int* co
     return NULL;
 }
 
-static const char* write_sig(const sig_handler_t* const handler, const unsigned int* const sig)
+static const char* write_sig(const struct sig_handler* const handler, const unsigned int* const sig)
 {
     static const size_t len = sizeof(unsigned int);
     unsigned int n_written = 0;
@@ -410,12 +410,12 @@ static const char* write_sig(const sig_handler_t* const handler, const unsigned 
     return NULL;
 }
 
-static int sig_pipe_read(const sig_handler_t* handler)
+static int sig_pipe_read(const struct sig_handler* handler)
 {
     return handler->pipe[0];
 }
 
-static int sig_pipe_write(const sig_handler_t* handler)
+static int sig_pipe_write(const struct sig_handler* handler)
 {
     return handler->pipe[1];
 }

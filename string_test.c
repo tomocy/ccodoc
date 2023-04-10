@@ -15,7 +15,7 @@ static int expect_str_starts_with(const char* file, int line, const char* str, c
 static int expect_encode_char_utf8(const char* file, int line, uint32_t code, const char* expected);
 #define EXPECT_ENCODE_CHAR_UTF8(code, expected) EXPECT_PASS(expect_encode_char_utf8(__FILE__, __LINE__, code, expected))
 
-static int expect_decode_char_utf8(const char* file, int line, const char* src, char_descriptor_t expected);
+static int expect_decode_char_utf8(const char* file, int line, const char* src, struct char_descriptor expected);
 #define EXPECT_DECODE_CHAR_UTF8(src, expected) EXPECT_PASS(expect_decode_char_utf8(__FILE__, __LINE__, src, expected))
 
 int test_str(void)
@@ -109,7 +109,7 @@ int test_str(void)
 
         static const struct test {
             const char* src;
-            char_descriptor_t expected;
+            struct char_descriptor expected;
         } tests[] = {
             (struct test) {
                 .src = "あ",
@@ -204,9 +204,9 @@ static int expect_encode_char_utf8(const char* const file, const int line, const
     return passes ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static int expect_decode_char_utf8(const char* const file, const int line, const char* const src, const char_descriptor_t expected)
+static int expect_decode_char_utf8(const char* const file, const int line, const char* const src, const struct char_descriptor expected)
 {
-    const char_descriptor_t actual = decode_char_utf8(src);
+    const struct char_descriptor actual = decode_char_utf8(src);
 
     char label[1 << 5] = { 0 };
     (void)snprintf(label, sizeof(label), "%.*s", expected.len, src);

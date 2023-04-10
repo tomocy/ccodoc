@@ -4,9 +4,9 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define CLAMP(min, max, x) MIN(MAX(x, min), max)
 
-typedef struct {
+struct vec2d {
     unsigned int x;
     unsigned int y;
-} vec2d_t;
+};
 
-extern vec2d_t vec2d_add(vec2d_t vector, vec2d_t other);
+extern struct vec2d vec2d_add(struct vec2d vector, struct vec2d other);

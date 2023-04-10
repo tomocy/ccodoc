@@ -5,28 +5,28 @@
 #include "renderer.h"
 #include "time.h"
 
-typedef struct {
-    sig_handler_t* sig_handler;
-} mode_ctx_t;
+struct mode_ctx {
+    struct sig_handler* sig_handler;
+};
 
-typedef enum {
+enum mode_type {
     mode_wabi,
     mode_sabi,
-} ccodoc_mode_type_t;
+};
 
-typedef struct {
+struct mode {
     bool ornamental;
     bool debug;
 
-    ccodoc_t ccodoc;
-    tick_timer_t timer;
+    struct ccodoc ccodoc;
+    struct timer timer;
 
     struct {
-        renderer_t renderer;
+        struct renderer renderer;
         struct {
-            canvas_t value;
-            canvas_curses_t delegate;
-            canvas_proxy_t proxy;
+            struct canvas value;
+            struct canvas_curses delegate;
+            struct canvas_proxy proxy;
         } canvas;
     } rendering;
 
@@ -35,10 +35,10 @@ typedef struct {
         const char* tsutsu_bump;
         const char* uguisu_call;
     } sound;
-} ccodoc_mode_t;
+};
 
-extern void init_mode(ccodoc_mode_t* mode);
-extern void deinit_mode(ccodoc_mode_t* mode);
+extern void init_mode(struct mode* mode);
+extern void deinit_mode(struct mode* mode);
 
-extern void run_mode_wabi(const mode_ctx_t* ctx, ccodoc_mode_t* mode);
-extern void run_mode_sabi(const mode_ctx_t* ctx, ccodoc_mode_t* mode);
+extern void run_mode_wabi(const struct mode_ctx* ctx, struct mode* mode);
+extern void run_mode_sabi(const struct mode_ctx* ctx, struct mode* mode);
