@@ -259,8 +259,8 @@ const char* catch_sig(const struct sig_handler* const handler, unsigned int* con
 
             errno = 0;
             const struct timespec timeout = { 0 };
-            const int status = pselect(pipe + 1, &fds_read, NULL, NULL, &timeout, NULL);
-            if (status < 0) {
+            const int n = pselect(pipe + 1, &fds_read, NULL, NULL, &timeout, NULL);
+            if (n < 0) {
                 if (errno == EINTR || errno == EAGAIN) {
                     continue;
                 }
@@ -268,7 +268,7 @@ const char* catch_sig(const struct sig_handler* const handler, unsigned int* con
                 return format_str("failed to select signal pipe: %d", errno);
             }
 
-            if (status == 0 || FD_ISSET(pipe, &fds_read) == 0) {
+            if (n == 0 || !FD_ISSET(pipe, &fds_read)) {
                 *caught = false;
                 return NULL;
             }

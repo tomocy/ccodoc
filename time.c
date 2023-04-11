@@ -119,7 +119,7 @@ struct duration duration_from_moment(const struct moment moment)
 struct duration duration_diff(const struct duration duration, const struct duration other)
 {
     return (struct duration) {
-        .msecs = duration.msecs >= other.msecs ? duration.msecs - other.msecs : 0,
+        .msecs = duration.msecs > other.msecs ? duration.msecs - other.msecs : 0,
     };
 }
 

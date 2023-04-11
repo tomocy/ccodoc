@@ -260,7 +260,7 @@ static bool process_sabi(struct mode* const mode, const struct duration delta)
         }
     });
 
-    // Stop the water flow since the kakehi has released the last drop of water to fill up the tsutsu,
+    // Stop the water flow now that the kakehi has released the last drop of water to fill up the tsutsu within the timer duration,
     ccodoc->kakehi.disabled = get_remaining_time(&mode->timer).msecs <= ccodoc->kakehi.releasing_water.duration.msecs
         && ccodoc->kakehi.state == releasing_water;
 
@@ -292,8 +292,8 @@ static struct drawing_ctx make_drawing_ctx_center(const struct canvas* const can
 
     struct drawing_ctx ctx = {
         .origin = {
-            .x = (canvas_size.x - ccodoc_size.x) / 2,
-            .y = (canvas_size.y - ccodoc_size.y) / 2,
+            .x = canvas_size.x > ccodoc_size.x ? (canvas_size.x - ccodoc_size.x) / 2 : 0,
+            .y = canvas_size.y > ccodoc_size.y ? (canvas_size.y - ccodoc_size.y) / 2 : 0,
         },
     };
     ctx.current = ctx.origin;
