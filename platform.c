@@ -173,7 +173,7 @@ void run_cmd(const char* const path, const char* const* const args)
 #endif
 }
 
-static const char* prepare_sig_set(sigset_t* sig_set, unsigned int* sigs, size_t len);
+static const char* init_sig_set(sigset_t* sig_set, unsigned int* sigs, size_t len);
 static bool watches_sig(const struct sig_handler* const handler, unsigned int sig);
 static void* wait_sigs(const struct sig_handler* const handler);
 
@@ -182,6 +182,34 @@ static const char* write_sig(const struct sig_handler* const handler, const unsi
 static int sig_pipe_read(const struct sig_handler* handler);
 static int sig_pipe_write(const struct sig_handler* handler);
 
+static int init_pipe(int* const dst)
+{
+#if PLATFORM != PLATFORM_MACOS
+    return pipe2(dst, O_CLOEXEC);
+#else
+    {
+        const int status = pipe(dst);
+        if (status != 0) {
+            return status;
+        }
+    }
+    {
+        const int status = fcntl(dst[0], F_SETFD, FD_CLOEXEC);
+        if (status != 0) {
+            return status;
+        }
+    }
+    {
+        const int status = fcntl(dst[1], F_SETFD, FD_CLOEXEC);
+        if (status != 0) {
+            return status;
+        }
+    }
+
+    return EXIT_SUCCESS;
+#endif
+}
+
 const char* watch_sigs(struct sig_handler* const handler, unsigned int* const sigs, const size_t len)
 {
     handler->sigs.values = sigs;
@@ -189,36 +217,15 @@ const char* watch_sigs(struct sig_handler* const handler, unsigned int* const si
 
     {
         errno = 0;
-#if PLATFORM != PLATFORM_MACOS
-        const int status = pipe2(handler->pipe, O_CLOEXEC);
+        const int status = init_pipe(handler->pipe);
         if (status != 0) {
             return format_str("failed to init pipe: %d", errno);
         }
-#else
-        {
-            const int status = pipe(handler->pipe);
-            if (status != 0) {
-                return format_str("failed to init pipe: %d", errno);
-            }
-        }
-        {
-            const int status = fcntl(handler->pipe[0], F_SETFD, FD_CLOEXEC);
-            if (status != 0) {
-                return format_str("failed to init pipe: %d", errno);
-            }
-        }
-        {
-            const int status = fcntl(handler->pipe[1], F_SETFD, FD_CLOEXEC);
-            if (status != 0) {
-                return format_str("failed to init pipe: %d", errno);
-            }
-        }
-#endif
     }
 
     sigset_t sig_set = { 0 };
     {
-        const char* const err = prepare_sig_set(&sig_set, sigs, len);
+        const char* const err = init_sig_set(&sig_set, sigs, len);
         if (err != NULL) {
             const char* const err2 = format_str("failed to prepare signal set: %s", err);
             free((void*)err);
@@ -292,7 +299,7 @@ const char* catch_sig(const struct sig_handler* const handler, unsigned int* con
     return NULL;
 }
 
-static const char* prepare_sig_set(sigset_t* const sig_set, unsigned int* const sigs, const size_t len)
+static const char* init_sig_set(sigset_t* const sig_set, unsigned int* const sigs, const size_t len)
 {
     {
         errno = 0;
@@ -335,7 +342,7 @@ static bool watches_sig(const struct sig_handler* const handler, const unsigned 
 static void* wait_sigs(const struct sig_handler* const handler)
 {
     sigset_t sig_set = { 0 };
-    prepare_sig_set(&sig_set, handler->sigs.values, handler->sigs.len);
+    init_sig_set(&sig_set, handler->sigs.values, handler->sigs.len);
 
     while (true) {
         unsigned int sig = 0;

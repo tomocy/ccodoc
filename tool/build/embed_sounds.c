@@ -103,7 +103,7 @@ static const char* read_file(char** const data, size_t* const len, const char* c
         return "failed to open buffer";
     }
 
-    while (1) {
+    while (true) {
         char buf[1 << 12] = { 0 };
         const size_t n_read = fread(buf, sizeof(char), sizeof(buf), src);
         if (n_read == 0) {
