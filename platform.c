@@ -44,16 +44,16 @@ const char* get_user_cache_dir(void)
 
 const char* get_dir(const char* path)
 {
+    // According to dirname(3)（https://man7.org/linux/man-pages/man3/dirname.3p.html）,
+    // dirname can modify both the given path and the return value.
+    // Especially, the return value may be overwritten by subsequent calls, which is error-prune.
+    // To avois such behaviour, copy values before use.
+
     char* const path2 = copy_str(path);
     const char* const dir = dirname(path2);
     if ((void*)dir == (void*)path2) {
         return path2;
     }
-
-    // Some platform such as MacOS (https://opensource.apple.com/source/Libc/Libc-391/gen/FreeBSD/dirname.c)
-    // returns the directory name using the same address instead of the given one.
-    // This causes the next dirname call to overwrite the previous result, which is error-prune.
-    // To avoid this, copy the result to the different address and return it.
 
     const char* const dir2 = copy_str(dir);
     free((void*)path2);
