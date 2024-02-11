@@ -85,7 +85,11 @@ static const char* configure(struct config* const config, const unsigned int arg
             if (raw == NULL) {
                 return config_err_no_value_specified("sabi");
             }
-            if (strlen(raw) != 5 /* HH:mm */) {
+            if (
+                /* simple-check if the raw adheres to HH:mm */
+                strlen(raw) != 5
+                || raw[2] != ':'
+            ) {
                 return format_str("timer: duration format must be HH:mm");
             }
 
