@@ -1,8 +1,5 @@
-#include "canvas.h"
-#include "ccodoc.h"
 #include "mode.h"
 #include "platform.h"
-#include "renderer.h"
 #include "string.h"
 #include "time.h"
 #include <signal.h>
@@ -88,18 +85,26 @@ static const char* configure(struct config* const config, const unsigned int arg
             if (raw == NULL) {
                 return config_err_no_value_specified("sabi");
             }
-
-            struct moment m = { 0 };
-            // NOLINTNEXTLINE(cert-err34-c)
-            (void)sscanf(raw, "%d:%d", &m.hours, &m.mins);
-
-            const struct duration d = duration_from_moment(m);
-            if (d.msecs == 0) {
+            if (strlen(raw) != 5 /* HH:mm */) {
                 return format_str("timer: duration format must be HH:mm");
             }
 
+            struct moment moment = { 0 };
+            // NOLINTNEXTLINE(cert-err34-c)
+            (void)sscanf(raw, "%2d:%2d", &moment.hours, &moment.mins);
+
+            const struct duration min_duration = duration_from_moment(
+                (struct moment) {
+                    .mins = 1,
+                }
+            );
+            const struct duration duration = duration_from_moment(moment);
+            if (duration.msecs < min_duration.msecs) {
+                return format_str("timer: duration must be >= 00:01");
+            }
+
             config->mode.type = mode_sabi;
-            config->mode.value->timer.duration = d;
+            config->mode.value->timer.duration = duration;
 
             continue;
         }
