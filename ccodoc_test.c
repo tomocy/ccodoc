@@ -1,6 +1,7 @@
 #include "ccodoc.h"
 
 #include "test.h"
+#include <stdio.h>
 
 struct ccodoc_state {
     struct kakehi_state {

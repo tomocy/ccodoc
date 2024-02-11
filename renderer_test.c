@@ -1,6 +1,7 @@
 #include "renderer.h"
 
 #include "math.h"
+#include "string.h"
 #include "test.h"
 #include "time.h"
 #include <assert.h>

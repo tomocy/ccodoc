@@ -1,8 +1,6 @@
 #pragma once
 
-#include "ccodoc.h"
 #include "math.h"
-#include "string.h"
 #include <curses.h>
 
 enum color {

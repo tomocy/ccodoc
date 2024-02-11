@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include <time.h>
+#include <time.h> // IWYU pragma: export
 
 enum time_precision {
     time_msec = 1,

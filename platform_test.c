@@ -2,6 +2,7 @@
 
 #include "string.h"
 #include "test.h"
+#include <stdio.h>
 
 static int expect_join_paths(const char* file, int line, const char* const* paths, const char* expected);
 #define EXPECT_JOIN_PATHS(paths, expected) EXPECT_PASS(expect_join_paths(__FILE__, __LINE__, paths, expected))

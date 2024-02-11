@@ -1,9 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
-#include <string.h>
+#include <string.h> // IWYU pragma: export
 
 struct char_descriptor {
     uint32_t code;

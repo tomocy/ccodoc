@@ -1,7 +1,6 @@
 #pragma once
 
 #include "canvas.h"
-
 #include "ccodoc.h"
 
 struct renderer {

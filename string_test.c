@@ -1,7 +1,7 @@
 #include "string.h"
 
 #include "test.h"
-#include <string.h>
+#include <stdio.h>
 
 static int expect_str_equals(const char* file, int line, const char* str, const char* other, bool expected);
 #define EXPECT_STR_EQUALS(str, other, expected) EXPECT_PASS(expect_str_equals(__FILE__, __LINE__, str, other, expected))

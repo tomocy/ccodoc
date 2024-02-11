@@ -2,6 +2,7 @@
 
 #include "math.h"
 #include "memory.h"
+#include "string.h"
 #include <curses.h>
 #include <locale.h>
 #include <stdarg.h>

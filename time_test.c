@@ -1,6 +1,7 @@
 #include "time.h"
 
 #include "test.h"
+#include <stdio.h>
 
 struct timer_state {
     float get_elapsed_time_ratio;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #define BOOL_TO_STR(x) (x) ? "true" : "false"
