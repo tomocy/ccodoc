@@ -3,7 +3,14 @@ ccodoc_test
 **/*.o
 **/*.exe
 
-.vscode/settings.json
 compile_flags.txt
 
+# VSCode
+.vscode/settings.json
+
+# XCode
+*.xcodeproj/*
+!*.xcodeproj/*.pbxproj
+
+# Others
 .DS_Store
