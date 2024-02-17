@@ -15,33 +15,25 @@ class RunCcodoc: Thread {
         NSLog("ccodoc: Started")
     }
 
-    override func cancel() {
-        do {
-            do {
-                var error: NSDictionary?
-                Self.stopScript.executeAndReturnError(&error)
-                if error != nil {
-                    return
-                }
-            }
+    override func main() {
+        let result = AppleScript.result(from: Self.startScript.run)
+        switch result {
+        case .success:
+            NSLog("ccodoc: Completed")
+            completion?()
+        case .failure(let error):
+            NSLog("ccodoc: Error: {Reason: \(error)}")
         }
-
-        NSLog("ccodoc: Canceled")
-
-        super.cancel()
     }
 
-    override func main() {
-        do {
-            var error: NSDictionary?
-            Self.startScript.executeAndReturnError(&error)
-            if error != nil {
-                return
-            }
+    override func cancel() {
+        let result = AppleScript.result(from: Self.stopScript.run)
+        if case .failure(let error) = result {
+            NSLog("ccodoc: Error: {Reason: \(error)}")
         }
-
-        NSLog("ccodoc: Completed")
-        completion?()
+        
+        NSLog("ccodoc: Canceled")
+        super.cancel()
     }
 
     private var completion: Handler?
@@ -49,11 +41,11 @@ class RunCcodoc: Thread {
 
 extension RunCcodoc {
     private static let name = "ccodoc"
-
-    private static var startScript: NSAppleScript {
+    
+    private static var startScript: AppleScript {
         let executablePath = Bundle.main.path(forAuxiliaryExecutable: "\(name).command")!
 
-        let script = NSAppleScript.init(
+        let script = AppleScript.init(
             source: """
             tell application "Terminal"
                 activate
@@ -72,22 +64,15 @@ extension RunCcodoc {
                 do script "exit" in currentTab
             end tell
             """
-        )!
+        )
 
-        do {
-            var error: NSDictionary?
-            let compiled = script.compileAndReturnError(&error)
-            if let error = error {
-                NSLog("error: \(error)")
-                assert(compiled)
-            }
-        }
+        try! script.compile()
 
         return script
     }
 
-    private static var stopScript: NSAppleScript {
-        let script = NSAppleScript.init(
+    private static var stopScript: AppleScript {
+        let script = AppleScript.init(
             source: """
             tell application "Terminal"
                 set myWindows to my filterListByClass(windows as list, window)
@@ -113,16 +98,9 @@ extension RunCcodoc {
                 return filtered
             end filterListByClass
             """
-        )!
+        )
 
-        do {
-            var error: NSDictionary?
-            let compiled = script.compileAndReturnError(&error)
-            if let error = error {
-                NSLog("error: \(error)")
-                assert(compiled)
-            }
-        }
+        try! script.compile()
 
         return script
     }

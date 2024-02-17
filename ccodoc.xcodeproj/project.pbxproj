@@ -11,6 +11,7 @@
 		F52641E22B7F651F00BB540F /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52641E12B7F651F00BB540F /* main.swift */; };
 		F557AFFE2B809950005CD00D /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = F557AFFD2B809950005CD00D /* App.swift */; };
 		F557B0002B809960005CD00D /* RunCcodoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = F557AFFF2B809960005CD00D /* RunCcodoc.swift */; };
+		F557B0022B80BC4C005CD00D /* AppleScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = F557B0012B80BC4C005CD00D /* AppleScript.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +38,7 @@
 		F52641E92B7F7B4D00BB540F /* ccodoc.command */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ccodoc.command; sourceTree = BUILT_PRODUCTS_DIR; };
 		F557AFFD2B809950005CD00D /* App.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		F557AFFF2B809960005CD00D /* RunCcodoc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RunCcodoc.swift; sourceTree = "<group>"; };
+		F557B0012B80BC4C005CD00D /* AppleScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleScript.swift; sourceTree = "<group>"; };
 		F5A6A6A42B7E684A00EB8014 /* env_linux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = env_linux.h; sourceTree = "<group>"; };
 		F5A6A6A52B7E684A00EB8014 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		F5A6A6A62B7E684A00EB8014 /* memory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				F557AFFF2B809960005CD00D /* RunCcodoc.swift */,
+				F557B0012B80BC4C005CD00D /* AppleScript.swift */,
 				F557AFFD2B809950005CD00D /* App.swift */,
 				F52641E12B7F651F00BB540F /* main.swift */,
 				F5B6A55D2B7FB9A30002287A /* app.entitlements */,
@@ -340,6 +343,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F557B0002B809960005CD00D /* RunCcodoc.swift in Sources */,
+				F557B0022B80BC4C005CD00D /* AppleScript.swift in Sources */,
 				F557AFFE2B809950005CD00D /* App.swift in Sources */,
 				F52641E22B7F651F00BB540F /* main.swift in Sources */,
 			);
