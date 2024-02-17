@@ -1,5 +1,5 @@
-ccodoc
-ccodoc_test
+/ccodoc
+/ccodoc_test
 **/*.o
 **/*.exe
 
@@ -9,8 +9,8 @@ compile_flags.txt
 .vscode/settings.json
 
 # XCode
-*.xcodeproj/*
-!*.xcodeproj/*.pbxproj
+xcode/*.xcodeproj/*
+!xcode/*.xcodeproj/*.pbxproj
 
 # Others
 .DS_Store

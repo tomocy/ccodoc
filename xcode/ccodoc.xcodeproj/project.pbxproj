@@ -1,0 +1,536 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F557B0672B80FADD005CD00D /* RunCcodoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = F557B0622B80FADD005CD00D /* RunCcodoc.swift */; };
+		F557B0682B80FADD005CD00D /* AppleScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = F557B0632B80FADD005CD00D /* AppleScript.swift */; };
+		F557B0692B80FADD005CD00D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F557B0642B80FADD005CD00D /* Assets.xcassets */; };
+		F557B06A2B80FADD005CD00D /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = F557B0652B80FADD005CD00D /* App.swift */; };
+		F557B06B2B80FADD005CD00D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F557B0662B80FADD005CD00D /* main.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F557B07E2B80FE36005CD00D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F557B0432B80F9B0005CD00D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F557B0762B80FDD2005CD00D;
+			remoteInfo = command;
+		};
+		F557B0802B80FE58005CD00D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F557B0432B80F9B0005CD00D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F557B06D2B80FCD1005CD00D;
+			remoteInfo = raw;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		F557B04B2B80F9B0005CD00D /* ccodoc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ccodoc.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F557B0622B80FADD005CD00D /* RunCcodoc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RunCcodoc.swift; sourceTree = "<group>"; };
+		F557B0632B80FADD005CD00D /* AppleScript.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppleScript.swift; sourceTree = "<group>"; };
+		F557B0642B80FADD005CD00D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F557B0652B80FADD005CD00D /* App.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
+		F557B0662B80FADD005CD00D /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		F557B06C2B80FC5D005CD00D /* ccodoc.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ccodoc.entitlements; sourceTree = "<group>"; };
+		F557B0772B80FDD2005CD00D /* ccodoc.command */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ccodoc.command; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		F557B0422B80F9B0005CD00D = {
+			isa = PBXGroup;
+			children = (
+				F557B05D2B80FA54005CD00D /* ccodoc */,
+				F557B0782B80FDD2005CD00D /* command */,
+				F557B04C2B80F9B0005CD00D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F557B04C2B80F9B0005CD00D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F557B04B2B80F9B0005CD00D /* ccodoc.app */,
+				F557B0772B80FDD2005CD00D /* ccodoc.command */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F557B05D2B80FA54005CD00D /* ccodoc */ = {
+			isa = PBXGroup;
+			children = (
+				F557B06C2B80FC5D005CD00D /* ccodoc.entitlements */,
+				F557B0652B80FADD005CD00D /* App.swift */,
+				F557B0632B80FADD005CD00D /* AppleScript.swift */,
+				F557B0642B80FADD005CD00D /* Assets.xcassets */,
+				F557B0662B80FADD005CD00D /* main.swift */,
+				F557B0622B80FADD005CD00D /* RunCcodoc.swift */,
+			);
+			path = ccodoc;
+			sourceTree = "<group>";
+		};
+		F557B0782B80FDD2005CD00D /* command */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = command;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		F557B06D2B80FCD1005CD00D /* raw */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = ccodoc;
+			buildConfigurationList = F557B06E2B80FCD1005CD00D /* Build configuration list for PBXLegacyTarget "raw" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = "$(PROJECT_ROOT)";
+			dependencies = (
+			);
+			name = raw;
+			passBuildSettingsInEnvironment = 1;
+			productName = raw;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXNativeTarget section */
+		F557B04A2B80F9B0005CD00D /* ccodoc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F557B05A2B80F9B3005CD00D /* Build configuration list for PBXNativeTarget "ccodoc" */;
+			buildPhases = (
+				F557B0472B80F9B0005CD00D /* Sources */,
+				F557B0492B80F9B0005CD00D /* Resources */,
+				F557B0832B810361005CD00D /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F557B07F2B80FE36005CD00D /* PBXTargetDependency */,
+			);
+			name = ccodoc;
+			productName = ccodoc;
+			productReference = F557B04B2B80F9B0005CD00D /* ccodoc.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F557B0762B80FDD2005CD00D /* command */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F557B07B2B80FDD3005CD00D /* Build configuration list for PBXNativeTarget "command" */;
+			buildPhases = (
+				F557B0822B80FEA2005CD00D /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F557B0812B80FE58005CD00D /* PBXTargetDependency */,
+			);
+			name = command;
+			productName = command;
+			productReference = F557B0772B80FDD2005CD00D /* ccodoc.command */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F557B0432B80F9B0005CD00D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					F557B04A2B80F9B0005CD00D = {
+						CreatedOnToolsVersion = 15.2;
+						LastSwiftMigration = 1520;
+					};
+					F557B06D2B80FCD1005CD00D = {
+						CreatedOnToolsVersion = 15.2;
+					};
+					F557B0762B80FDD2005CD00D = {
+						CreatedOnToolsVersion = 15.2;
+					};
+				};
+			};
+			buildConfigurationList = F557B0462B80F9B0005CD00D /* Build configuration list for PBXProject "ccodoc" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F557B0422B80F9B0005CD00D;
+			productRefGroup = F557B04C2B80F9B0005CD00D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F557B04A2B80F9B0005CD00D /* ccodoc */,
+				F557B0762B80FDD2005CD00D /* command */,
+				F557B06D2B80FCD1005CD00D /* raw */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F557B0492B80F9B0005CD00D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F557B0692B80FADD005CD00D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F557B0822B80FEA2005CD00D /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(PROJECT_ROOT)/ccodoc",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${BUILT_PRODUCTS_DIR}/ccodoc.command",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "printf \"# Copy raw binary files\\n\"\n\nprintf \"## ccodoc -> ccodoc.command\\n\"\nCOMMAND_PATH_SRC=\"${PROJECT_ROOT}/ccodoc\"\nCOMMAND_PATH=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}\"\ncp \"${COMMAND_PATH_SRC}\" \"${COMMAND_PATH}\"\nls -al \"${COMMAND_PATH}\"\n";
+		};
+		F557B0832B810361005CD00D /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(LIB_NCURSES_PATH)",
+				"$(BUILT_PRODUCTS_DIR)/$(COMMAND_PRODUCT_NAME)",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/$(NCURSES_PRODUCT_NAME)",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_FOLDER_PATH)/$(COMMAND_PRODUCT_NAME)",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "printf \"# Embed products\\n\"\nCONTENTS_PATH=\"${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}\"\nrealpath \"${CONTENTS_PATH}\"\n\nprintf \"## Frameworks\\n\"\nFRAMEWORKS_PATH=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nmkdir -p \"${FRAMEWORKS_PATH}\"\nrealpath \"${FRAMEWORKS_PATH}\"\n\nprintf \"### libncurses.dylib\\n\"\nprintf \"%s\\n\" \"- Copy\"\nNCURSES_PATH_SRC=\"$(realpath ${LIB_NCURSES_PATH})\"\nNCURSES_PATH=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/${NCURSES_PRODUCT_NAME}\"\ncp \"${NCURSES_PATH_SRC}\" \"${NCURSES_PATH}\"\nrealpath \"${NCURSES_PATH}\"\n\nprintf \"%s\\n\" \"- CodeSign\"\ncodesign --sign \"${CODE_SIGN_IDENTITY}\" --force --options runtime \"${NCURSES_PATH}\"\ncodesign --display --verbose \"${NCURSES_PATH}\"\n\nprintf \"%s\\n\" \"---\"\nls \"${FRAMEWORKS_PATH}\"\nprintf \"%s\\n\" \"---\"\n\nprintf \"## Executables\\n\"\nEXECUTABLES_PATH=\"${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}\"\nrealpath \"${EXECUTABLES_PATH}\" \n\nprintf \"### ccodoc.command\\n\"\nprintf \"%s\\n\" \"- Copy\"\nCOMMAND_PATH_SRC=\"${BUILT_PRODUCTS_DIR}/${COMMAND_PRODUCT_NAME}\"\nCOMMAND_PATH=\"${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/${COMMAND_PRODUCT_NAME}\"\ncp \"${COMMAND_PATH_SRC}\" \"${COMMAND_PATH}\" \nrealpath \"${COMMAND_PATH}\"\n\nprintf \"%s\\n\" \"- Use Frameworks\"\ninstall_name_tool -change \"${LIB_NCURSES_PATH}\" \"@rpath/${NCURSES_PRODUCT_NAME}\" \"${COMMAND_PATH}\"\ninstall_name_tool -add_rpath \"${LD_RUN_PATH}\" \"${COMMAND_PATH}\"\notool -L \"${COMMAND_PATH}\" \n\nprintf \"%s\\n\" \"- CodeSign\"\ncodesign --sign \"${CODE_SIGN_IDENTITY}\" --force --options runtime \"${COMMAND_PATH}\"\ncodesign --display --verbose \"${COMMAND_PATH}\"\n\nprintf \"%s\\n\" \"---\"\nls \"${EXECUTABLES_PATH}\"\nprintf \"%s\\n\" \"---\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F557B0472B80F9B0005CD00D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F557B06A2B80FADD005CD00D /* App.swift in Sources */,
+				F557B0672B80FADD005CD00D /* RunCcodoc.swift in Sources */,
+				F557B06B2B80FADD005CD00D /* main.swift in Sources */,
+				F557B0682B80FADD005CD00D /* AppleScript.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F557B07F2B80FE36005CD00D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F557B0762B80FDD2005CD00D /* command */;
+			targetProxy = F557B07E2B80FE36005CD00D /* PBXContainerItemProxy */;
+		};
+		F557B0812B80FE58005CD00D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F557B06D2B80FCD1005CD00D /* raw */;
+			targetProxy = F557B0802B80FE58005CD00D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F557B0582B80F9B3005CD00D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PROJECT_ROOT = "$(SRCROOT)/..";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F557B0592B80F9B3005CD00D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PROJECT_ROOT = "$(SRCROOT)/..";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		F557B05B2B80F9B3005CD00D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ccodoc/ccodoc.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COMMAND_PRODUCT_NAME = "$(PROJECT_NAME).command";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7675C8B65F;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Terminal is used only to run ccodoc";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LD_RUN_PATH = "@executable_path/../Frameworks";
+				LIB_NCURSES_PATH = "/usr/local/opt/ncurses/lib/$(NCURSES_PRODUCT_NAME)";
+				MARKETING_VERSION = 1.0;
+				NCURSES_PRODUCT_NAME = libncursesw.6.dylib;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tomocy.ccodoc;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F557B05C2B80F9B3005CD00D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ccodoc/ccodoc.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COMMAND_PRODUCT_NAME = "$(PROJECT_NAME).command";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = 7675C8B65F;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Terminal is used only to run ccodoc";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LD_RUN_PATH = "@executable_path/../Frameworks";
+				LIB_NCURSES_PATH = "/usr/local/opt/ncurses/lib/$(NCURSES_PRODUCT_NAME)";
+				MARKETING_VERSION = 1.0;
+				NCURSES_PRODUCT_NAME = libncursesw.6.dylib;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tomocy.ccodoc;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F557B06F2B80FCD1005CD00D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ADD_LDFLAGS = "-L/usr/local/opt/ncurses/lib";
+				PRODUCT_NAME = "$(PROJECT_NAME).$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F557B0702B80FCD1005CD00D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ADD_LDFLAGS = "-L/usr/local/opt/ncurses/lib";
+				PRODUCT_NAME = "$(PROJECT_NAME).$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		F557B07C2B80FDD3005CD00D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7675C8B65F;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(PROJECT_NAME).$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F557B07D2B80FDD3005CD00D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = 7675C8B65F;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tomocy.ccodoc.command;
+				PRODUCT_NAME = "$(PROJECT_NAME).$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F557B0462B80F9B0005CD00D /* Build configuration list for PBXProject "ccodoc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F557B0582B80F9B3005CD00D /* Debug */,
+				F557B0592B80F9B3005CD00D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F557B05A2B80F9B3005CD00D /* Build configuration list for PBXNativeTarget "ccodoc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F557B05B2B80F9B3005CD00D /* Debug */,
+				F557B05C2B80F9B3005CD00D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F557B06E2B80FCD1005CD00D /* Build configuration list for PBXLegacyTarget "raw" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F557B06F2B80FCD1005CD00D /* Debug */,
+				F557B0702B80FCD1005CD00D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F557B07B2B80FDD3005CD00D /* Build configuration list for PBXNativeTarget "command" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F557B07C2B80FDD3005CD00D /* Debug */,
+				F557B07D2B80FDD3005CD00D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F557B0432B80F9B0005CD00D /* Project object */;
+}
