@@ -47,7 +47,7 @@ const char* get_dir(const char* path)
     // According to dirname(3)（https://man7.org/linux/man-pages/man3/dirname.3p.html）,
     // dirname can modify both the given path and the return value.
     // Especially, the return value may be overwritten by subsequent calls, which is error-prune.
-    // To avois such behaviour, copy values before use.
+    // To avoid such behaviour, copy values before use.
 
     char* const path2 = copy_str(path);
     const char* const dir = dirname(path2);
