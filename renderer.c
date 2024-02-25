@@ -29,26 +29,32 @@ void render_ccodoc(struct renderer* const renderer, struct drawing_ctx* const ct
 
 static void render_kakehi(struct renderer* const renderer, struct drawing_ctx* const ctx, const struct kakehi* const kakehi)
 {
+    static const char* const art_ki = u8"━══"; // ki（起）
+    static const char* const art_sho = u8"═━═"; // sho（承）
+    static const char* const art_ten = u8"══━"; // ten（転）
+    static const char* const art_ketsu = u8"═══"; // ketsu（結）
+
     const char* art = NULL;
+
     switch (kakehi->state) {
     case holding_water: {
-        static const float holding_ratio1 = 1.0f / 3 * 1;
-        static const float holding_ratio2 = 1.0f / 3 * 2;
+        static const float holding_ratio_sho = 1.0f / 3 * 1;
+        static const float holding_ratio_ten = 1.0f / 3 * 2;
 
         const float ratio = get_action_progress_ratio(&kakehi->holding_water);
 
-        if (0 <= ratio && ratio < holding_ratio1) {
-            art = "━══";
-        } else if (holding_ratio1 <= ratio && ratio < holding_ratio2) {
-            art = "═━═";
+        if (0 <= ratio && ratio < holding_ratio_sho) {
+            art = art_ki;
+        } else if (holding_ratio_sho <= ratio && ratio < holding_ratio_ten) {
+            art = art_sho;
         } else {
-            art = "══━";
+            art = art_ten;
         }
 
         break;
     }
     case releasing_water:
-        art = "═══";
+        art = art_ketsu;
         break;
     }
 
@@ -58,7 +64,7 @@ static void render_kakehi(struct renderer* const renderer, struct drawing_ctx* c
         int i = 0;
         for (const char* c = art; *c;) {
             const struct char_descriptor desc = decode_char_utf8(c);
-            const bool has_water = str_equals_n(c, "━", desc.len);
+            const bool has_water = str_equals_n(c, u8"━", desc.len);
 
             drawf_canvas(
                 renderer,
@@ -83,26 +89,26 @@ static void render_tsutsu(struct renderer* const renderer, struct drawing_ctx* c
 
     // jo (序)
     static const char* const art_jo[] = {
-        "◥◣",
-        "  ◥◣",
-        "  ▕ ◥◣",
-        "  ▕   ◥◣",
+        u8"◥◣",
+        u8"  ◥◣",
+        u8"  ▕ ◥◣",
+        u8"  ▕   ◥◣",
     };
 
     // ha (破)
     static const char* const art_ha[] = {
-        "",
-        "◢◤◢◤◢◤◢◤",
-        "  ▕ ",
-        "  ▕ ",
+        u8"",
+        u8"◢◤◢◤◢◤◢◤",
+        u8"  ▕ ",
+        u8"  ▕ ",
     };
 
     // kyu (急)
     static const char* const art_kyu[] = {
-        "      ◢◤",
-        "    ◢◤",
-        "  ◢◤",
-        "◢◤▕",
+        u8"      ◢◤",
+        u8"    ◢◤",
+        u8"  ◢◤",
+        u8"◢◤▕",
     };
 
     const char* const* art = NULL;
@@ -147,15 +153,15 @@ static void render_tsutsu(struct renderer* const renderer, struct drawing_ctx* c
             struct drawing_attr attr = (struct drawing_attr) { .color = color_white };
 
             if (
-                str_equals_n(c, "◥", desc.len)
-                || str_equals_n(c, "◣", desc.len)
-                || str_equals_n(c, "◢", desc.len)
-                || str_equals_n(c, "◤", desc.len)
+                str_equals_n(c, u8"◥", desc.len)
+                || str_equals_n(c, u8"◣", desc.len)
+                || str_equals_n(c, u8"◢", desc.len)
+                || str_equals_n(c, u8"◤", desc.len)
             ) {
                 attr.color = color_green;
             }
 
-            if (str_equals_n(c, "▕", desc.len)) {
+            if (str_equals_n(c, u8"▕", desc.len)) {
                 attr.color = color_yellow;
             }
 
@@ -178,21 +184,25 @@ static void render_hachi(struct renderer* const renderer, struct drawing_ctx* co
 {
     static const unsigned int art_width = 4;
 
+    static const char* const art_jo = u8"▭▭▭▭";
+    static const char* const art_ha = u8"▭▬▬▭";
+    static const char* const art_kyu = u8"▬▭▭▬";
+
     const char* art = NULL;
 
     switch (hachi->state) {
     case holding_water:
-        art = "▭▭▭▭";
+        art = art_jo;
         break;
     case releasing_water: {
         float ratio = get_action_progress_ratio(&hachi->releasing_water);
 
         if (ratio < 0.35) {
-            art = "▭▬▬▭";
+            art = art_ha;
         } else if (ratio < 0.65) {
-            art = "▬▭▭▬";
+            art = art_kyu;
         } else {
-            art = "▭▭▭▭";
+            art = art_jo;
         }
 
         break;
@@ -204,7 +214,7 @@ static void render_hachi(struct renderer* const renderer, struct drawing_ctx* co
         const char* c = art;
         while (*c) {
             const struct char_descriptor desc = decode_char_utf8(c);
-            const bool has_water = str_equals_n(c, "▬", desc.len);
+            const bool has_water = str_equals_n(c, u8"▬", desc.len);
 
             drawf_canvas(
                 renderer,
